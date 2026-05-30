@@ -17,7 +17,7 @@ function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
       </div>
       <h3 className="text-lg font-semibold text-ink">No tienes metas aún</h3>
       <p className="mt-1.5 text-sm text-ink-muted">Crea tu primera meta colaborativa y empieza a ahorrar en grupo.</p>
-      <button type="button" onClick={onCreateClick} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-[#0a0e14] shadow-lg shadow-primary/20 transition-all hover:bg-primary-light active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-primary/30">
+      <button type="button" onClick={onCreateClick} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-[var(--bg)] shadow-lg shadow-primary/20 transition-all hover:bg-primary-light active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-primary/30">
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
         Crear meta
       </button>
