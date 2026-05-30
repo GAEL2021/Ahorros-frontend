@@ -74,13 +74,13 @@ export default function ShareCodeModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md rounded-lg border border-border bg-[#141820] shadow-xl animate-scale-in">
+      <div className="w-full max-w-md rounded-lg border border-border bg-surface shadow-xl animate-scale-in">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h3 className="text-base font-semibold text-ink">Compartir meta</h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1.5 text-ink-muted hover:bg-[#1a1e27] hover:text-ink transition-colors"
+            className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

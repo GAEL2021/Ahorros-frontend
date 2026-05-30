@@ -12,7 +12,7 @@ type StatusKey = 'PAGADO' | 'PARCIAL' | 'PENDIENTE'
 const STATUS_STYLE: Record<StatusKey, { bg: string; text: string; dot: string; label: string }> = {
   PAGADO: { bg: 'bg-success/10', text: 'text-emerald-700', dot: 'bg-emerald-500', label: 'Pagado' },
   PARCIAL: { bg: 'bg-accent-subtle', text: 'text-accent', dot: 'bg-accent', label: 'Parcial' },
-  PENDIENTE: { bg: 'bg-white/5', text: 'text-ink-muted', dot: 'bg-ink-muted', label: 'Pendiente' },
+  PENDIENTE: { bg: 'bg-ink/5', text: 'text-ink-muted', dot: 'bg-ink-muted', label: 'Pendiente' },
 }
 
 function MonthNames(monthNum: number): string {
@@ -25,7 +25,7 @@ export default function MovementsPanel({ goalId, totalMonths, members }: Movemen
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center rounded-lg border border-border bg-[#141820] px-4 py-8">
+      <div className="flex items-center justify-center rounded-lg border border-border bg-surface px-4 py-8">
         <div className="flex flex-col items-center gap-2">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-primary" />
           <p className="text-xs text-ink-muted">Cargando movimientos...</p>
@@ -57,9 +57,9 @@ export default function MovementsPanel({ goalId, totalMonths, members }: Movemen
   })
 
   return (
-    <div className="rounded-lg border border-border bg-[#141820]">
+    <div className="rounded-lg border border-border bg-surface">
       {/* Header with member summary */}
-      <div className="border-b border-border bg-[#1a1e27] px-5 py-3.5">
+      <div className="border-b border-border bg-surface-raised px-5 py-3.5">
         <h3 className="text-sm font-semibold text-ink">Movimientos</h3>
         <p className="mt-0.5 text-xs text-ink-muted">
           Historial de aportes por mes &middot; {totalMonths} {totalMonths === 1 ? 'mes' : 'meses'}
@@ -70,7 +70,7 @@ export default function MovementsPanel({ goalId, totalMonths, members }: Movemen
       <div className="border-b border-border-light px-5 py-3">
         <div className="grid gap-2.5 sm:grid-cols-2">
           {memberTotals.map((m) => (
-            <div key={m.email} className="rounded-lg border border-border bg-[#1a1e27] px-3 py-2.5">
+            <div key={m.email} className="rounded-lg border border-border bg-surface-raised px-3 py-2.5">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-semibold text-ink">{m.email.split('@')[0]}</span>
                 <span className="text-[10px] font-medium text-ink-muted">

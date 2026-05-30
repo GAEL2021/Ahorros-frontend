@@ -88,7 +88,7 @@ export default function GoalCard({ meta }: GoalCardProps) {
   const statusCfg = meta.estado === 'completado'
     ? { badge: 'bg-success/15 text-success border-success/20', label: 'Completada' }
     : meta.estado === 'cancelado'
-    ? { badge: 'bg-white/5 text-ink-muted border-border', label: 'Cancelada' }
+    ? { badge: 'bg-ink/5 text-ink-muted border-border', label: 'Cancelada' }
     : null
 
   const handleDelete = async () => {
@@ -131,7 +131,7 @@ export default function GoalCard({ meta }: GoalCardProps) {
                 {paceEmoji} {progressPct}%
               </span>
             </div>
-            <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
+            <div className="h-2 w-full rounded-full bg-ink/5 overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-1000 ease-out ${progressBar}`}
                 style={{ width: `${progressPct}%` }}
@@ -158,14 +158,14 @@ export default function GoalCard({ meta }: GoalCardProps) {
                 {miembros.slice(0, 5).map((m) => (
                   <div
                     key={m.email}
-                    className={`flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#0a0e14] text-[9px] font-bold text-white ring-1 ring-border ${m.rol === 'creador' ? 'bg-accent' : 'bg-accent-light'}`}
+                    className={`flex h-6 w-6 items-center justify-center rounded-full border-2 border-surface text-[9px] font-bold text-white ring-1 ring-border ${m.rol === 'creador' ? 'bg-accent' : 'bg-accent-light'}`}
                     title={`${m.email.split('@')[0]} — $${m.saldoAportado.toLocaleString()}`}
                   >
                     {m.email.charAt(0).toUpperCase()}
                   </div>
                 ))}
                 {miembros.length > 5 && (
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#0a0e14] bg-accent/15 text-[9px] font-semibold text-accent-light ring-1 ring-border">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-surface bg-accent/15 text-[9px] font-semibold text-accent-light ring-1 ring-border">
                     +{miembros.length - 5}
                   </div>
                 )}

@@ -21,7 +21,7 @@ function getHeatColor(estado: PaymentState): { bg: string; border: string; label
       return { bg: 'bg-accent-subtle', border: 'border-accent/30', label: 'Parcial', dot: 'bg-accent' }
     case 'PENDIENTE':
     default:
-      return { bg: 'bg-white/5', border: 'border-border', label: 'Pendiente', dot: 'bg-ink-muted' }
+      return { bg: 'bg-ink/5', border: 'border-border', label: 'Pendiente', dot: 'bg-ink-muted' }
   }
 }
 
@@ -34,7 +34,7 @@ export default function SharedPaymentCalendar({
 
   if (participants.length === 0) {
     return (
-      <div className="rounded-lg border border-border bg-[#1a1e27] px-6 py-10 text-center">
+      <div className="rounded-lg border border-border bg-surface-raised px-6 py-10 text-center">
         <svg className="mx-auto h-8 w-8 text-ink-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
@@ -44,8 +44,8 @@ export default function SharedPaymentCalendar({
   }
 
   return (
-    <div className="rounded-lg border border-border bg-[#141820]">
-      <div className="border-b border-border bg-[#1a1e27] px-5 py-3.5">
+    <div className="rounded-lg border border-border bg-surface">
+      <div className="border-b border-border bg-surface-raised px-5 py-3.5">
         <h3 className="text-sm font-semibold text-ink">Calendario de Pagos</h3>
         <p className="mt-0.5 text-xs text-ink-muted">
           Estado de cuotas mensuales &middot; {totalMonths} {totalMonths === 1 ? 'mes' : 'meses'}
@@ -57,7 +57,7 @@ export default function SharedPaymentCalendar({
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="sticky left-0 z-10 bg-[#141820] w-20 px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-ink-muted border-b border-border">
+              <th className="sticky left-0 z-10 bg-surface w-20 px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-ink-muted border-b border-border">
                 Mes
               </th>
               {participants.map((p) => (
@@ -77,7 +77,7 @@ export default function SharedPaymentCalendar({
           <tbody>
             {months.map((mes) => (
               <tr key={mes} className="group">
-                <td className="sticky left-0 z-10 bg-[#141820] px-4 py-2.5 border-b border-border-light group-hover:bg-[#1a1e27]">
+                <td className="sticky left-0 z-10 bg-surface px-4 py-2.5 border-b border-border-light group-hover:bg-surface-raised">
                   <span className="text-xs font-semibold tabular-nums text-ink">Mes {mes}</span>
                 </td>
                 {participants.map((p) => {
@@ -85,7 +85,7 @@ export default function SharedPaymentCalendar({
                   const estado = cuota?.estado ?? 'PENDIENTE'
                   const colors = getHeatColor(estado)
                   return (
-                    <td key={`${p.email}-${mes}`} className="px-1 py-2.5 text-center border-b border-border-light group-hover:bg-[#1a1e27]">
+                    <td key={`${p.email}-${mes}`} className="px-1 py-2.5 text-center border-b border-border-light group-hover:bg-surface-raised">
                       <span
                         className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[10px] font-semibold ${colors.bg} ${colors.border}`}
                         style={{ color: colors.dot.replace('bg-', '').replace('-500', '-700') }}
@@ -128,7 +128,7 @@ export default function SharedPaymentCalendar({
       </div>
 
       {/* Legend */}
-      <div className="border-t border-border bg-[#1a1e27] px-5 py-3">
+      <div className="border-t border-border bg-surface-raised px-5 py-3">
         <div className="flex flex-wrap items-center gap-4 text-[11px] text-ink-muted">
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-sm bg-emerald-500" />

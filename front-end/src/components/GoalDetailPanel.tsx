@@ -50,7 +50,7 @@ export default function GoalDetailPanel({ open, onClose, meta }: GoalDetailPanel
       {/* Panel */}
       <div
         ref={panelRef}
-        className="relative w-full max-w-lg bg-[#111620] border-l border-border shadow-2xl flex flex-col h-full animate-slide-up"
+        className="relative w-full max-w-lg bg-surface border-l border-border shadow-2xl flex flex-col h-full animate-slide-up"
         style={{ animation: 'sil-panel-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
       >
         {/* Panel header */}

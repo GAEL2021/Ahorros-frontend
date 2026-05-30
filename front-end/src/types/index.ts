@@ -231,6 +231,7 @@ export interface ChecklistItem {
   id: string
   texto: string
   monto: number
+  montoReal?: number
   completado: boolean
   orden: number
   creadoEn: string
@@ -244,4 +245,5 @@ export interface CreateChecklistItemPayload {
 export interface UpdateChecklistItemPayload {
   texto?: string
   completado?: boolean
+  montoReal?: number
 }

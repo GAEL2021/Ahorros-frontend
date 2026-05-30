@@ -210,7 +210,7 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
   const remaining = meta.montoObjetivo - meta.montoAcumulado
 
   return (
-    <div className="rounded-lg border border-border bg-[#141820] p-5">
+    <div className="rounded-lg border border-border bg-surface p-5">
       <div className="flex items-center justify-between mb-5">
         <div>
           <h3 className="text-sm font-semibold text-ink">Progreso de la Meta</h3>
@@ -244,13 +244,13 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
                 ${meta.montoAcumulado.toLocaleString()}
               </p>
             </div>
-            <div className="rounded-lg border border-border bg-[#1a1e27] px-3 py-2.5">
+            <div className="rounded-lg border border-border bg-surface-raised px-3 py-2.5">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Restante</span>
               <p className="mt-0.5 text-sm font-bold tabular-nums text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 ${remaining.toLocaleString()}
               </p>
             </div>
-            <div className="rounded-lg border border-border bg-[#1a1e27] px-3 py-2.5">
+            <div className="rounded-lg border border-border bg-surface-raised px-3 py-2.5">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">T. Transcurrido</span>
               <p className="mt-0.5 text-sm font-bold tabular-nums text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 {timePct}%
@@ -259,7 +259,7 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
           </div>
 
           {/* Money bars chart */}
-          <div className="rounded-lg border border-border bg-[#1a1e27] px-3 py-3">
+          <div className="rounded-lg border border-border bg-surface-raised px-3 py-3">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Ahorro acumulado vs Tiempo</span>
             <div className="mt-2">
               <MoneyBars

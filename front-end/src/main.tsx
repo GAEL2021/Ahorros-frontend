@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
 import { queryClient } from '@/lib/queryClient'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import SileoToaster from '@/components/SileoToaster'
 import App from '@/App'
 import './index.css'
@@ -13,8 +14,10 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <SileoToaster position="top-right" />
-          <App />
+          <ThemeProvider>
+            <SileoToaster position="top-right" />
+            <App />
+          </ThemeProvider>
         </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>

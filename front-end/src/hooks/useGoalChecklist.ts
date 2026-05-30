@@ -36,23 +36,27 @@ export function useToggleChecklistItem(goalId: string) {
   return useMutation<
     { id: string; completado: boolean },
     Error,
-    { itemId: string; newValue: boolean },
+    { itemId: string; newValue: boolean; montoReal?: number },
     { prev: ChecklistItem[] | undefined }
   >({
-    mutationFn: async ({ itemId, newValue }) => {
+    mutationFn: async ({ itemId, newValue, montoReal }) => {
+      const payload: Record<string, unknown> = { completado: newValue }
+      if (montoReal !== undefined) payload.montoReal = montoReal
       const { data } = await apiClient.patch<{ id: string; completado: boolean }>(
         `/goals/${goalId}/checklist/${itemId}`,
-        { completado: newValue },
+        payload,
       )
       return data
     },
-    onMutate: async ({ itemId, newValue }) => {
+    onMutate: async ({ itemId, newValue, montoReal }) => {
       await queryClient.cancelQueries({ queryKey: ['goal-checklist', goalId] })
       const prev = queryClient.getQueryData<ChecklistItem[]>(['goal-checklist', goalId])
       if (prev) {
         queryClient.setQueryData<ChecklistItem[]>(['goal-checklist', goalId], (old) =>
           old?.map((item) =>
-            item.id === itemId ? { ...item, completado: newValue } : item,
+            item.id === itemId
+              ? { ...item, completado: newValue, montoReal: montoReal ?? item.montoReal }
+              : item,
           ),
         )
       }

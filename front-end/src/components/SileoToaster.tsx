@@ -62,7 +62,7 @@ function typeColors(type: ToastInstance['type']): { bg: string; border: string; 
     case 'success': return { bg: 'bg-success/10', border: 'border-success/30', fill: '#d1fae5', dot: '#059669' }
     case 'error': return { bg: 'bg-danger/10', border: 'border-danger/30', fill: '#ffe4e6', dot: '#e11d48' }
     case 'warning': return { bg: 'bg-amber-50', border: 'border-amber-200', fill: '#fef3c7', dot: '#d97706' }
-    case 'loading': return { bg: 'bg-[#141820]', border: 'border-primary/20', fill: '#ccfbf1', dot: '#0d7c7c' }
+    case 'loading': return { bg: 'bg-surface', border: 'border-primary/20', fill: '#ccfbf1', dot: '#0d7c7c' }
     case 'info': return { bg: 'bg-primary/10', border: 'border-primary/20', fill: '#e0f2fe', dot: '#0284c7' }
     case 'action': return { bg: 'bg-violet-50', border: 'border-violet-200', fill: '#ede9fe', dot: '#7c3aed' }
   }

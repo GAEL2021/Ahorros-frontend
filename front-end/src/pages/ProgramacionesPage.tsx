@@ -10,7 +10,7 @@ import type { CreateProgramacionPayload } from '@/types'
 
 function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
   return (
-    <div className="rounded-2xl border-2 border-dashed border-border bg-[#141820] px-6 py-16 text-center animate-fade-in">
+    <div className="rounded-2xl border-2 border-dashed border-border bg-surface px-6 py-16 text-center animate-fade-in">
       <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-subtle" style={{ animation: 'float 3s ease-in-out infinite' }}>
         <svg className="h-8 w-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -91,10 +91,10 @@ function CreateProgramacionModal({ open, onClose }: { open: boolean; onClose: ()
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md rounded-lg border border-border bg-[#141820] shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-md rounded-lg border border-border bg-surface shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-border px-6 py-4 flex-shrink-0">
           <h2 className="text-base font-semibold text-ink">Nueva Programacion</h2>
-          <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-[#1a1e27] hover:text-ink transition-colors">
+          <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -127,10 +127,10 @@ function CreateProgramacionModal({ open, onClose }: { open: boolean; onClose: ()
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Tipo de aporte</label>
             <div className="flex rounded-lg border border-border overflow-hidden">
-              <button type="button" onClick={() => setTipo('fijo')} className={`flex-1 px-3 py-2 text-[11px] font-semibold transition-colors ${tipo === 'fijo' ? 'bg-accent-subtle text-accent' : 'bg-[#141820] text-ink-muted hover:bg-[#1a1e27]'}`}>
+              <button type="button" onClick={() => setTipo('fijo')} className={`flex-1 px-3 py-2 text-[11px] font-semibold transition-colors ${tipo === 'fijo' ? 'bg-accent-subtle text-accent' : 'bg-surface text-ink-muted hover:bg-surface-raised'}`}>
                 Monto fijo
               </button>
-              <button type="button" onClick={() => setTipo('porcentaje')} className={`flex-1 px-3 py-2 text-[11px] font-semibold transition-colors ${tipo === 'porcentaje' ? 'bg-accent-subtle text-accent' : 'bg-[#141820] text-ink-muted hover:bg-[#1a1e27]'}`}>
+              <button type="button" onClick={() => setTipo('porcentaje')} className={`flex-1 px-3 py-2 text-[11px] font-semibold transition-colors ${tipo === 'porcentaje' ? 'bg-accent-subtle text-accent' : 'bg-surface text-ink-muted hover:bg-surface-raised'}`}>
                 Porcentaje
               </button>
             </div>
@@ -163,7 +163,7 @@ function CreateProgramacionModal({ open, onClose }: { open: boolean; onClose: ()
             </div>
           )}
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-[#1a1e27] transition-colors">Cancelar</button>
+            <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">Cancelar</button>
             <button type="submit" disabled={create.isPending || !carteraId || !metaId} className="rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent/90 disabled:opacity-50 transition-colors">
               {create.isPending ? 'Creando...' : 'Crear programacion'}
             </button>
@@ -212,7 +212,7 @@ export default function ProgramacionesPage() {
       {isLoading && (
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="rounded-2xl border border-border bg-[#141820] px-5 py-4 space-y-3">
+            <div key={i} className="rounded-2xl border border-border bg-surface px-5 py-4 space-y-3">
               <div className="flex items-center gap-3">
                 <div className="skeleton h-9 w-9 rounded-xl" />
                 <div className="flex-1 space-y-2">
@@ -236,7 +236,7 @@ export default function ProgramacionesPage() {
             return (
               <div
                 key={prog.id}
-                className="rounded-2xl border border-border bg-[#141820] border-l-4 card-hover overflow-hidden"
+                className="rounded-2xl border border-border bg-surface border-l-4 card-hover overflow-hidden"
                 style={{ borderLeftColor: bancoColor }}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3">
@@ -271,7 +271,7 @@ export default function ProgramacionesPage() {
                       })}
                       className={`relative inline-flex h-6 w-10 flex-shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ${prog.activo ? 'bg-accent' : 'bg-gray-200'}`}
                     >
-                      <span className={`inline-block h-4 w-4 transform rounded-full bg-[#141820] transition-transform duration-200 shadow-sm ${prog.activo ? 'translate-x-5' : 'translate-x-1'}`} />
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-surface transition-transform duration-200 shadow-sm ${prog.activo ? 'translate-x-5' : 'translate-x-1'}`} />
                     </button>
                     <button
                       type="button"

@@ -1,4 +1,4 @@
-import { IsString, IsBoolean, IsOptional, MinLength, MaxLength } from 'class-validator';
+import { IsString, IsBoolean, IsNumber, IsOptional, MinLength, MaxLength, Min } from 'class-validator';
 
 export class UpdateChecklistItemDto {
   @IsOptional()
@@ -10,4 +10,9 @@ export class UpdateChecklistItemDto {
   @IsOptional()
   @IsBoolean()
   completado?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  montoReal?: number;
 }
