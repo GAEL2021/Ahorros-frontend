@@ -14,5 +14,10 @@ export class UpdateChecklistItemDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
+  monto?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
   montoReal?: number;
 }

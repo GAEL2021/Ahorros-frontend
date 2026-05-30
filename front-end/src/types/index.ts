@@ -244,6 +244,7 @@ export interface CreateChecklistItemPayload {
 
 export interface UpdateChecklistItemPayload {
   texto?: string
+  monto?: number
   completado?: boolean
   montoReal?: number
 }

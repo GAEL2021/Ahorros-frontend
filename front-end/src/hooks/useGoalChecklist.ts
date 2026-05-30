@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import apiClient from '@/lib/axios'
-import type { ChecklistItem, CreateChecklistItemPayload } from '@/types'
+import type { ChecklistItem, CreateChecklistItemPayload, UpdateChecklistItemPayload } from '@/types'
 
 async function fetchChecklist(goalId: string): Promise<ChecklistItem[]> {
   const { data } = await apiClient.get<ChecklistItem[]>(`/goals/${goalId}/checklist`)
@@ -82,6 +82,21 @@ export function useDeleteChecklistItem(goalId: string) {
       await apiClient.delete(`/goals/${goalId}/checklist/${itemId}`)
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['goal-checklist', goalId] })
+      queryClient.invalidateQueries({ queryKey: ['goal-detail', goalId] })
+    },
+  })
+}
+
+export function useUpdateChecklistItem(goalId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation<unknown, Error, { itemId: string; payload: UpdateChecklistItemPayload }, { prev: ChecklistItem[] | undefined }>({
+    mutationFn: async ({ itemId, payload }) => {
+      const { data } = await apiClient.patch(`/goals/${goalId}/checklist/${itemId}`, payload)
+      return data
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['goal-checklist', goalId] })
       queryClient.invalidateQueries({ queryKey: ['goal-detail', goalId] })
     },
