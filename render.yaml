@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: ahorros-api
+    rootDir: backend
+    runtime: node
+    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm run build
+    startCommand: node dist/main
+    envVars:
+      - key: PORT
+        value: "3000"
+      - key: FIREBASE_PROJECT_ID
+        value: ahorros-interfaz
+      - key: FIREBASE_CLIENT_EMAIL
+        value: firebase-adminsdk-fbsvc@ahorros-interfaz.iam.gserviceaccount.com
+      - key: FIREBASE_DATABASE_URL
+        value: https://ahorros-interfaz.firebaseio.com
+      - key: APP_URL
+        value: https://front-end-kappa-red.vercel.app
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
