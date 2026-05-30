@@ -1,0 +1,55 @@
+@keyframes sil-panel-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes sil-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sil-toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    max-height: 120px;
+    margin-bottom: 0.5rem;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.94);
+    max-height: 0;
+    margin-bottom: 0;
+  }
+}
+
+@keyframes sil-spinner {
+  to { transform: rotate(360deg); }
+}
+
+.sil-toast {
+  animation: sil-toast-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.sil-toast-exiting {
+  animation: sil-toast-out 0.25s ease-in forwards;
+  pointer-events: none;
+}
+
+.sil-container-top {
+  flex-direction: column;
+}
+
+.sil-container-bottom {
+  flex-direction: column-reverse;
+}
+
+.sil-spinner {
+  animation: sil-spinner 0.8s linear infinite;
+}
