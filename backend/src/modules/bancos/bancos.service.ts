@@ -69,6 +69,21 @@ export class BancosService {
       );
     }
 
+    // Validate no duplicate: same user, same bank catalog
+    const existing = await db
+      .collection('bancos')
+      .where('uid', '==', user.uid)
+      .where('catalogoBancoId', '==', dto.catalogoBancoId)
+      .limit(1)
+      .get();
+
+    if (!existing.empty) {
+      const bancoData = existing.docs[0].data() as BancoDocument;
+      throw new BadRequestException(
+        `Ya tenés una cartera en "${bancoData.nombre}". No podés tener dos carteras del mismo banco.`,
+      );
+    }
+
     const catalogoDoc = await db
       .collection('catalogo_bancos')
       .doc(dto.catalogoBancoId)
@@ -149,7 +164,6 @@ export class BancosService {
     const propiosSnapshot = await db
       .collection('bancos')
       .where('uid', '==', user.uid)
-      .orderBy('creadoEn', 'asc')
       .get();
 
     const bancos: Array<BancoDocument & { id: string }> = [];
@@ -265,6 +279,21 @@ export class BancosService {
     await docRef.delete();
 
     return { message: 'Cartera eliminada correctamente' };
+  }
+
+  async deleteAllBancos() {
+    const db = this.firebaseService.firestore;
+    const snapshot = await db.collection('bancos').get();
+
+    let deleted = 0;
+    for (const doc of snapshot.docs) {
+      await this.deleteSubcollection(doc.ref.collection('miembros'));
+      await this.deleteSubcollection(doc.ref.collection('transacciones'));
+      await doc.ref.delete();
+      deleted++;
+    }
+
+    return { message: `${deleted} cartera(s) eliminada(s) en total` };
   }
 
   async joinBancoByCode(codigo: string, user: FirebaseUser) {

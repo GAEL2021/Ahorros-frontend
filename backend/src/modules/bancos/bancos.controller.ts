@@ -76,4 +76,9 @@ export class BancosController {
   ) {
     return this.bancosService.retirar(id, dto, req.user as FirebaseUser);
   }
+
+  @Delete()
+  deleteAll() {
+    return this.bancosService.deleteAllBancos();
+  }
 }

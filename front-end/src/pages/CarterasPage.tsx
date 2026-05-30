@@ -419,7 +419,7 @@ export default function CarterasPage() {
         </div>
       )}
 
-      {!isLoading && bancos && bancos.length === 0 && <EmptyState onCreateClick={() => setShowCreate(true)} />}
+      {!isLoading && (!bancos || bancos.length === 0) && <EmptyState onCreateClick={() => setShowCreate(true)} />}
 
       {!isLoading && bancos && bancos.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 stagger">

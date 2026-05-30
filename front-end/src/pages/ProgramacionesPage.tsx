@@ -217,7 +217,7 @@ export default function ProgramacionesPage() {
         </div>
       )}
 
-      {!isLoading && programaciones && programaciones.length === 0 && (
+      {!isLoading && (!programaciones || programaciones.length === 0) && (
         <EmptyState onCreateClick={() => setShowCreate(true)} />
       )}
 
