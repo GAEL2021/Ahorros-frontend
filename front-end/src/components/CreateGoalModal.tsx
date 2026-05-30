@@ -192,7 +192,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
                 onClick={() => setModoAporte('automatico')}
                 className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-[11px] font-semibold transition-colors ${
                   modoAporte === 'automatico'
-                    ? 'bg-amber-500 text-white'
+                    ? 'bg-accent text-white'
                     : 'bg-white text-ink-muted hover:bg-surface-raised'
                 }`}
               >
@@ -206,7 +206,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
             {modoAporte === 'automatico' && (
               <div className="mt-3 space-y-3 pt-3 border-t border-border-light">
                 {(!bancos || bancos.length === 0) ? (
-                  <p className="text-[11px] text-amber-700">
+                  <p className="text-[11px] text-accent">
                     No tienes carteras. Crea una en la seccion "Carteras" primero para usar aporte automatico.
                   </p>
                 ) : (
@@ -229,8 +229,8 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
                     <div>
                       <label className="mb-1.5 block text-[10px] font-semibold text-ink-muted">Tipo de aporte automatico</label>
                       <div className="flex rounded-lg border border-border overflow-hidden">
-                        <button type="button" onClick={() => setProgTipo('fijo')} className={`flex-1 px-2.5 py-2 text-[10px] font-semibold transition-colors ${progTipo === 'fijo' ? 'bg-amber-100 text-amber-700' : 'bg-white text-ink-muted'}`}>Monto fijo</button>
-                        <button type="button" onClick={() => setProgTipo('porcentaje')} className={`flex-1 px-2.5 py-2 text-[10px] font-semibold transition-colors ${progTipo === 'porcentaje' ? 'bg-amber-100 text-amber-700' : 'bg-white text-ink-muted'}`}>Porcentaje</button>
+                        <button type="button" onClick={() => setProgTipo('fijo')} className={`flex-1 px-2.5 py-2 text-[10px] font-semibold transition-colors ${progTipo === 'fijo' ? 'bg-accent-subtle text-accent' : 'bg-white text-ink-muted'}`}>Monto fijo</button>
+                        <button type="button" onClick={() => setProgTipo('porcentaje')} className={`flex-1 px-2.5 py-2 text-[10px] font-semibold transition-colors ${progTipo === 'porcentaje' ? 'bg-accent-subtle text-accent' : 'bg-white text-ink-muted'}`}>Porcentaje</button>
                       </div>
                     </div>
 

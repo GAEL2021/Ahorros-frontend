@@ -43,7 +43,7 @@ function AddBancoModal({ open, onClose }: { open: boolean; onClose: () => void }
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Nombre del banco</label>
-            <input type="text" required value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej. Santander" className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20" />
+            <input type="text" required value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej. Santander" className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" />
           </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Color</label>
@@ -60,7 +60,7 @@ function AddBancoModal({ open, onClose }: { open: boolean; onClose: () => void }
           )}
           <div className="flex justify-end gap-3">
             <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">Cancelar</button>
-            <button type="submit" disabled={create.isPending || !nombre.trim()} className="rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50 transition-colors">
+            <button type="submit" disabled={create.isPending || !nombre.trim()} className="rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent/90 disabled:opacity-50 transition-colors">
               {create.isPending ? 'Agregando...' : 'Agregar'}
             </button>
           </div>
@@ -116,7 +116,7 @@ export default function CatalogoBancosPage() {
         <button
           type="button"
           onClick={() => setShowAdd(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500/30"
+          className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent/30"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
           Agregar banco
@@ -134,8 +134,8 @@ export default function CatalogoBancosPage() {
 
       {!isLoading && bancos && bancos.length === 0 && (
         <div className="rounded-lg border border-dashed border-border bg-white px-6 py-16 text-center animate-fade-in">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-violet-50">
-            <svg className="h-8 w-8 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent-subtle">
+            <svg className="h-8 w-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
           </div>

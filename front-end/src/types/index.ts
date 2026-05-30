@@ -170,6 +170,7 @@ export interface Meta {
   miembros?: MetaMember[]
   controlCuotas?: Cuota[]
   hitos?: Hito[]
+  checklist?: ChecklistItem[]
 }
 
 export interface MetaMember {
@@ -223,3 +224,24 @@ export interface Participant {
 
 // --- Legacy alias (backward compat) ---
 export type Goal = Meta
+
+// --- Checklist ---
+
+export interface ChecklistItem {
+  id: string
+  texto: string
+  monto: number
+  completado: boolean
+  orden: number
+  creadoEn: string
+}
+
+export interface CreateChecklistItemPayload {
+  texto: string
+  monto: number
+}
+
+export interface UpdateChecklistItemPayload {
+  texto?: string
+  completado?: boolean
+}

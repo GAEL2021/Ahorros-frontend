@@ -99,12 +99,12 @@ export default function CalendarPage() {
       {/* Summary cards */}
       {!isLoading && goals && (
         <div className="grid grid-cols-3 gap-3 mb-6 animate-fade-in">
-          <div className="rounded-lg border border-green-100 bg-green-50/50 px-4 py-3">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-green-700">Activas</span>
+          <div className="rounded-lg border border-primary/10 bg-primary-subtle/50 px-4 py-3">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-primary-dark">Activas</span>
             <p className="mt-0.5 text-lg font-bold text-ink">{activeGoals}</p>
           </div>
-          <div className="rounded-lg border border-blue-100 bg-blue-50/50 px-4 py-3">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-700">Completadas</span>
+          <div className="rounded-lg border border-primary/10 bg-primary-subtle/50 px-4 py-3">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-primary-dark">Completadas</span>
             <p className="mt-0.5 text-lg font-bold text-ink">{completedGoals}</p>
           </div>
           <div className="rounded-lg border border-border bg-surface-raised px-4 py-3">
@@ -134,7 +134,7 @@ export default function CalendarPage() {
           <button
             type="button"
             onClick={() => { setViewYear(today.getFullYear()); setViewMonth(today.getMonth()) }}
-            className="rounded-full border border-border px-2.5 py-0.5 text-[10px] font-semibold text-primary hover:bg-green-50 hover:border-primary transition-colors"
+            className="rounded-full border border-border px-2.5 py-0.5 text-[10px] font-semibold text-primary hover:bg-primary-subtle hover:border-primary transition-colors"
           >
             Hoy
           </button>
@@ -169,8 +169,8 @@ export default function CalendarPage() {
                   onClick={() => { setViewYear(y); setViewMonth(m) }}
                   className={`flex-shrink-0 rounded-full border px-3 py-1 text-[11px] font-medium transition-colors ${
                     isCurrent
-                      ? 'border-primary bg-green-100 text-primary'
-                      : 'border-border bg-white text-ink-muted hover:bg-surface-raised hover:border-green-200'
+                      ? 'border-primary bg-primary-subtle text-primary'
+                      : 'border-border bg-white text-ink-muted hover:bg-surface-raised hover:border-primary/30'
                   }`}
                 >
                   {SHORT_MONTHS[m]} {y}
@@ -210,7 +210,7 @@ export default function CalendarPage() {
               <div
                 key={day}
                 className={`border-b border-r border-border-light p-1.5 min-h-[90px] sm:min-h-[110px] ${
-                  todayHighlight ? 'bg-amber-50/30 ring-1 ring-inset ring-amber-300' : ''
+                  todayHighlight ? 'bg-accent-subtle/30 ring-1 ring-inset ring-accent/30' : ''
                 }`}
               >
                 <span
@@ -228,9 +228,9 @@ export default function CalendarPage() {
                   {dayGoals.map((g) => {
                     const pct = Math.min(100, Math.round((g.montoAcumulado / g.montoObjetivo) * 100))
                     const pillColor =
-                      g.estado === 'completado' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                      g.estado === 'completado' ? 'bg-primary-subtle text-primary-dark border-primary/20' :
                       g.estado === 'cancelado' ? 'bg-stone-100 text-stone-500 border-stone-200' :
-                      'bg-green-50 text-green-700 border-green-200'
+                      'bg-primary-subtle text-primary-dark border-primary/20'
 
                     return (
                       <div
@@ -272,11 +272,11 @@ export default function CalendarPage() {
       {goals && goals.length > 0 && (
         <div className="mt-4 flex flex-wrap items-center gap-4 text-[11px] text-ink-muted">
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-green-500" />
+            <span className="h-2.5 w-2.5 rounded-sm bg-success" />
             Activa
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-blue-500" />
+            <span className="h-2.5 w-2.5 rounded-sm bg-primary" />
             Completada
           </div>
           <div className="flex items-center gap-1.5">
@@ -284,7 +284,7 @@ export default function CalendarPage() {
             Cancelada
           </div>
           <span className="flex items-center gap-1.5 ml-auto">
-            <span className="h-2.5 w-2.5 rounded-full border border-amber-300 bg-amber-50" />
+            <span className="h-2.5 w-2.5 rounded-full border border-accent/30 bg-accent-subtle" />
             Hoy
           </span>
         </div>

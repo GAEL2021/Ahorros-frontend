@@ -232,15 +232,15 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
         <div className="flex-1 min-w-0 space-y-3">
           {/* 4 KPI cards */}
           <div className="grid grid-cols-2 gap-2.5">
-            <div className="rounded-lg border border-green-100 bg-green-50/50 px-3 py-2.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-green-700">Meta Total</span>
+            <div className="rounded-lg border border-primary/10 bg-primary-subtle/50 px-3 py-2.5">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-primary-dark">Meta Total</span>
               <p className="mt-0.5 text-sm font-bold tabular-nums text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 ${meta.montoObjetivo.toLocaleString()}
               </p>
             </div>
-            <div className="rounded-lg border border-green-100 bg-green-50/50 px-3 py-2.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-green-700">Ahorrado</span>
-              <p className="mt-0.5 text-sm font-bold tabular-nums text-green-700" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            <div className="rounded-lg border border-primary/10 bg-primary-subtle/50 px-3 py-2.5">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-primary-dark">Ahorrado</span>
+              <p className="mt-0.5 text-sm font-bold tabular-nums text-primary-dark" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 ${meta.montoAcumulado.toLocaleString()}
               </p>
             </div>

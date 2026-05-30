@@ -31,11 +31,11 @@ function LoginScreen() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f9faf7] px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#f0f2f5] px-4">
       <div className="w-full max-w-sm animate-slide-up">
-        <div className="rounded-lg border border-border bg-white p-8">
+        <div className="rounded-2xl border border-border bg-white p-8 shadow-sm">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
+            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-subtle" style={{ animation: 'float 3s ease-in-out infinite' }}>
               <svg className="h-7 w-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -53,18 +53,18 @@ function LoginScreen() {
           )}
 
           {/* Tabs */}
-          <div className="mb-5 flex rounded-lg border border-border overflow-hidden">
+          <div className="mb-5 flex rounded-xl border border-border overflow-hidden">
             <button
               type="button"
               onClick={() => { setTab('google'); setIsRegister(false) }}
-              className={`flex-1 py-2.5 text-[11px] font-semibold transition-colors ${tab === 'google' ? 'bg-green-100 text-primary' : 'bg-white text-ink-muted hover:bg-surface-raised'}`}
+              className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${tab === 'google' ? 'bg-primary-subtle text-primary-dark' : 'bg-white text-ink-muted hover:bg-surface-raised'}`}
             >
               Google
             </button>
             <button
               type="button"
               onClick={() => setTab('email')}
-              className={`flex-1 py-2.5 text-[11px] font-semibold transition-colors ${tab === 'email' ? 'bg-green-100 text-primary' : 'bg-white text-ink-muted hover:bg-surface-raised'}`}
+              className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${tab === 'email' ? 'bg-primary-subtle text-primary-dark' : 'bg-white text-ink-muted hover:bg-surface-raised'}`}
             >
               Email
             </button>
@@ -75,7 +75,7 @@ function LoginScreen() {
               type="button"
               onClick={handleGoogleLogin}
               disabled={submitting}
-              className="flex w-full items-center justify-center gap-3 rounded-lg border border-border bg-white px-4 py-3 text-sm font-medium text-ink shadow-sm transition-all hover:bg-surface-raised hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-green-500/30"
+              className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-white px-4 py-3 text-sm font-medium text-ink shadow-sm transition-all hover:bg-surface-raised hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
               {submitting ? (
                 <>
@@ -105,38 +105,38 @@ function LoginScreen() {
                     onChange={(e) => setName(e.target.value)}
                     required
                     placeholder="Tu nombre"
-                    className="w-full rounded-lg border border-border px-3 py-2.5 text-sm placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                      className="w-full rounded-xl border border-border px-3 py-2.5 text-sm placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                )}
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="tu@email.com"
+                    className="w-full rounded-xl border border-border px-3 py-2.5 text-sm placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
-              )}
-              <div>
-                <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder="tu@email.com"
-                  className="w-full rounded-lg border border-border px-3 py-2.5 text-sm placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-green-500/20"
-                />
-              </div>
-              <div>
-                <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Contraseña</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  placeholder="Mínimo 6 caracteres"
-                  className="w-full rounded-lg border border-border px-3 py-2.5 text-sm placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-green-500/20"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={submitting || !email || password.length < 6 || (isRegister && !name)}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-green-500/30"
-              >
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Contraseña</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    placeholder="Mínimo 6 caracteres"
+                    className="w-full rounded-xl border border-border px-3 py-2.5 text-sm placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={submitting || !email || password.length < 6 || (isRegister && !name)}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
                 {submitting ? (
                   <>
                     <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
@@ -163,10 +163,10 @@ function LoginScreen() {
 
 function LoadingScreen() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f9faf7]">
+    <div className="flex min-h-screen items-center justify-center bg-[#f0f2f5]">
       <div className="flex flex-col items-center gap-3 animate-fade-in">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-green-200 border-t-primary" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary-subtle">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
         </div>
         <p className="text-sm font-medium text-ink-muted">Cargando sesión...</p>
       </div>
@@ -185,10 +185,10 @@ export default function AppLayout() {
   const esAdmin = adminData?.esAdmin ?? false
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+    `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-300 ${
       isActive
-        ? 'bg-green-100 text-primary'
-        : 'text-ink-secondary hover:bg-surface-raised hover:text-ink'
+        ? 'bg-primary-subtle text-primary-dark shadow-sm'
+        : 'text-ink-secondary hover:text-ink hover:bg-surface-raised'
     }`
 
   return (
@@ -209,7 +209,7 @@ export default function AppLayout() {
       >
         {/* Logo area */}
         <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-100 flex-shrink-0">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-subtle flex-shrink-0 transition-all duration-500 hover:shadow-[0_0_12px_rgba(13,124,124,0.3)]">
             <svg className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -291,17 +291,17 @@ export default function AppLayout() {
       {/* Main content */}
       <div className="flex flex-1 flex-col min-w-0">
         {/* Mobile header bar */}
-        <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-white/90 backdrop-blur-md px-4 py-3 lg:hidden">
+        <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-white/95 backdrop-blur-md px-4 py-3 lg:hidden">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
-            className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors"
+            className="rounded-xl p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-green-100 flex-shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-subtle flex-shrink-0">
             <svg className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>

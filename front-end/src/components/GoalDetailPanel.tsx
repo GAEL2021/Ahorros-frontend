@@ -3,6 +3,7 @@ import type { Meta } from '@/types'
 import { useGoalDetail } from '@/hooks/useGoalDetail'
 import GoalTimeline from '@/components/GoalTimeline'
 import MovementsPanel from '@/components/MovementsPanel'
+import ChecklistPanel from '@/components/ChecklistPanel'
 
 interface GoalDetailPanelProps {
   open: boolean
@@ -10,7 +11,7 @@ interface GoalDetailPanelProps {
   meta: Meta
 }
 
-type Tab = 'progress' | 'movements'
+type Tab = 'progress' | 'checklist' | 'movements'
 
 export default function GoalDetailPanel({ open, onClose, meta }: GoalDetailPanelProps) {
   const [tab, setTab] = useState<Tab>('progress')
@@ -79,7 +80,7 @@ export default function GoalDetailPanel({ open, onClose, meta }: GoalDetailPanel
             onClick={() => setTab('progress')}
             className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-3 text-[12px] font-medium transition-colors focus:outline-none ${
               tab === 'progress'
-                ? 'text-primary border-b-2 border-primary bg-green-50/30'
+                ? 'text-primary border-b-2 border-primary bg-primary-subtle/30'
                 : 'text-ink-muted hover:text-ink hover:bg-surface-raised'
             }`}
           >
@@ -90,10 +91,24 @@ export default function GoalDetailPanel({ open, onClose, meta }: GoalDetailPanel
           </button>
           <button
             type="button"
+            onClick={() => setTab('checklist')}
+            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-3 text-[12px] font-medium transition-colors focus:outline-none ${
+              tab === 'checklist'
+                ? 'text-primary border-b-2 border-primary bg-primary-subtle/30'
+                : 'text-ink-muted hover:text-ink hover:bg-surface-raised'
+            }`}
+          >
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            Checklist
+          </button>
+          <button
+            type="button"
             onClick={() => setTab('movements')}
             className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-3 text-[12px] font-medium transition-colors focus:outline-none ${
               tab === 'movements'
-                ? 'text-primary border-b-2 border-primary bg-green-50/30'
+                ? 'text-primary border-b-2 border-primary bg-primary-subtle/30'
                 : 'text-ink-muted hover:text-ink hover:bg-surface-raised'
             }`}
           >
@@ -116,6 +131,7 @@ export default function GoalDetailPanel({ open, onClose, meta }: GoalDetailPanel
           ) : (
             <>
               {tab === 'progress' && <GoalTimeline meta={metaData} />}
+              {tab === 'checklist' && <ChecklistPanel goalId={meta.id} metaMontoObjetivo={meta.montoObjetivo} />}
               {tab === 'movements' && (
                 miembros && miembros.length > 0 ? (
                   <MovementsPanel goalId={meta.id} totalMonths={meta.mesesRestantes} members={miembros} />

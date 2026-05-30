@@ -52,6 +52,14 @@ export interface Hito {
   estado: 'PENDIENTE' | 'ALCANZADO';
 }
 
+export interface ChecklistItem {
+  texto: string;
+  monto: number;
+  completado: boolean;
+  orden: number;
+  creadoEn: string;
+}
+
 const HITO_PORCENTAJES = [25, 50, 75, 100] as const;
 
 @Injectable()
@@ -262,11 +270,12 @@ export class GoalsService {
 
     const goalData = goalDoc.data() as GoalDocument;
 
-    const [miembrosSnapshot, cuotasSnapshot, hitosSnapshot] =
+    const [miembrosSnapshot, cuotasSnapshot, hitosSnapshot, checklistSnapshot] =
       await Promise.all([
         goalDoc.ref.collection('miembros').get(),
         goalDoc.ref.collection('control_cuotas').get(),
         goalDoc.ref.collection('hitos').get(),
+        goalDoc.ref.collection('checklist').orderBy('orden', 'asc').get(),
       ]);
 
     return {
@@ -284,6 +293,10 @@ export class GoalsService {
         id: d.id,
         ...d.data(),
       })) as Array<Hito & { id: string }>,
+      checklist: checklistSnapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      })) as Array<ChecklistItem & { id: string }>,
     };
   }
 
@@ -424,6 +437,7 @@ export class GoalsService {
     await this.deleteSubcollection(goalRef.collection('miembros'));
     await this.deleteSubcollection(goalRef.collection('control_cuotas'));
     await this.deleteSubcollection(goalRef.collection('hitos'));
+    await this.deleteSubcollection(goalRef.collection('checklist'));
 
     await goalRef.delete();
 
@@ -600,6 +614,123 @@ export class GoalsService {
       nuevoMontoAcumulado: nuevoAcumulado,
       metaMontoObjetivo: goalData.montoObjetivo,
     };
+  }
+
+  async getGoalChecklist(goalId: string) {
+    const db = this.firebaseService.firestore;
+    const goalRef = db.collection('metas').doc(goalId);
+    const goalDoc = await goalRef.get();
+
+    if (!goalDoc.exists) return null;
+
+    const snapshot = await goalRef
+      .collection('checklist')
+      .orderBy('orden', 'asc')
+      .get();
+
+    return snapshot.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+    })) as Array<ChecklistItem & { id: string }>;
+  }
+
+  async addChecklistItem(goalId: string, texto: string, monto: number, user: FirebaseUser) {
+    const db = this.firebaseService.firestore;
+    const goalRef = db.collection('metas').doc(goalId);
+    const goalDoc = await goalRef.get();
+
+    if (!goalDoc.exists) {
+      throw new NotFoundException('Meta no encontrada');
+    }
+
+    const goalData = goalDoc.data() as GoalDocument;
+
+    const checklistRef = goalRef.collection('checklist');
+    const existing = await checklistRef.get();
+    const existingTotal = existing.docs.reduce((sum, d) => {
+      const item = d.data() as ChecklistItem;
+      return sum + (item.monto ?? 0);
+    }, 0);
+
+    if (existingTotal + monto > goalData.montoObjetivo) {
+      throw new BadRequestException(
+        `El total de los ítems ($${(existingTotal + monto).toLocaleString()}) supera el monto objetivo de la meta ($${goalData.montoObjetivo.toLocaleString()})`,
+      );
+    }
+
+    const snapshot = await checklistRef.orderBy('orden', 'desc').limit(1).get();
+    const nextOrden = snapshot.empty ? 0 : (snapshot.docs[0].data() as ChecklistItem).orden + 1;
+
+    const item: ChecklistItem = {
+      texto,
+      monto,
+      completado: false,
+      orden: nextOrden,
+      creadoEn: new Date().toISOString(),
+    };
+
+    const docRef = await checklistRef.add(item);
+    return { id: docRef.id, ...item };
+  }
+
+  async toggleChecklistItem(goalId: string, itemId: string) {
+    const db = this.firebaseService.firestore;
+    const itemRef = db
+      .collection('metas')
+      .doc(goalId)
+      .collection('checklist')
+      .doc(itemId);
+
+    const itemDoc = await itemRef.get();
+    if (!itemDoc.exists) {
+      throw new NotFoundException('Ítem no encontrado');
+    }
+
+    const data = itemDoc.data() as ChecklistItem;
+    await itemRef.update({ completado: !data.completado });
+    return { id: itemId, completado: !data.completado };
+  }
+
+  async updateChecklistItem(goalId: string, itemId: string, dto: { texto?: string; completado?: boolean }) {
+    const db = this.firebaseService.firestore;
+    const itemRef = db
+      .collection('metas')
+      .doc(goalId)
+      .collection('checklist')
+      .doc(itemId);
+
+    const itemDoc = await itemRef.get();
+    if (!itemDoc.exists) {
+      throw new NotFoundException('Ítem no encontrado');
+    }
+
+    const updates: Record<string, unknown> = {};
+    if (dto.texto !== undefined) updates.texto = dto.texto;
+    if (dto.completado !== undefined) updates.completado = dto.completado;
+
+    if (Object.keys(updates).length === 0) {
+      throw new BadRequestException('No hay campos para actualizar');
+    }
+
+    await itemRef.update(updates);
+    return { id: itemId, ...updates };
+  }
+
+  async deleteChecklistItem(goalId: string, itemId: string) {
+    const db = this.firebaseService.firestore;
+    const itemRef = db
+      .collection('metas')
+      .doc(goalId)
+      .collection('checklist')
+      .doc(itemId);
+
+    const itemDoc = await itemRef.get();
+    if (!itemDoc.exists) {
+      throw new NotFoundException('Ítem no encontrado');
+    }
+
+    await itemRef.delete();
+    return { message: 'Ítem eliminado correctamente' };
   }
 
   private async getGoalMemberEmails(goalRef: FirebaseFirestore.DocumentReference): Promise<string[]> {

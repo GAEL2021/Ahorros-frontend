@@ -9,12 +9,15 @@ import {
   UseGuards,
   Req,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { GoalsService } from './goals.service';
 import { CreateGoalDto } from './dto/create-goal.dto';
 import { UpdateGoalDto } from './dto/update-goal.dto';
 import { JoinGoalDto } from './dto/join-goal.dto';
 import { ContribuirDto } from './dto/contribuir.dto';
+import { CreateChecklistItemDto } from './dto/create-checklist-item.dto';
+import { UpdateChecklistItemDto } from './dto/update-checklist-item.dto';
 import { FirebaseAuthGuard, FirebaseUser } from '../../common/guards/firebase-auth.guard';
 import { Request } from 'express';
 
@@ -73,5 +76,38 @@ export class GoalsController {
     const cuotas = await this.goalsService.getGoalControlCuotas(id);
     if (cuotas === null) throw new NotFoundException('Meta no encontrada');
     return cuotas;
+  }
+
+  @Get(':id/checklist')
+  async getChecklist(@Param('id') id: string) {
+    const items = await this.goalsService.getGoalChecklist(id);
+    if (items === null) throw new NotFoundException('Meta no encontrada');
+    return items;
+  }
+
+  @Post(':id/checklist')
+  addChecklistItem(
+    @Param('id') id: string,
+    @Body() dto: CreateChecklistItemDto,
+    @Req() req: Request,
+  ) {
+    return this.goalsService.addChecklistItem(id, dto.texto, dto.monto ?? 0, req.user as FirebaseUser);
+  }
+
+  @Patch(':id/checklist/:itemId')
+  updateChecklistItem(
+    @Param('id') id: string,
+    @Param('itemId') itemId: string,
+    @Body() dto: UpdateChecklistItemDto,
+  ) {
+    return this.goalsService.updateChecklistItem(id, itemId, dto);
+  }
+
+  @Delete(':id/checklist/:itemId')
+  deleteChecklistItem(
+    @Param('id') id: string,
+    @Param('itemId') itemId: string,
+  ) {
+    return this.goalsService.deleteChecklistItem(id, itemId);
   }
 }

@@ -7,8 +7,8 @@ import { sileo } from '@/lib/sileo'
 
 function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
   return (
-    <div className="rounded-lg border border-dashed border-border bg-white px-6 py-16 text-center animate-fade-in">
-      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-50">
+    <div className="rounded-2xl border-2 border-dashed border-border bg-white px-6 py-16 text-center animate-fade-in">
+      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-subtle" style={{ animation: 'float 3s ease-in-out infinite' }}>
         <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
@@ -20,7 +20,7 @@ function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
       <button
         type="button"
         onClick={onCreateClick}
-        className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-green-500/30"
+        className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/30"
       >
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -69,7 +69,7 @@ export default function DashboardPage() {
         <button
           type="button"
           onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-green-500/30"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/30"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -84,11 +84,11 @@ export default function DashboardPage() {
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px]">
             <span className="text-ink-muted font-medium">Colores:</span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-sm border border-green-400 bg-green-400" />
+              <span className="h-3 w-3 rounded-sm border border-primary bg-success" />
               <span className="text-ink-secondary">Borde verde = Meta individual</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-sm border border-violet-400 bg-violet-400" />
+              <span className="h-3 w-3 rounded-sm border border-accent/40 bg-violet-400" />
               <span className="text-ink-secondary">Borde violeta = Meta grupal</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
@@ -109,7 +109,7 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={() => setShowJoinCode(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-dashed border-border px-4 py-2.5 text-sm font-medium text-ink-muted transition-colors hover:border-primary hover:text-primary hover:bg-green-50/50 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+            className="inline-flex items-center gap-2 rounded-lg border border-dashed border-border px-4 py-2.5 text-sm font-medium text-ink-muted transition-colors hover:border-primary hover:text-primary hover:bg-primary-subtle focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -151,7 +151,7 @@ export default function DashboardPage() {
                   },
                   onError: () => sileo.error('Error al unirse a la meta'),
                 })}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 {joinGoal.isPending ? 'Uniéndote...' : 'Unirse'}
               </button>
@@ -172,11 +172,23 @@ export default function DashboardPage() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="flex items-center justify-center rounded-lg border border-border bg-white py-20 animate-fade-in">
-          <div className="flex flex-col items-center gap-3">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary" />
-            <p className="text-sm text-ink-muted">Cargando metas...</p>
-          </div>
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="rounded-2xl border border-border bg-white px-4 py-3 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="skeleton h-10 w-10 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <div className="skeleton h-4 w-36" />
+                  <div className="skeleton h-3 w-20" />
+                </div>
+              </div>
+              <div className="skeleton h-2 w-full rounded-full" />
+              <div className="flex justify-between">
+                <div className="skeleton h-3 w-16" />
+                <div className="skeleton h-3 w-16" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -195,7 +207,7 @@ export default function DashboardPage() {
 
       {/* Goals list */}
       {!isLoading && !isError && goals && goals.length > 0 && (
-        <div className="space-y-5">
+        <div className="space-y-3 stagger">
           {goals.map((goal) => (
             <GoalCard key={goal.id} meta={goal} />
           ))}

@@ -95,7 +95,7 @@ export default function ShareCodeModal({
           </p>
 
           {/* Code display */}
-          <div className="rounded-lg border-2 border-dashed border-green-200 bg-green-50/50 px-4 py-4">
+          <div className="rounded-lg border-2 border-dashed border-primary/20 bg-primary-subtle/50 px-4 py-4">
             <p className="text-center text-[10px] font-semibold uppercase tracking-wider text-ink-muted mb-2">
               Código de invitación
             </p>
@@ -124,7 +124,7 @@ export default function ShareCodeModal({
             <button
               type="button"
               onClick={() => handleShare(facebookUrl)}
-              className="flex flex-col items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-3 text-blue-700 transition-all hover:bg-blue-100 hover:border-blue-300 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="flex flex-col items-center gap-1.5 rounded-lg border border-primary/20 bg-primary-subtle/50 px-3 py-3 text-primary-dark transition-all hover:bg-primary-subtle hover:border-primary/50 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
               <FacebookIcon />
               <span className="text-[11px] font-semibold">Facebook</span>
@@ -134,10 +134,10 @@ export default function ShareCodeModal({
             <button
               type="button"
               onClick={handleCopy}
-              className={`flex flex-col items-center gap-1.5 rounded-lg border px-3 py-3 transition-all hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500/20 ${
+              className={`flex flex-col items-center gap-1.5 rounded-lg border px-3 py-3 transition-all hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 ${
                 copied
                   ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
-                  : 'border-green-200 bg-green-50 text-primary hover:bg-green-100 hover:border-green-300'
+                  : 'border-primary/20 bg-primary-subtle text-primary hover:bg-primary-subtle hover:border-primary/50'
               }`}
             >
               {copied ? <CopiedIcon /> : <CopyIcon />}

@@ -33,7 +33,7 @@ function TypeIcon({ type }: { type: ToastInstance['type'] }) {
       )
     case 'error':
       return (
-        <svg className="h-4 w-4 text-red-600" viewBox="0 0 20 20" fill="currentColor">
+        <svg className="h-4 w-4 text-rose-600" viewBox="0 0 20 20" fill="currentColor">
           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
         </svg>
       )
@@ -50,7 +50,7 @@ function TypeIcon({ type }: { type: ToastInstance['type'] }) {
     case 'info':
     default:
       return (
-        <svg className="h-4 w-4 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+        <svg className="h-4 w-4 text-sky-600" viewBox="0 0 20 20" fill="currentColor">
           <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
         </svg>
       )
@@ -60,10 +60,10 @@ function TypeIcon({ type }: { type: ToastInstance['type'] }) {
 function typeColors(type: ToastInstance['type']): { bg: string; border: string; fill: string; dot: string } {
   switch (type) {
     case 'success': return { bg: 'bg-emerald-50', border: 'border-emerald-200', fill: '#d1fae5', dot: '#059669' }
-    case 'error': return { bg: 'bg-red-50', border: 'border-red-200', fill: '#ffe4e6', dot: '#e11d48' }
+    case 'error': return { bg: 'bg-rose-50', border: 'border-rose-200', fill: '#ffe4e6', dot: '#e11d48' }
     case 'warning': return { bg: 'bg-amber-50', border: 'border-amber-200', fill: '#fef3c7', dot: '#d97706' }
-    case 'loading': return { bg: 'bg-white', border: 'border-border', fill: '#f0eeeb', dot: '#0d6b46' }
-    case 'info': return { bg: 'bg-blue-50', border: 'border-blue-200', fill: '#dbeafe', dot: '#2563eb' }
+    case 'loading': return { bg: 'bg-white', border: 'border-primary/20', fill: '#ccfbf1', dot: '#0d7c7c' }
+    case 'info': return { bg: 'bg-sky-50', border: 'border-sky-200', fill: '#e0f2fe', dot: '#0284c7' }
     case 'action': return { bg: 'bg-violet-50', border: 'border-violet-200', fill: '#ede9fe', dot: '#7c3aed' }
   }
 }

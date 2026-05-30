@@ -11,7 +11,7 @@ type StatusKey = 'PAGADO' | 'PARCIAL' | 'PENDIENTE'
 
 const STATUS_STYLE: Record<StatusKey, { bg: string; text: string; dot: string; label: string }> = {
   PAGADO: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', label: 'Pagado' },
-  PARCIAL: { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', label: 'Parcial' },
+  PARCIAL: { bg: 'bg-accent-subtle', text: 'text-accent', dot: 'bg-accent', label: 'Parcial' },
   PENDIENTE: { bg: 'bg-stone-50', text: 'text-stone-500', dot: 'bg-stone-400', label: 'Pendiente' },
 }
 
@@ -83,8 +83,8 @@ export default function MovementsPanel({ goalId, totalMonths, members }: Movemen
                   <span className="text-emerald-700 font-semibold">{m.pagadas}</span>
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                  <span className="text-amber-700 font-semibold">{m.parciales}</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                  <span className="text-accent font-semibold">{m.parciales}</span>
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-stone-400" />
@@ -108,7 +108,7 @@ export default function MovementsPanel({ goalId, totalMonths, members }: Movemen
               <div className="flex items-center gap-3 mb-2.5">
                 <span className="text-xs font-bold text-ink">{MonthNames(mes)}</span>
                 <span className="h-px flex-1 bg-border" />
-                <span className={`text-[10px] font-semibold ${allPaid ? 'text-emerald-600' : hasActivity ? 'text-amber-600' : 'text-ink-muted'}`}>
+                <span className={`text-[10px] font-semibold ${allPaid ? 'text-emerald-600' : hasActivity ? 'text-accent' : 'text-ink-muted'}`}>
                   Mes {mes}
                 </span>
               </div>

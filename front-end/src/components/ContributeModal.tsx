@@ -85,7 +85,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
             <div className="flex justify-between text-[11px]">
               <span className="text-ink-muted">
                 Ahorrado:{' '}
-                <span className="font-semibold text-green-700" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                <span className="font-semibold text-primary-dark" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                   ${metaData.montoAcumulado.toLocaleString()}
                 </span>
               </span>
@@ -117,8 +117,8 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
               onClick={() => setMonto(sugerido)}
               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors ${
                 monto === sugerido
-                  ? 'border-green-400 bg-green-100 text-green-700'
-                  : 'border-green-200 bg-green-50 text-green-600 hover:bg-green-100'
+                  ? 'border-primary bg-primary-subtle text-primary-dark'
+                  : 'border-primary/20 bg-primary-subtle text-primary hover:bg-primary-subtle'
               }`}
             >
               <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -136,8 +136,8 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
                   onClick={() => setMonto(amount)}
                   className={`rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors ${
                     monto === amount
-                      ? 'border-green-400 bg-green-100 text-green-700'
-                      : 'border-border bg-white text-ink-muted hover:bg-surface-raised hover:border-green-200'
+                      ? 'border-primary bg-primary-subtle text-primary-dark'
+                      : 'border-border bg-white text-ink-muted hover:bg-surface-raised hover:border-primary/30'
                   }`}
                 >
                   ${amount.toLocaleString()}
@@ -158,7 +158,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
                     if (banco && monto > banco.saldo) setMonto(0)
                   }
                 }}
-                className="w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <option value="">Sin cartera (aporte directo)</option>
                 {bancosConSaldo.map((b) => (
@@ -169,7 +169,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
               </select>
               {selectedBanco && (
                 <p className="mt-1.5 text-[10px] text-ink-muted">
-                  Maximo disponible: <span className="font-semibold text-blue-600">${selectedBanco.saldo.toLocaleString()}</span>
+                  Maximo disponible: <span className="font-semibold text-primary">${selectedBanco.saldo.toLocaleString()}</span>
                 </p>
               )}
             </div>
@@ -186,7 +186,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
               onChange={(e) => setMonto(Math.max(0, Math.min(maxContribution, Number(e.target.value) || 0)))}
               onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault() }}
               placeholder="0"
-              className="w-full rounded-lg border border-border bg-white py-3 pl-9 pr-4 text-lg font-semibold placeholder:text-ink-muted focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+              className="w-full rounded-lg border border-border bg-white py-3 pl-9 pr-4 text-lg font-semibold placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             />
           </div>
@@ -202,7 +202,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
             <button
               type="submit"
               disabled={addContribution.isPending || !monto || monto < 1 || monto > maxContribution}
-              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-green-500/30"
+              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
               {addContribution.isPending ? 'Aportando...' : 'Confirmar aporte'}
             </button>

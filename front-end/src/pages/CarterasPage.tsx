@@ -12,15 +12,15 @@ import type { Cartera } from '@/types'
 
 function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
   return (
-    <div className="rounded-lg border border-dashed border-border bg-white px-6 py-16 text-center animate-fade-in">
-      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
-        <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <div className="rounded-2xl border-2 border-dashed border-border bg-white px-6 py-16 text-center animate-fade-in">
+      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-subtle" style={{ animation: 'float 3s ease-in-out infinite' }}>
+        <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
         </svg>
       </div>
       <h3 className="text-lg font-semibold text-ink">No tienes carteras</h3>
       <p className="mt-1.5 text-sm text-ink-muted">Registra tus cuentas bancarias y administra tus ahorros.</p>
-      <button type="button" onClick={onCreateClick} className="mt-6 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
+      <button type="button" onClick={onCreateClick} className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/30">
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
         Nueva cartera
       </button>
@@ -91,7 +91,7 @@ function CreateCarteraModal({ open, onClose }: { open: boolean; onClose: () => v
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Banco</label>
-            <select value={catalogoBancoId} onChange={(e) => setCatalogoBancoId(e.target.value)} required className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+            <select value={catalogoBancoId} onChange={(e) => setCatalogoBancoId(e.target.value)} required className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
               <option value="" disabled>Seleccionar banco</option>
               {bancosDisponibles?.map((c) => (
                 <option key={c.id} value={c.id}>{c.nombre}</option>
@@ -100,29 +100,29 @@ function CreateCarteraModal({ open, onClose }: { open: boolean; onClose: () => v
           </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Saldo inicial (opcional)</label>
-            <input type="number" min={0} value={saldoInicial || ''} onChange={(e) => setSaldoInicial(Number(e.target.value))} placeholder="0" className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+            <input type="number" min={0} value={saldoInicial || ''} onChange={(e) => setSaldoInicial(Number(e.target.value))} placeholder="0" className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
           </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Descripción (opcional)</label>
-            <input type="text" maxLength={200} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="Ej. Cuenta de ahorros" className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+            <input type="text" maxLength={200} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="Ej. Cuenta de ahorros" className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
           </div>
           <div className="rounded-lg border border-border bg-surface-raised px-4 py-3">
             <label className="mb-2 block text-[11px] font-semibold text-ink-secondary">Tipo de cartera</label>
             <div className="flex rounded-lg border border-border overflow-hidden">
-              <button type="button" onClick={() => setTipo('personal')} className={`flex-1 px-3 py-2 text-[11px] font-semibold transition-colors ${tipo === 'personal' ? 'bg-blue-600 text-white' : 'bg-white text-ink-muted hover:bg-surface-raised'}`}>Personal</button>
-              <button type="button" onClick={() => setTipo('compartida')} className={`flex-1 px-3 py-2 text-[11px] font-semibold transition-colors ${tipo === 'compartida' ? 'bg-violet-600 text-white' : 'bg-white text-ink-muted hover:bg-surface-raised'}`}>Compartida</button>
+              <button type="button" onClick={() => setTipo('personal')} className={`flex-1 px-3 py-2 text-[11px] font-semibold transition-colors ${tipo === 'personal' ? 'bg-primary text-white' : 'bg-white text-ink-muted hover:bg-surface-raised'}`}>Personal</button>
+              <button type="button" onClick={() => setTipo('compartida')} className={`flex-1 px-3 py-2 text-[11px] font-semibold transition-colors ${tipo === 'compartida' ? 'bg-accent text-white' : 'bg-white text-ink-muted hover:bg-surface-raised'}`}>Compartida</button>
             </div>
             {tipo === 'compartida' && (
               <div className="mt-3 space-y-2 pt-3 border-t border-border-light">
                 <label className="block text-[10px] font-semibold text-ink-muted">Invitar personas (email)</label>
                 <div className="flex gap-2">
-                  <input type="email" value={invitadoEmail} onChange={(e) => setInvitadoEmail(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addInvitado() } }} placeholder="amigo@email.com" className="flex-1 rounded-lg border border-border px-3 py-2 text-[11px] focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
-                  <button type="button" onClick={addInvitado} className="rounded-lg bg-violet-600 px-3 py-2 text-[11px] font-medium text-white hover:bg-violet-700 transition-colors">Agregar</button>
+                  <input type="email" value={invitadoEmail} onChange={(e) => setInvitadoEmail(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addInvitado() } }} placeholder="amigo@email.com" className="flex-1 rounded-lg border border-border px-3 py-2 text-[11px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                  <button type="button" onClick={addInvitado} className="rounded-lg bg-accent px-3 py-2 text-[11px] font-medium text-white hover:bg-accent/90 transition-colors">Agregar</button>
                 </div>
                 {invitadosEmails.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
                     {invitadosEmails.map((email) => (
-                      <span key={email} className="inline-flex items-center gap-1 rounded-md bg-violet-100 px-2.5 py-1 text-[11px] font-medium text-violet-700">
+                      <span key={email} className="inline-flex items-center gap-1 rounded-md bg-accent-subtle px-2.5 py-1 text-[11px] font-medium text-accent">
                         {email}
                         <button type="button" onClick={() => setInvitadosEmails(invitadosEmails.filter((e) => e !== email))} className="ml-0.5 hover:text-red-600 transition-colors">&times;</button>
                       </span>
@@ -139,7 +139,7 @@ function CreateCarteraModal({ open, onClose }: { open: boolean; onClose: () => v
           )}
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">Cancelar</button>
-            <button type="submit" disabled={createBanco.isPending || !catalogoBancoId} className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">
+            <button type="submit" disabled={createBanco.isPending || !catalogoBancoId} className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50 transition-colors">
               {createBanco.isPending ? 'Creando...' : 'Crear cartera'}
             </button>
           </div>
@@ -178,7 +178,7 @@ function DepositarModal({ open, onClose, cartera }: { open: boolean; onClose: ()
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
-          <div className="rounded-lg border border-blue-100 bg-blue-50/50 px-4 py-3">
+          <div className="rounded-lg border border-primary/10 bg-primary-subtle/50 px-4 py-3">
             <span className="text-[11px] text-ink-muted">Saldo actual</span>
             <p className="text-lg font-bold text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>${cartera.saldo.toLocaleString()}</p>
           </div>
@@ -186,12 +186,12 @@ function DepositarModal({ open, onClose, cartera }: { open: boolean; onClose: ()
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Monto a depositar</label>
             <div className="relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-base font-medium text-ink-muted">$</span>
-              <input type="number" min={1} value={monto || ''} onChange={(e) => setMonto(Math.max(0, Number(e.target.value) || 0))} placeholder="0" className="w-full rounded-lg border border-border bg-white py-3 pl-9 pr-4 text-lg font-semibold placeholder:text-ink-muted focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" style={{ fontFamily: "'JetBrains Mono', monospace" }} />
+              <input type="number" min={1} value={monto || ''} onChange={(e) => setMonto(Math.max(0, Number(e.target.value) || 0))} placeholder="0" className="w-full rounded-lg border border-border bg-white py-3 pl-9 pr-4 text-lg font-semibold placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" style={{ fontFamily: "'JetBrains Mono', monospace" }} />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-1">
             <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">Cancelar</button>
-            <button type="submit" disabled={depositar.isPending || monto < 1} className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">
+            <button type="submit" disabled={depositar.isPending || monto < 1} className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50 transition-colors">
               {depositar.isPending ? 'Depositando...' : 'Depositar'}
             </button>
           </div>
@@ -230,7 +230,7 @@ function RetirarModal({ open, onClose, cartera }: { open: boolean; onClose: () =
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
-          <div className="rounded-lg border border-blue-100 bg-blue-50/50 px-4 py-3">
+          <div className="rounded-lg border border-primary/10 bg-primary-subtle/50 px-4 py-3">
             <span className="text-[11px] text-ink-muted">Saldo actual</span>
             <p className="text-lg font-bold text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>${cartera.saldo.toLocaleString()}</p>
           </div>
@@ -238,12 +238,12 @@ function RetirarModal({ open, onClose, cartera }: { open: boolean; onClose: () =
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Monto a retirar</label>
             <div className="relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-base font-medium text-ink-muted">$</span>
-              <input type="number" min={1} max={cartera.saldo} value={monto || ''} onChange={(e) => setMonto(Math.max(0, Math.min(cartera.saldo, Number(e.target.value) || 0)))} placeholder="0" className="w-full rounded-lg border border-border bg-white py-3 pl-9 pr-4 text-lg font-semibold placeholder:text-ink-muted focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" style={{ fontFamily: "'JetBrains Mono', monospace" }} />
+              <input type="number" min={1} max={cartera.saldo} value={monto || ''} onChange={(e) => setMonto(Math.max(0, Math.min(cartera.saldo, Number(e.target.value) || 0)))} placeholder="0" className="w-full rounded-lg border border-border bg-white py-3 pl-9 pr-4 text-lg font-semibold placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" style={{ fontFamily: "'JetBrains Mono', monospace" }} />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-1">
             <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">Cancelar</button>
-            <button type="submit" disabled={retirar.isPending || monto < 1 || monto > cartera.saldo} className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">
+            <button type="submit" disabled={retirar.isPending || monto < 1 || monto > cartera.saldo} className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50 transition-colors">
               {retirar.isPending ? 'Retirando...' : 'Retirar'}
             </button>
           </div>
@@ -280,11 +280,11 @@ function EditCarteraModal({ open, onClose, cartera }: { open: boolean; onClose: 
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Descripción</label>
-            <input type="text" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+            <input type="text" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">Cancelar</button>
-            <button type="submit" disabled={updateBanco.isPending} className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">
+            <button type="submit" disabled={updateBanco.isPending} className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50 transition-colors">
               {updateBanco.isPending ? 'Guardando...' : 'Guardar'}
             </button>
           </div>
@@ -304,7 +304,7 @@ function ConfirmModal({ open, onClose, onConfirm, title, message, danger }: { op
           <p className="mt-2 text-sm text-ink-muted">{message}</p>
           <div className="mt-5 flex justify-end gap-3">
             <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">Cancelar</button>
-            <button type="button" onClick={() => { onConfirm(); onClose() }} className={`rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors ${danger ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`}>Confirmar</button>
+            <button type="button" onClick={() => { onConfirm(); onClose() }} className={`rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors ${danger ? 'bg-red-600 hover:bg-red-700' : 'bg-primary hover:bg-primary-dark'}`}>Confirmar</button>
           </div>
         </div>
       </div>
@@ -329,10 +329,10 @@ function ShareCodeModal({ open, onClose, codigo, carteraNombre }: { open: boolea
         </div>
         <div className="px-6 py-5 text-center">
           <p className="text-sm text-ink-muted mb-4">Comparte este código para que otros se unan a tu cartera</p>
-          <div className="rounded-lg border-2 border-dashed border-violet-300 bg-violet-50 px-4 py-4 mb-4">
-            <span className="text-3xl font-bold text-violet-700 tracking-[0.3em]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{codigo}</span>
+          <div className="rounded-lg border-2 border-dashed border-accent/30 bg-accent-subtle px-4 py-4 mb-4">
+            <span className="text-3xl font-bold text-accent tracking-[0.3em]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{codigo}</span>
           </div>
-          <button type="button" onClick={copyToClipboard} className="rounded-lg bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-700 transition-colors">
+          <button type="button" onClick={copyToClipboard} className="rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent/90 transition-colors">
             Copiar código
           </button>
         </div>
@@ -367,7 +367,7 @@ export default function CarterasPage() {
               : 'Administra tus cuentas bancarias'}
           </p>
         </div>
-        <button type="button" onClick={() => setShowCreate(true)} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
+        <button type="button" onClick={() => setShowCreate(true)} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/30">
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
           Nueva cartera
         </button>
@@ -375,7 +375,7 @@ export default function CarterasPage() {
 
       <div className="mb-6 animate-fade-in">
         {!showJoinCode ? (
-          <button type="button" onClick={() => setShowJoinCode(true)} className="inline-flex items-center gap-2 rounded-lg border border-dashed border-violet-300 px-4 py-2.5 text-sm font-medium text-violet-600 hover:border-violet-400 hover:bg-violet-50/50 focus:outline-none focus:ring-2 focus:ring-violet-500/20">
+          <button type="button" onClick={() => setShowJoinCode(true)} className="inline-flex items-center gap-2 rounded-lg border border-dashed border-accent/30 px-4 py-2.5 text-sm font-medium text-accent hover:border-accent/40 hover:bg-accent-subtle/50 focus:outline-none focus:ring-2 focus:ring-accent/20">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
             Unirse a cartera compartida con código
           </button>
@@ -390,7 +390,7 @@ export default function CarterasPage() {
               <button type="button" disabled={joinCodeValue.length !== 8 || joinBanco.isPending} onClick={() => joinBanco.mutate(joinCodeValue, {
                 onSuccess: (data) => { setShowJoinCode(false); setJoinCodeValue(''); sileo.success(`Te uniste a "${data.nombre}"`) },
                 onError: () => sileo.error('Error al unirse a la cartera'),
-              })} className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50 transition-colors">
+              })} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/90 disabled:opacity-50 transition-colors">
                 {joinBanco.isPending ? 'Uniéndose...' : 'Unirse'}
               </button>
             </div>
@@ -399,20 +399,32 @@ export default function CarterasPage() {
       </div>
 
       {isLoading && (
-        <div className="flex items-center justify-center rounded-lg border border-border bg-white py-20">
-          <div className="flex flex-col items-center gap-3">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-blue-600" />
-            <p className="text-sm text-ink-muted">Cargando carteras...</p>
-          </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="rounded-2xl border border-border bg-white p-5 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="skeleton h-9 w-9 rounded-xl" />
+                <div className="flex-1 space-y-2">
+                  <div className="skeleton h-4 w-24" />
+                  <div className="skeleton h-3 w-16" />
+                </div>
+              </div>
+              <div className="skeleton h-12 w-full rounded-xl" />
+              <div className="flex gap-2">
+                <div className="skeleton h-8 flex-1 rounded-xl" />
+                <div className="skeleton h-8 flex-1 rounded-xl" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
       {!isLoading && bancos && bancos.length === 0 && <EmptyState onCreateClick={() => setShowCreate(true)} />}
 
       {!isLoading && bancos && bancos.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 stagger">
           {bancos.map((banco) => (
-            <div key={banco.id} className="rounded-lg border border-border bg-white border-l-4 animate-slide-up overflow-hidden" style={{ borderLeftColor: banco.color }}>
+            <div key={banco.id} className="rounded-2xl border border-border bg-white border-l-4 card-hover overflow-hidden" style={{ borderLeftColor: banco.color }}>
               <div className="p-4">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2.5">
@@ -423,7 +435,7 @@ export default function CarterasPage() {
                       <div className="flex items-center gap-2">
                         <h3 className="text-sm font-semibold text-ink">{banco.nombre}</h3>
                         {banco.tipo === 'compartida' && (
-                          <span className="inline-flex items-center rounded-md bg-violet-100 px-1.5 py-0.5 text-[9px] font-semibold text-violet-700">Compartida</span>
+                          <span className="inline-flex items-center rounded-md bg-accent-subtle px-1.5 py-0.5 text-[9px] font-semibold text-accent">Compartida</span>
                         )}
                       </div>
                       {banco.descripcion && <p className="text-[11px] text-ink-muted truncate max-w-[140px]">{banco.descripcion}</p>}
@@ -431,7 +443,7 @@ export default function CarterasPage() {
                   </div>
                   <div className="flex gap-0.5">
                     {banco.tipo === 'compartida' && banco.codigoCompartir && (
-                      <button onClick={() => setShareTarget(banco)} className="rounded p-1 text-ink-muted hover:bg-violet-50 hover:text-violet-600 transition-colors" title="Compartir">
+                      <button onClick={() => setShareTarget(banco)} className="rounded p-1 text-ink-muted hover:bg-accent-subtle hover:text-accent transition-colors" title="Compartir">
                         <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
                       </button>
                     )}
@@ -448,11 +460,11 @@ export default function CarterasPage() {
                   <p className="text-lg font-bold text-ink mt-0.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>${banco.saldo.toLocaleString()}</p>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => setDepositTarget(banco)} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-[11px] font-semibold text-green-700 hover:bg-green-100 transition-colors">
+                  <button onClick={() => setDepositTarget(banco)} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/20 bg-primary-subtle px-3 py-2 text-[11px] font-semibold text-primary-dark hover:bg-primary-subtle transition-colors">
                     <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
                     Depositar
                   </button>
-                  <button onClick={() => setRetiroTarget(banco)} disabled={banco.saldo <= 0} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] font-semibold text-amber-700 hover:bg-amber-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                  <button onClick={() => setRetiroTarget(banco)} disabled={banco.saldo <= 0} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-accent/20 bg-accent-subtle px-3 py-2 text-[11px] font-semibold text-accent hover:bg-accent-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                     <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4" /></svg>
                     Retirar
                   </button>
