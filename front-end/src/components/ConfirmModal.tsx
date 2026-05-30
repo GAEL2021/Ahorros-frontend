@@ -23,9 +23,9 @@ export default function ConfirmModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-white shadow-xl animate-scale-in">
+      <div className="w-full max-w-sm rounded-lg border border-border bg-[#141820] shadow-xl animate-scale-in">
         <div className="px-6 py-5 text-center space-y-4">
-          <div className={`mx-auto flex h-12 w-12 items-center justify-center rounded-full ${danger ? 'bg-red-100' : 'bg-primary-subtle'}`}>
+          <div className={`mx-auto flex h-12 w-12 items-center justify-center rounded-full ${danger ? 'bg-danger/15' : 'bg-primary-subtle'}`}>
             {danger ? (
               <svg className="h-6 w-6 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -47,7 +47,7 @@ export default function ConfirmModal({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors disabled:opacity-50"
+              className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-ink-muted hover:bg-[#1a1e27] transition-colors disabled:opacity-50"
             >
               Cancelar
             </button>

@@ -31,7 +31,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
   }
 
   return (
-    <div className="rounded-lg border border-border bg-white p-4">
+    <div className="rounded-lg border border-border bg-[#141820] p-4">
       <div className="flex items-center justify-between mb-3">
         <div>
           <h3 className="text-sm font-semibold text-ink">Checklist</h3>
@@ -91,7 +91,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
           onChange={(e) => setNewText(e.target.value)}
           placeholder="Nuevo ítem..."
           maxLength={300}
-          className="flex-1 rounded-md border border-border px-3 py-2 text-sm bg-surface-raised focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-ink-muted"
+          className="flex-1 rounded-md border border-border px-3 py-2 text-sm bg-[#1a1e27] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-ink-muted"
         />
         <div className="relative w-28">
           <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-ink-muted">$</span>
@@ -101,7 +101,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
             value={newMonto || ''}
             onChange={(e) => setNewMonto(Math.max(0, Number(e.target.value) || 0))}
             placeholder="0"
-            className="w-full rounded-md border border-border pl-5 pr-2 py-2 text-sm bg-surface-raised focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="w-full rounded-md border border-border pl-5 pr-2 py-2 text-sm bg-[#1a1e27] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
         <button
@@ -134,7 +134,7 @@ function ChecklistRow({
   disabled: boolean
 }) {
   return (
-    <li className="group flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-surface-raised transition-colors">
+    <li className="group flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-[#1a1e27] transition-colors">
       <button
         type="button"
         onClick={onToggle}
@@ -165,7 +165,7 @@ function ChecklistRow({
         type="button"
         onClick={onDelete}
         disabled={disabled}
-        className="flex-shrink-0 rounded p-0.5 text-ink-muted opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-danger transition-all"
+        className="flex-shrink-0 rounded p-0.5 text-ink-muted opacity-0 group-hover:opacity-100 hover:bg-danger/10 hover:text-danger transition-all"
         title="Eliminar"
       >
         <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

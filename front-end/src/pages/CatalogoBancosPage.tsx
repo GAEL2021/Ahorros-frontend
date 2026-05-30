@@ -33,10 +33,10 @@ function AddBancoModal({ open, onClose }: { open: boolean; onClose: () => void }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-white shadow-xl animate-scale-in">
+      <div className="w-full max-w-sm rounded-lg border border-border bg-[#141820] shadow-xl animate-scale-in">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h2 className="text-base font-semibold text-ink">Agregar Banco</h2>
-          <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
+          <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-[#1a1e27] hover:text-ink transition-colors">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
@@ -54,12 +54,12 @@ function AddBancoModal({ open, onClose }: { open: boolean; onClose: () => void }
             </div>
           </div>
           {create.isError && (
-            <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger">
+            <div className="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
               {create.error instanceof Error ? create.error.message : 'Error al agregar'}
             </div>
           )}
           <div className="flex justify-end gap-3">
-            <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">Cancelar</button>
+            <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-[#1a1e27] transition-colors">Cancelar</button>
             <button type="submit" disabled={create.isPending || !nombre.trim()} className="rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent/90 disabled:opacity-50 transition-colors">
               {create.isPending ? 'Agregando...' : 'Agregar'}
             </button>
@@ -90,15 +90,15 @@ export default function CatalogoBancosPage() {
   if (!esAdmin) {
     return (
       <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-16 text-center animate-fade-in">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-            <svg className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <div className="rounded-lg border border-danger/30 bg-danger/10 px-6 py-16 text-center animate-fade-in">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-danger/15">
+            <svg className="h-8 w-8 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           <h3 className="text-lg font-semibold text-ink">Acceso denegado</h3>
           <p className="mt-1.5 text-sm text-ink-muted">No tienes permisos para acceder a esta seccion.</p>
-          <button type="button" onClick={() => navigate('/', { replace: true })} className="mt-6 inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">
+          <button type="button" onClick={() => navigate('/', { replace: true })} className="mt-6 inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-ink-muted hover:bg-[#1a1e27] transition-colors">
             Volver al inicio
           </button>
         </div>
@@ -124,7 +124,7 @@ export default function CatalogoBancosPage() {
       </div>
 
       {isLoading && (
-        <div className="flex items-center justify-center rounded-lg border border-border bg-white py-20">
+        <div className="flex items-center justify-center rounded-lg border border-border bg-[#141820] py-20">
           <div className="flex flex-col items-center gap-3">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-violet-600" />
             <p className="text-sm text-ink-muted">Cargando catálogo...</p>
@@ -133,7 +133,7 @@ export default function CatalogoBancosPage() {
       )}
 
       {!isLoading && bancos && bancos.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border bg-white px-6 py-16 text-center animate-fade-in">
+        <div className="rounded-lg border border-dashed border-border bg-[#141820] px-6 py-16 text-center animate-fade-in">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent-subtle">
             <svg className="h-8 w-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -147,7 +147,7 @@ export default function CatalogoBancosPage() {
       {!isLoading && bancos && bancos.length > 0 && (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {bancos.map((b) => (
-            <div key={b.id} className="flex items-center justify-between rounded-lg border border-border bg-white px-4 py-3 animate-slide-up">
+            <div key={b.id} className="flex items-center justify-between rounded-lg border border-border bg-[#141820] px-4 py-3 animate-slide-up">
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-lg flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: b.color }}>
                   {b.icono || b.nombre.charAt(0).toUpperCase()}
@@ -160,7 +160,7 @@ export default function CatalogoBancosPage() {
                   onSuccess: () => sileo.info(`"${b.nombre}" eliminado del catálogo`),
                   onError: () => sileo.error('Error al eliminar'),
                 })}
-                className="rounded p-1 text-ink-muted hover:bg-red-50 hover:text-red-600 transition-colors"
+                className="rounded p-1 text-ink-muted hover:bg-danger/10 hover:text-danger transition-colors"
                 title="Eliminar"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>

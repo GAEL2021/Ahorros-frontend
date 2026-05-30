@@ -107,7 +107,7 @@ export default function CalendarPage() {
             <span className="text-[10px] font-semibold uppercase tracking-wider text-primary-dark">Completadas</span>
             <p className="mt-0.5 text-lg font-bold text-ink">{completedGoals}</p>
           </div>
-          <div className="rounded-lg border border-border bg-surface-raised px-4 py-3">
+          <div className="rounded-lg border border-border bg-[#1a1e27] px-4 py-3">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Ahorrado</span>
             <p className="mt-0.5 text-lg font-bold text-primary" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               ${totalSaved.toLocaleString()}
@@ -121,7 +121,7 @@ export default function CalendarPage() {
         <button
           type="button"
           onClick={prevMonth}
-          className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-ink-secondary hover:bg-surface-raised hover:text-ink transition-colors"
+          className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-ink-secondary hover:bg-[#1a1e27] hover:text-ink transition-colors"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -142,7 +142,7 @@ export default function CalendarPage() {
         <button
           type="button"
           onClick={nextMonth}
-          className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-ink-secondary hover:bg-surface-raised hover:text-ink transition-colors"
+          className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-ink-secondary hover:bg-[#1a1e27] hover:text-ink transition-colors"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -170,7 +170,7 @@ export default function CalendarPage() {
                   className={`flex-shrink-0 rounded-full border px-3 py-1 text-[11px] font-medium transition-colors ${
                     isCurrent
                       ? 'border-primary bg-primary-subtle text-primary'
-                      : 'border-border bg-white text-ink-muted hover:bg-surface-raised hover:border-primary/30'
+                      : 'border-border bg-[#141820] text-ink-muted hover:bg-[#1a1e27] hover:border-primary/30'
                   }`}
                 >
                   {SHORT_MONTHS[m]} {y}
@@ -182,9 +182,9 @@ export default function CalendarPage() {
       )}
 
       {/* Calendar grid */}
-      <div className="rounded-lg border border-border bg-white overflow-hidden">
+      <div className="rounded-lg border border-border bg-[#141820] overflow-hidden">
         {/* Weekday headers */}
-        <div className="grid grid-cols-7 border-b border-border bg-surface-raised">
+        <div className="grid grid-cols-7 border-b border-border bg-[#1a1e27]">
           {WEEKDAYS.map((d) => (
             <div key={d} className="px-1 py-2 text-center text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
               {d}
@@ -196,7 +196,7 @@ export default function CalendarPage() {
         <div className="grid grid-cols-7">
           {/* Empty cells before first day */}
           {Array.from({ length: firstDay }).map((_, i) => (
-            <div key={`empty-${i}`} className="border-b border-r border-border-light bg-surface-raised/50 min-h-[90px] sm:min-h-[110px]" />
+            <div key={`empty-${i}`} className="border-b border-r border-border-light bg-[#1a1e27]/50 min-h-[90px] sm:min-h-[110px]" />
           ))}
 
           {/* Day cells */}
@@ -229,7 +229,7 @@ export default function CalendarPage() {
                     const pct = Math.min(100, Math.round((g.montoAcumulado / g.montoObjetivo) * 100))
                     const pillColor =
                       g.estado === 'completado' ? 'bg-primary-subtle text-primary-dark border-primary/20' :
-                      g.estado === 'cancelado' ? 'bg-stone-100 text-stone-500 border-stone-200' :
+                      g.estado === 'cancelado' ? 'bg-white/5 text-ink-muted border-border' :
                       'bg-primary-subtle text-primary-dark border-primary/20'
 
                     return (
@@ -242,7 +242,7 @@ export default function CalendarPage() {
                           <span className="font-semibold truncate">{g.nombre}</span>
                           <span className="font-bold tabular-nums flex-shrink-0">{pct}%</span>
                         </div>
-                        <div className="mt-0.5 h-1 w-full rounded-full bg-white/60 overflow-hidden">
+                        <div className="mt-0.5 h-1 w-full rounded-full bg-[#141820]/60 overflow-hidden">
                           <div
                             className="h-full rounded-full bg-current opacity-70"
                             style={{ width: `${pct}%` }}
@@ -260,7 +260,7 @@ export default function CalendarPage() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="flex items-center justify-center rounded-lg border border-border bg-white py-20 animate-fade-in">
+        <div className="flex items-center justify-center rounded-lg border border-border bg-[#141820] py-20 animate-fade-in">
           <div className="flex flex-col items-center gap-3">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary" />
             <p className="text-sm text-ink-muted">Cargando metas...</p>

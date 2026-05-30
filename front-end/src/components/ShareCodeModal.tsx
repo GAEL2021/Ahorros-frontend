@@ -74,13 +74,13 @@ export default function ShareCodeModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md rounded-lg border border-border bg-white shadow-xl animate-scale-in">
+      <div className="w-full max-w-md rounded-lg border border-border bg-[#141820] shadow-xl animate-scale-in">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h3 className="text-base font-semibold text-ink">Compartir meta</h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors"
+            className="rounded-md p-1.5 text-ink-muted hover:bg-[#1a1e27] hover:text-ink transition-colors"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -114,7 +114,7 @@ export default function ShareCodeModal({
             <button
               type="button"
               onClick={() => handleShare(whatsappUrl)}
-              className="flex flex-col items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-3 text-emerald-700 transition-all hover:bg-emerald-100 hover:border-emerald-300 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              className="flex flex-col items-center gap-1.5 rounded-lg border border-success/30 bg-success/10 px-3 py-3 text-success transition-all hover:bg-success/15 hover:border-success/40 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-success/20"
             >
               <WhatsAppIcon />
               <span className="text-[11px] font-semibold">WhatsApp</span>
@@ -136,7 +136,7 @@ export default function ShareCodeModal({
               onClick={handleCopy}
               className={`flex flex-col items-center gap-1.5 rounded-lg border px-3 py-3 transition-all hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 ${
                 copied
-                  ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
+                  ? 'border-emerald-300 bg-success/10 text-emerald-700'
                   : 'border-primary/20 bg-primary-subtle text-primary hover:bg-primary-subtle hover:border-primary/50'
               }`}
             >

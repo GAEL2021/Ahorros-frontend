@@ -62,10 +62,10 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md rounded-lg border border-border bg-white shadow-xl animate-scale-in">
+      <div className="w-full max-w-md rounded-lg border border-border bg-[#141820] shadow-xl animate-scale-in">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h3 className="text-base font-semibold text-ink">Aportar Dinero</h3>
-          <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
+          <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-[#1a1e27] hover:text-ink transition-colors">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -74,7 +74,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
 
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
           {/* Goal summary */}
-          <div className="rounded-lg border border-border bg-surface-raised px-4 py-3 space-y-2">
+          <div className="rounded-lg border border-border bg-[#1a1e27] px-4 py-3 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-ink truncate max-w-[60%]">{meta.nombre}</span>
               <span className="text-[11px] font-medium text-ink-muted">{progressPct}% completado</span>
@@ -137,7 +137,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
                   className={`rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors ${
                     monto === amount
                       ? 'border-primary bg-primary-subtle text-primary-dark'
-                      : 'border-border bg-white text-ink-muted hover:bg-surface-raised hover:border-primary/30'
+                      : 'border-border bg-[#141820] text-ink-muted hover:bg-[#1a1e27] hover:border-primary/30'
                   }`}
                 >
                   ${amount.toLocaleString()}
@@ -158,7 +158,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
                     if (banco && monto > banco.saldo) setMonto(0)
                   }
                 }}
-                className="w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded-lg border border-border bg-[#141820] px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <option value="">Sin cartera (aporte directo)</option>
                 {bancosConSaldo.map((b) => (
@@ -186,7 +186,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
               onChange={(e) => setMonto(Math.max(0, Math.min(maxContribution, Number(e.target.value) || 0)))}
               onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault() }}
               placeholder="0"
-              className="w-full rounded-lg border border-border bg-white py-3 pl-9 pr-4 text-lg font-semibold placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-lg border border-border bg-[#141820] py-3 pl-9 pr-4 text-lg font-semibold placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             />
           </div>
@@ -195,7 +195,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
             <button
               type="button"
               onClick={handleClose}
-              className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors"
+              className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-[#1a1e27] transition-colors"
             >
               Cancelar
             </button>

@@ -40,7 +40,7 @@ export default function GoalCalendarSection({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center rounded-lg border border-border bg-white px-4 py-10">
+      <div className="flex items-center justify-center rounded-lg border border-border bg-surface px-4 py-10">
         <div className="flex flex-col items-center gap-3">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
           <p className="text-xs text-ink-muted">Cargando calendario...</p>

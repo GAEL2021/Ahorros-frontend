@@ -90,10 +90,10 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-lg rounded-lg border border-border bg-white shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-lg rounded-lg border border-border bg-[#141820] shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h2 className="text-base font-semibold text-ink">Nueva Meta</h2>
-          <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
+          <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-[#1a1e27] hover:text-ink transition-colors">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -170,7 +170,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
           </div>
 
           {/* Modo de Aporte */}
-          <div className="rounded-lg border border-border bg-surface-raised px-4 py-3">
+          <div className="rounded-lg border border-border bg-[#1a1e27] px-4 py-3">
             <label className="mb-2 block text-[11px] font-semibold text-ink-secondary">Modo de aporte</label>
             <div className="flex rounded-lg border border-border overflow-hidden">
               <button
@@ -179,7 +179,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
                 className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-[11px] font-semibold transition-colors ${
                   modoAporte === 'manual'
                     ? 'bg-primary text-white'
-                    : 'bg-white text-ink-muted hover:bg-surface-raised'
+                    : 'bg-[#141820] text-ink-muted hover:bg-[#1a1e27]'
                 }`}
               >
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -193,7 +193,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
                 className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-[11px] font-semibold transition-colors ${
                   modoAporte === 'automatico'
                     ? 'bg-accent text-white'
-                    : 'bg-white text-ink-muted hover:bg-surface-raised'
+                    : 'bg-[#141820] text-ink-muted hover:bg-[#1a1e27]'
                 }`}
               >
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -229,8 +229,8 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
                     <div>
                       <label className="mb-1.5 block text-[10px] font-semibold text-ink-muted">Tipo de aporte automatico</label>
                       <div className="flex rounded-lg border border-border overflow-hidden">
-                        <button type="button" onClick={() => setProgTipo('fijo')} className={`flex-1 px-2.5 py-2 text-[10px] font-semibold transition-colors ${progTipo === 'fijo' ? 'bg-accent-subtle text-accent' : 'bg-white text-ink-muted'}`}>Monto fijo</button>
-                        <button type="button" onClick={() => setProgTipo('porcentaje')} className={`flex-1 px-2.5 py-2 text-[10px] font-semibold transition-colors ${progTipo === 'porcentaje' ? 'bg-accent-subtle text-accent' : 'bg-white text-ink-muted'}`}>Porcentaje</button>
+                        <button type="button" onClick={() => setProgTipo('fijo')} className={`flex-1 px-2.5 py-2 text-[10px] font-semibold transition-colors ${progTipo === 'fijo' ? 'bg-accent-subtle text-accent' : 'bg-[#141820] text-ink-muted'}`}>Monto fijo</button>
+                        <button type="button" onClick={() => setProgTipo('porcentaje')} className={`flex-1 px-2.5 py-2 text-[10px] font-semibold transition-colors ${progTipo === 'porcentaje' ? 'bg-accent-subtle text-accent' : 'bg-[#141820] text-ink-muted'}`}>Porcentaje</button>
                       </div>
                     </div>
 
@@ -264,13 +264,13 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
           </div>
 
           {createGoal.isError && (
-            <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger">
+            <div className="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
               {createGoal.error instanceof Error ? createGoal.error.message : 'Error al crear la meta'}
             </div>
           )}
 
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">
+            <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-[#1a1e27] transition-colors">
               Cancelar
             </button>
             <button
