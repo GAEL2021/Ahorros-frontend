@@ -8,6 +8,7 @@ import { BancosModule } from './modules/bancos/bancos.module';
 import { ProgramacionesModule } from './modules/programaciones/programaciones.module';
 import { CatalogoBancosModule } from './modules/catalogo-bancos/catalogo-bancos.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { PresupuestosModule } from './modules/presupuestos/presupuestos.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
 
 @Module({
@@ -20,6 +21,7 @@ import { SchedulerModule } from './scheduler/scheduler.module';
     ProgramacionesModule,
     CatalogoBancosModule,
     AdminModule,
+    PresupuestosModule,
     SchedulerModule,
     ScheduleModule.forRoot(),
   ],
