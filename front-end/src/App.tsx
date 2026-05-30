@@ -6,6 +6,7 @@ import CarterasPage from '@/pages/CarterasPage'
 import ProgramacionesPage from '@/pages/ProgramacionesPage'
 import CatalogoBancosPage from '@/pages/CatalogoBancosPage'
 import PresupuestosPage from '@/pages/PresupuestosPage'
+import LogrosPage from '@/pages/LogrosPage'
 import AdminLoginPage from '@/pages/AdminLoginPage'
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="carteras" element={<CarterasPage />} />
         <Route path="programaciones" element={<ProgramacionesPage />} />
         <Route path="presupuestos" element={<PresupuestosPage />} />
+        <Route path="logros" element={<LogrosPage />} />
         <Route path="admin/bancos" element={<CatalogoBancosPage />} />
       </Route>
     </Routes>

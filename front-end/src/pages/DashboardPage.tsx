@@ -4,7 +4,6 @@ import { useFetchGoals } from '@/hooks/useFetchGoals'
 import { useJoinGoal } from '@/hooks/useJoinGoal'
 import GoalCard from '@/components/GoalCard'
 import CreateGoalModal from '@/components/CreateGoalModal'
-import AchievementBadge, { computeAchievements } from '@/components/AchievementBadge'
 import { sileo } from '@/lib/sileo'
 
 function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
@@ -32,8 +31,6 @@ export default function DashboardPage() {
   const [showJoinCode, setShowJoinCode] = useState(false)
   const [joinCodeValue, setJoinCodeValue] = useState('')
 
-  const achievements = goals ? computeAchievements(goals) : []
-
   return (
     <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between animate-fade-in">
@@ -50,21 +47,6 @@ export default function DashboardPage() {
           Nueva meta
         </button>
       </div>
-
-      {/* Achievements */}
-      {achievements.length > 0 && (
-        <div className="mb-6 animate-fade-in">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-ink-muted">Logros</span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {achievements.map((a, i) => (
-              <AchievementBadge key={a.id} achievement={a} index={i} />
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Join code bar */}
       <div className="mb-6 animate-fade-in">
