@@ -73,11 +73,11 @@ export default function MovementsPanel({ goalId, totalMonths, members }: Movemen
             <div key={m.email} className="rounded-lg border border-border bg-surface-raised px-3 py-2.5">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-semibold text-ink">{m.email.split('@')[0]}</span>
-                <span className="text-[10px] font-medium text-ink-muted">
+                <span className="text-[11px] font-medium text-ink-muted">
                   ${m.saldoAportado.toLocaleString()} / ${(m.cuotaMensual * totalMonths).toLocaleString()}
                 </span>
               </div>
-              <div className="flex items-center gap-3 text-[10px]">
+              <div className="flex items-center gap-3 text-[11px]">
                 <span className="flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                   <span className="text-emerald-700 font-semibold">{m.pagadas}</span>
@@ -108,13 +108,13 @@ export default function MovementsPanel({ goalId, totalMonths, members }: Movemen
               <div className="flex items-center gap-3 mb-2.5">
                 <span className="text-xs font-bold text-ink">{MonthNames(mes)}</span>
                 <span className="h-px flex-1 bg-border" />
-                <span className={`text-[10px] font-semibold ${allPaid ? 'text-emerald-600' : hasActivity ? 'text-accent' : 'text-ink-muted'}`}>
+                <span className={`text-[11px] font-semibold ${allPaid ? 'text-emerald-600' : hasActivity ? 'text-accent' : 'text-ink-muted'}`}>
                   Mes {mes}
                 </span>
               </div>
 
               {monthCuotas.length === 0 ? (
-                <p className="text-[11px] text-ink-muted italic pl-5 border-l-2 border-border ml-1.5 py-0.5">
+                <p className="text-xs text-ink-muted italic pl-5 border-l-2 border-border ml-1.5 py-0.5">
                   Sin registros
                 </p>
               ) : (
@@ -126,13 +126,13 @@ export default function MovementsPanel({ goalId, totalMonths, members }: Movemen
                       <div key={c.id} className="flex items-center justify-between pl-5 border-l-2 border-border ml-1.5 py-0.5">
                         <div className="flex items-center gap-2">
                           <span className={`h-2 w-2 rounded-full ${st.dot}`} />
-                          <span className="text-[11px] font-medium text-ink-secondary">{memberName}</span>
+                          <span className="text-xs font-medium text-ink-secondary">{memberName}</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-[11px] tabular-nums text-ink-muted" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                          <span className="text-xs tabular-nums text-ink-muted" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                             ${c.cuotaEsperada.toLocaleString()}
                           </span>
-                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${st.bg} ${st.text}`}>
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${st.bg} ${st.text}`}>
                             {st.label}
                           </span>
                         </div>

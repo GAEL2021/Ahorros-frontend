@@ -62,11 +62,11 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md rounded-lg border border-border bg-surface shadow-xl animate-scale-in">
+      <div className="w-full max-w-md rounded-lg border border-border bg-surface shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h3 className="text-base font-semibold text-ink">Aportar Dinero</h3>
-          <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <button type="button" onClick={handleClose} className="rounded-md p-2 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -77,12 +77,12 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
           <div className="rounded-lg border border-border bg-surface-raised px-4 py-3 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-ink truncate max-w-[60%]">{meta.nombre}</span>
-              <span className="text-[11px] font-medium text-ink-muted">{progressPct}% completado</span>
+              <span className="text-xs font-medium text-ink-muted">{progressPct}% completado</span>
             </div>
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
               <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progressPct}%` }} />
             </div>
-            <div className="flex justify-between text-[11px]">
+            <div className="flex justify-between text-xs">
               <span className="text-ink-muted">
                 Ahorrado:{' '}
                 <span className="font-semibold text-primary-dark" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
@@ -100,7 +100,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
 
           {/* Slider */}
           <div>
-            <label className="mb-2.5 block text-[11px] font-semibold text-ink-secondary">Monto a aportar</label>
+            <label className="mb-2.5 block text-xs font-semibold text-ink-secondary">Monto a aportar</label>
             <RangeSlider
               min={0}
               max={maxContribution}
@@ -115,7 +115,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
             <button
               type="button"
               onClick={() => setMonto(sugerido)}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                 monto === sugerido
                   ? 'border-primary bg-primary-subtle text-primary-dark'
                   : 'border-primary/20 bg-primary-subtle text-primary hover:bg-primary-subtle'
@@ -134,7 +134,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
                   key={amount}
                   type="button"
                   onClick={() => setMonto(amount)}
-                  className={`rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                     monto === amount
                       ? 'border-primary bg-primary-subtle text-primary-dark'
                       : 'border-border bg-surface text-ink-muted hover:bg-surface-raised hover:border-primary/30'
@@ -148,7 +148,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
           {/* Wallet selector */}
           {bancosConSaldo.length > 0 && (
             <div>
-              <label className="mb-2.5 block text-[11px] font-semibold text-ink-secondary">Cartera de origen (opcional)</label>
+              <label className="mb-2.5 block text-xs font-semibold text-ink-secondary">Cartera de origen (opcional)</label>
               <select
                 value={carteraId}
                 onChange={(e) => {
@@ -168,7 +168,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
                 ))}
               </select>
               {selectedBanco && (
-                <p className="mt-1.5 text-[10px] text-ink-muted">
+                <p className="mt-1.5 text-xs text-ink-muted">
                   Maximo disponible: <span className="font-semibold text-primary">${selectedBanco.saldo.toLocaleString()}</span>
                 </p>
               )}
@@ -195,14 +195,14 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
             <button
               type="button"
               onClick={handleClose}
-              className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors"
+              className="rounded-lg border border-border px-4 py-3 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={addContribution.isPending || !monto || monto < 1 || monto > maxContribution}
-              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
               {addContribution.isPending ? 'Aportando...' : 'Confirmar aporte'}
             </button>

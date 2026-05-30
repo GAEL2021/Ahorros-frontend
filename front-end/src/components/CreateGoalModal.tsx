@@ -93,8 +93,8 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
       <div className="w-full max-w-lg rounded-lg border border-border bg-surface shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h2 className="text-base font-semibold text-ink">Nueva Meta</h2>
-          <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <button type="button" onClick={handleClose} className="rounded-md p-2 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -102,7 +102,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
 
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
           <div>
-            <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Nombre</label>
+            <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Nombre</label>
             <input
               type="text"
               required
@@ -115,9 +115,9 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Monto objetivo ($)</label>
+              <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Monto objetivo ($)</label>
               <input
                 type="number"
                 required
@@ -129,7 +129,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Fecha limite</label>
+              <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Fecha limite</label>
               <input
                 type="date"
                 required
@@ -141,7 +141,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
           </div>
 
           <div>
-            <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">
+            <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">
               Invitados (email) — opcional
             </label>
             <div className="flex gap-2">
@@ -160,7 +160,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
             {invitadosEmails.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {invitadosEmails.map((email) => (
-                  <span key={email} className="inline-flex items-center gap-1 rounded-md bg-primary-subtle px-2.5 py-1 text-[11px] font-medium text-primary">
+                  <span key={email} className="inline-flex items-center gap-1 rounded-md bg-primary-subtle px-2.5 py-1 text-xs font-medium text-primary">
                     {email}
                     <button type="button" onClick={() => removeInvitado(email)} className="ml-0.5 hover:text-danger transition-colors">&times;</button>
                   </span>
@@ -171,12 +171,12 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
 
           {/* Modo de Aporte */}
           <div className="rounded-lg border border-border bg-surface-raised px-4 py-3">
-            <label className="mb-2 block text-[11px] font-semibold text-ink-secondary">Modo de aporte</label>
+            <label className="mb-2 block text-xs font-semibold text-ink-secondary">Modo de aporte</label>
             <div className="flex rounded-lg border border-border overflow-hidden">
               <button
                 type="button"
                 onClick={() => setModoAporte('manual')}
-                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-[11px] font-semibold transition-colors ${
+                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-semibold transition-colors ${
                   modoAporte === 'manual'
                     ? 'bg-primary text-white'
                     : 'bg-surface text-ink-muted hover:bg-surface-raised'
@@ -190,7 +190,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
               <button
                 type="button"
                 onClick={() => setModoAporte('automatico')}
-                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-[11px] font-semibold transition-colors ${
+                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-semibold transition-colors ${
                   modoAporte === 'automatico'
                     ? 'bg-accent text-white'
                     : 'bg-surface text-ink-muted hover:bg-surface-raised'
@@ -206,18 +206,18 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
             {modoAporte === 'automatico' && (
               <div className="mt-3 space-y-3 pt-3 border-t border-border-light">
                 {(!bancos || bancos.length === 0) ? (
-                  <p className="text-[11px] text-accent">
+                  <p className="text-xs text-accent">
                     No tienes carteras. Crea una en la seccion "Carteras" primero para usar aporte automatico.
                   </p>
                 ) : (
                   <>
                     <div>
-                      <label className="mb-1.5 block text-[10px] font-semibold text-ink-muted">Cartera origen</label>
+                      <label className="mb-1.5 block text-xs font-semibold text-ink-muted">Cartera origen</label>
                       <select
                         value={carteraId}
                         onChange={(e) => setCarteraId(e.target.value)}
                         required
-                        className="w-full rounded-lg border border-border px-3 py-2 text-[11px] focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                        className="w-full rounded-lg border border-border px-3 py-2.5 text-xs focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                       >
                         <option value="" disabled>Seleccionar cartera</option>
                         {bancos.map((b) => (
@@ -227,31 +227,31 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
                     </div>
 
                     <div>
-                      <label className="mb-1.5 block text-[10px] font-semibold text-ink-muted">Tipo de aporte automatico</label>
+                      <label className="mb-1.5 block text-xs font-semibold text-ink-muted">Tipo de aporte automatico</label>
                       <div className="flex rounded-lg border border-border overflow-hidden">
-                        <button type="button" onClick={() => setProgTipo('fijo')} className={`flex-1 px-2.5 py-2 text-[10px] font-semibold transition-colors ${progTipo === 'fijo' ? 'bg-accent-subtle text-accent' : 'bg-surface text-ink-muted'}`}>Monto fijo</button>
-                        <button type="button" onClick={() => setProgTipo('porcentaje')} className={`flex-1 px-2.5 py-2 text-[10px] font-semibold transition-colors ${progTipo === 'porcentaje' ? 'bg-accent-subtle text-accent' : 'bg-surface text-ink-muted'}`}>Porcentaje</button>
+                        <button type="button" onClick={() => setProgTipo('fijo')} className={`flex-1 px-2.5 py-2 text-xs font-semibold transition-colors ${progTipo === 'fijo' ? 'bg-accent-subtle text-accent' : 'bg-surface text-ink-muted'}`}>Monto fijo</button>
+                        <button type="button" onClick={() => setProgTipo('porcentaje')} className={`flex-1 px-2.5 py-2 text-xs font-semibold transition-colors ${progTipo === 'porcentaje' ? 'bg-accent-subtle text-accent' : 'bg-surface text-ink-muted'}`}>Porcentaje</button>
                       </div>
                     </div>
 
                     {progTipo === 'fijo' ? (
                       <div>
-                        <label className="mb-1.5 block text-[10px] font-semibold text-ink-muted">Monto a transferir ($)</label>
-                        <input type="number" min={1} value={progMonto || ''} onChange={(e) => setProgMonto(Number(e.target.value))} placeholder="Ej. 50000" className="w-full rounded-lg border border-border px-3 py-2 text-[11px] focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20" />
+                        <label className="mb-1.5 block text-xs font-semibold text-ink-muted">Monto a transferir ($)</label>
+                        <input type="number" min={1} value={progMonto || ''} onChange={(e) => setProgMonto(Number(e.target.value))} placeholder="Ej. 50000" className="w-full rounded-lg border border-border px-3 py-2.5 text-xs focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20" />
                       </div>
                     ) : (
                       <div>
-                        <label className="mb-1.5 block text-[10px] font-semibold text-ink-muted">Porcentaje del saldo (%)</label>
+                        <label className="mb-1.5 block text-xs font-semibold text-ink-muted">Porcentaje del saldo (%)</label>
                         <div className="flex items-center gap-2">
                           <input type="range" min={1} max={100} value={progPorcentaje} onChange={(e) => setProgPorcentaje(Number(e.target.value))} className="flex-1" />
-                          <span className="text-[11px] font-semibold text-ink w-9 text-right">{progPorcentaje}%</span>
+                          <span className="text-xs font-semibold text-ink w-9 text-right">{progPorcentaje}%</span>
                         </div>
                       </div>
                     )}
 
                     <div>
-                      <label className="mb-1.5 block text-[10px] font-semibold text-ink-muted">Dia del mes</label>
-                      <select value={progDia} onChange={(e) => setProgDia(Number(e.target.value))} className="w-full rounded-lg border border-border px-3 py-2 text-[11px] focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20">
+                      <label className="mb-1.5 block text-xs font-semibold text-ink-muted">Dia del mes</label>
+                      <select value={progDia} onChange={(e) => setProgDia(Number(e.target.value))} className="w-full rounded-lg border border-border px-3 py-2.5 text-xs focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20">
                         {days.map((d) => (
                           <option key={d} value={d}>{d}</option>
                         ))}
@@ -270,13 +270,13 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
           )}
 
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">
+            <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-3 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">
               Cancelar
             </button>
             <button
               type="submit"
               disabled={createGoal.isPending || (modoAporte === 'automatico' && bancos && bancos.length > 0 && !carteraId)}
-              className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500/30"
+              className="rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500/30"
             >
               {createGoal.isPending ? 'Creando...' : 'Crear meta'}
             </button>

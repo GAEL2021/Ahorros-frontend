@@ -57,16 +57,16 @@ export default function SharedPaymentCalendar({
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="sticky left-0 z-10 bg-surface w-20 px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-ink-muted border-b border-border">
+              <th className="sticky left-0 z-10 bg-surface w-20 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-ink-muted border-b border-border">
                 Mes
               </th>
               {participants.map((p) => (
                 <th key={p.email} className="px-2 py-2.5 text-center border-b border-border">
                   <div className="flex flex-col items-center gap-0.5">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-[10px] font-semibold text-white">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-[11px] font-semibold text-white">
                       {p.displayName.charAt(0).toUpperCase()}
                     </span>
-                    <span className="max-w-[64px] truncate text-[9px] font-medium text-ink-secondary">
+                    <span className="max-w-[64px] truncate text-[10px] font-medium text-ink-secondary">
                       {p.displayName}
                     </span>
                   </div>
@@ -87,7 +87,7 @@ export default function SharedPaymentCalendar({
                   return (
                     <td key={`${p.email}-${mes}`} className="px-1 py-2.5 text-center border-b border-border-light group-hover:bg-surface-raised">
                       <span
-                        className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[10px] font-semibold ${colors.bg} ${colors.border}`}
+                        className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-semibold ${colors.bg} ${colors.border}`}
                         style={{ color: colors.dot.replace('bg-', '').replace('-500', '-700') }}
                       >
                         <span className={`h-1.5 w-1.5 rounded-full ${colors.dot}`} />
@@ -129,7 +129,7 @@ export default function SharedPaymentCalendar({
 
       {/* Legend */}
       <div className="border-t border-border bg-surface-raised px-5 py-3">
-        <div className="flex flex-wrap items-center gap-4 text-[11px] text-ink-muted">
+        <div className="flex flex-wrap items-center gap-4 text-xs text-ink-muted">
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-sm bg-emerald-500" />
             Pagado

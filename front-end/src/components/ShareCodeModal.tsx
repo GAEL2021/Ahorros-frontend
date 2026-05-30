@@ -74,15 +74,15 @@ export default function ShareCodeModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md rounded-lg border border-border bg-surface shadow-xl animate-scale-in">
+      <div className="w-full max-w-md rounded-lg border border-border bg-surface shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h3 className="text-base font-semibold text-ink">Compartir meta</h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors"
+            className="rounded-md p-2 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors"
           >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -96,7 +96,7 @@ export default function ShareCodeModal({
 
           {/* Code display */}
           <div className="rounded-lg border-2 border-dashed border-primary/20 bg-primary-subtle/50 px-4 py-4">
-            <p className="text-center text-[10px] font-semibold uppercase tracking-wider text-ink-muted mb-2">
+            <p className="text-center text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
               Código de invitación
             </p>
             <input
@@ -109,7 +109,7 @@ export default function ShareCodeModal({
           </div>
 
           {/* Share buttons */}
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
             {/* WhatsApp */}
             <button
               type="button"
@@ -117,7 +117,7 @@ export default function ShareCodeModal({
               className="flex flex-col items-center gap-1.5 rounded-lg border border-success/30 bg-success/10 px-3 py-3 text-success transition-all hover:bg-success/15 hover:border-success/40 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-success/20"
             >
               <WhatsAppIcon />
-              <span className="text-[11px] font-semibold">WhatsApp</span>
+              <span className="text-xs font-semibold">WhatsApp</span>
             </button>
 
             {/* Facebook */}
@@ -127,7 +127,7 @@ export default function ShareCodeModal({
               className="flex flex-col items-center gap-1.5 rounded-lg border border-primary/20 bg-primary-subtle/50 px-3 py-3 text-primary-dark transition-all hover:bg-primary-subtle hover:border-primary/50 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
               <FacebookIcon />
-              <span className="text-[11px] font-semibold">Facebook</span>
+              <span className="text-xs font-semibold">Facebook</span>
             </button>
 
             {/* Copy */}
@@ -141,11 +141,11 @@ export default function ShareCodeModal({
               }`}
             >
               {copied ? <CopiedIcon /> : <CopyIcon />}
-              <span className="text-[11px] font-semibold">{copied ? 'Copiado' : 'Copiar'}</span>
+              <span className="text-xs font-semibold">{copied ? 'Copiado' : 'Copiar'}</span>
             </button>
           </div>
 
-          <p className="text-[11px] text-ink-muted text-center">
+          <p className="text-xs text-ink-muted text-center">
             Tus amigos deben usar este código en la sección "Unirse a una meta" del dashboard.
           </p>
         </div>

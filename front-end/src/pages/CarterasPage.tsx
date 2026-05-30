@@ -170,7 +170,7 @@ function DepositarModal({ open, onClose, cartera }: { open: boolean; onClose: ()
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-surface shadow-xl animate-scale-in">
+      <div className="w-full max-w-sm rounded-lg border border-border bg-surface shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h2 className="text-base font-semibold text-ink">Depositar en {cartera.nombre}</h2>
           <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
@@ -222,7 +222,7 @@ function RetirarModal({ open, onClose, cartera }: { open: boolean; onClose: () =
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-surface shadow-xl animate-scale-in">
+      <div className="w-full max-w-sm rounded-lg border border-border bg-surface shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h2 className="text-base font-semibold text-ink">Retirar de {cartera.nombre}</h2>
           <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
@@ -270,7 +270,7 @@ function EditCarteraModal({ open, onClose, cartera }: { open: boolean; onClose: 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md rounded-lg border border-border bg-surface shadow-xl animate-scale-in">
+      <div className="w-full max-w-md rounded-lg border border-border bg-surface shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h2 className="text-base font-semibold text-ink">Editar {cartera.nombre}</h2>
           <button type="button" onClick={onClose} className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
@@ -298,7 +298,7 @@ function ConfirmModal({ open, onClose, onConfirm, title, message, danger }: { op
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-surface shadow-xl animate-scale-in">
+      <div className="w-full max-w-sm rounded-lg border border-border bg-surface shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
         <div className="px-6 py-5">
           <h3 className="text-base font-semibold text-ink">{title}</h3>
           <p className="mt-2 text-sm text-ink-muted">{message}</p>
@@ -320,7 +320,7 @@ function ShareCodeModal({ open, onClose, codigo, carteraNombre }: { open: boolea
   }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-surface shadow-xl animate-scale-in">
+      <div className="w-full max-w-sm rounded-lg border border-border bg-surface shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h2 className="text-base font-semibold text-ink">Compartir "{carteraNombre}"</h2>
           <button type="button" onClick={onClose} className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
@@ -377,7 +377,7 @@ export default function CarterasPage() {
         {!showJoinCode ? (
           <button type="button" onClick={() => setShowJoinCode(true)} className="inline-flex items-center gap-2 rounded-lg border border-dashed border-accent/30 px-4 py-2.5 text-sm font-medium text-accent hover:border-accent/40 hover:bg-accent-subtle/50 focus:outline-none focus:ring-2 focus:ring-accent/20">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
-            Unirse a cartera compartida con código
+            Unirse con código
           </button>
         ) : (
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -431,9 +431,9 @@ export default function CarterasPage() {
                     <div className="h-9 w-9 rounded-lg flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: banco.color }}>
                       {banco.nombre.charAt(0).toUpperCase()}
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold text-ink">{banco.nombre}</h3>
+                        <h3 className="text-sm font-semibold text-ink truncate">{banco.nombre}</h3>
                         {banco.tipo === 'compartida' && (
                           <span className="inline-flex items-center rounded-md bg-accent-subtle px-1.5 py-0.5 text-[9px] font-semibold text-accent">Compartida</span>
                         )}

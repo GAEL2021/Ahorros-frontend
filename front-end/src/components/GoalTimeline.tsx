@@ -67,7 +67,7 @@ function CoinRing({ progress, paceColor }: { progress: number; paceColor: string
 
   return (
     <div className="relative inline-flex">
-      <svg width={130} height={130} viewBox="0 0 130 130" className="-rotate-90 drop-shadow-sm">
+      <svg width={100} height={100} viewBox="0 0 130 130" className="-rotate-90 drop-shadow-sm sm:w-[130px] sm:h-[130px]">
         <defs>
           <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#059669" />
@@ -216,7 +216,7 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
           <h3 className="text-sm font-semibold text-ink">Progreso de la Meta</h3>
           <p className="mt-0.5 text-xs text-ink-muted">{meta.nombre}</p>
         </div>
-        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${paceConfig.badge}`}>
+        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${paceConfig.badge}`}>
           <span className={`h-1.5 w-1.5 rounded-full ${paceConfig.dot}`} />
           {paceConfig.label}
         </span>
@@ -233,25 +233,25 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
           {/* 4 KPI cards */}
           <div className="grid grid-cols-2 gap-2.5">
             <div className="rounded-lg border border-primary/10 bg-primary-subtle/50 px-3 py-2.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-primary-dark">Meta Total</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-primary-dark">Meta Total</span>
               <p className="mt-0.5 text-sm font-bold tabular-nums text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 ${meta.montoObjetivo.toLocaleString()}
               </p>
             </div>
             <div className="rounded-lg border border-primary/10 bg-primary-subtle/50 px-3 py-2.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-primary-dark">Ahorrado</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-primary-dark">Ahorrado</span>
               <p className="mt-0.5 text-sm font-bold tabular-nums text-primary-dark" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 ${meta.montoAcumulado.toLocaleString()}
               </p>
             </div>
             <div className="rounded-lg border border-border bg-surface-raised px-3 py-2.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Restante</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">Restante</span>
               <p className="mt-0.5 text-sm font-bold tabular-nums text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 ${remaining.toLocaleString()}
               </p>
             </div>
             <div className="rounded-lg border border-border bg-surface-raised px-3 py-2.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">T. Transcurrido</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">T. Transcurrido</span>
               <p className="mt-0.5 text-sm font-bold tabular-nums text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 {timePct}%
               </p>
@@ -260,7 +260,7 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
 
           {/* Money bars chart */}
           <div className="rounded-lg border border-border bg-surface-raised px-3 py-3">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Ahorro acumulado vs Tiempo</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">Ahorro acumulado vs Tiempo</span>
             <div className="mt-2">
               <MoneyBars
                 progress={progressPct}

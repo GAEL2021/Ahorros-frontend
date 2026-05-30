@@ -98,17 +98,17 @@ export default function CalendarPage() {
 
       {/* Summary cards */}
       {!isLoading && goals && (
-        <div className="grid grid-cols-3 gap-3 mb-6 animate-fade-in">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6 animate-fade-in">
           <div className="rounded-lg border border-primary/10 bg-primary-subtle/50 px-4 py-3">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-primary-dark">Activas</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-primary-dark">Activas</span>
             <p className="mt-0.5 text-lg font-bold text-ink">{activeGoals}</p>
           </div>
           <div className="rounded-lg border border-primary/10 bg-primary-subtle/50 px-4 py-3">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-primary-dark">Completadas</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-primary-dark">Completadas</span>
             <p className="mt-0.5 text-lg font-bold text-ink">{completedGoals}</p>
           </div>
           <div className="rounded-lg border border-border bg-surface-raised px-4 py-3">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Ahorrado</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">Ahorrado</span>
             <p className="mt-0.5 text-lg font-bold text-primary" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               ${totalSaved.toLocaleString()}
             </p>
@@ -121,7 +121,7 @@ export default function CalendarPage() {
         <button
           type="button"
           onClick={prevMonth}
-          className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-ink-secondary hover:bg-surface-raised hover:text-ink transition-colors"
+          className="rounded-lg border border-border px-3 py-3 text-sm font-medium text-ink-secondary hover:bg-surface-raised hover:text-ink transition-colors"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -142,7 +142,7 @@ export default function CalendarPage() {
         <button
           type="button"
           onClick={nextMonth}
-          className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-ink-secondary hover:bg-surface-raised hover:text-ink transition-colors"
+          className="rounded-lg border border-border px-3 py-3 text-sm font-medium text-ink-secondary hover:bg-surface-raised hover:text-ink transition-colors"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -182,79 +182,83 @@ export default function CalendarPage() {
       )}
 
       {/* Calendar grid */}
-      <div className="rounded-lg border border-border bg-surface overflow-hidden">
-        {/* Weekday headers */}
-        <div className="grid grid-cols-7 border-b border-border bg-surface-raised">
-          {WEEKDAYS.map((d) => (
-            <div key={d} className="px-1 py-2 text-center text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
-              {d}
+      <div className="overflow-x-auto">
+        <div className="min-w-[600px]">
+          <div className="rounded-lg border border-border bg-surface overflow-hidden">
+            {/* Weekday headers */}
+            <div className="grid grid-cols-7 border-b border-border bg-surface-raised">
+              {WEEKDAYS.map((d) => (
+                <div key={d} className="px-1 py-2 text-center text-xs font-semibold uppercase tracking-wider text-ink-muted">
+                  {d}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Days */}
-        <div className="grid grid-cols-7">
-          {/* Empty cells before first day */}
-          {Array.from({ length: firstDay }).map((_, i) => (
-            <div key={`empty-${i}`} className="border-b border-r border-border-light bg-surface-raised/50 min-h-[90px] sm:min-h-[110px]" />
-          ))}
+          {/* Days */}
+          <div className="grid grid-cols-7">
+            {/* Empty cells before first day */}
+            {Array.from({ length: firstDay }).map((_, i) => (
+              <div key={`empty-${i}`} className="border-b border-r border-border-light bg-surface-raised/50 min-h-[90px] sm:min-h-[110px]" />
+            ))}
 
-          {/* Day cells */}
-          {Array.from({ length: daysInMonth }).map((_, i) => {
-            const day = i + 1
-            const dateKey = `${viewYear}-${viewMonth}-${day}`
-            const dayGoals = goalsByDate.get(dateKey) ?? []
-            const todayHighlight = isToday(viewYear, viewMonth, day)
+            {/* Day cells */}
+            {Array.from({ length: daysInMonth }).map((_, i) => {
+              const day = i + 1
+              const dateKey = `${viewYear}-${viewMonth}-${day}`
+              const dayGoals = goalsByDate.get(dateKey) ?? []
+              const todayHighlight = isToday(viewYear, viewMonth, day)
 
-            return (
-              <div
-                key={day}
-                className={`border-b border-r border-border-light p-1.5 min-h-[90px] sm:min-h-[110px] ${
-                  todayHighlight ? 'bg-accent-subtle/30 ring-1 ring-inset ring-accent/30' : ''
-                }`}
-              >
-                <span
-                  className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-semibold ${
-                    todayHighlight
-                      ? 'bg-primary text-white'
-                      : 'text-ink-muted'
+              return (
+                <div
+                  key={day}
+                  className={`border-b border-r border-border-light p-1.5 min-h-[90px] sm:min-h-[110px] ${
+                    todayHighlight ? 'bg-accent-subtle/30 ring-1 ring-inset ring-accent/30' : ''
                   }`}
                 >
-                  {day}
-                </span>
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-semibold ${
+                      todayHighlight
+                        ? 'bg-primary text-white'
+                        : 'text-ink-muted'
+                    }`}
+                  >
+                    {day}
+                  </span>
 
-                {/* Goal pills */}
-                <div className="mt-1 space-y-1">
-                  {dayGoals.map((g) => {
-                    const pct = Math.min(100, Math.round((g.montoAcumulado / g.montoObjetivo) * 100))
-                    const pillColor =
-                      g.estado === 'completado' ? 'bg-primary-subtle text-primary-dark border-primary/20' :
-                      g.estado === 'cancelado' ? 'bg-ink/5 text-ink-muted border-border' :
-                      'bg-primary-subtle text-primary-dark border-primary/20'
+                  {/* Goal pills */}
+                  <div className="mt-1 space-y-1">
+                    {dayGoals.map((g) => {
+                      const pct = Math.min(100, Math.round((g.montoAcumulado / g.montoObjetivo) * 100))
+                      const pillColor =
+                        g.estado === 'completado' ? 'bg-primary-subtle text-primary-dark border-primary/20' :
+                        g.estado === 'cancelado' ? 'bg-ink/5 text-ink-muted border-border' :
+                        'bg-primary-subtle text-primary-dark border-primary/20'
 
-                    return (
-                      <div
-                        key={g.id}
-                        className={`rounded-md border px-1.5 py-1 text-[9px] leading-tight cursor-default ${pillColor}`}
-                        title={`${g.nombre} — ${pct}% — $${g.montoAcumulado.toLocaleString()} de $${g.montoObjetivo.toLocaleString()}`}
-                      >
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="font-semibold truncate">{g.nombre}</span>
-                          <span className="font-bold tabular-nums flex-shrink-0">{pct}%</span>
+                      return (
+                        <div
+                          key={g.id}
+                          className={`rounded-md border px-1.5 py-1 text-[10px] leading-tight cursor-default ${pillColor}`}
+                          title={`${g.nombre} — ${pct}% — $${g.montoAcumulado.toLocaleString()} de $${g.montoObjetivo.toLocaleString()}`}
+                        >
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="font-semibold truncate">{g.nombre}</span>
+                            <span className="font-bold tabular-nums flex-shrink-0">{pct}%</span>
+                          </div>
+                          <div className="mt-0.5 h-1 w-full rounded-full bg-surface/60 overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-current opacity-70"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="mt-0.5 h-1 w-full rounded-full bg-surface/60 overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-current opacity-70"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
+          </div>
         </div>
       </div>
 
@@ -270,7 +274,7 @@ export default function CalendarPage() {
 
       {/* Legend */}
       {goals && goals.length > 0 && (
-        <div className="mt-4 flex flex-wrap items-center gap-4 text-[11px] text-ink-muted">
+        <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-ink-muted">
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-sm bg-success" />
             Activa

@@ -85,7 +85,7 @@ export default function AdminLoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-[11px] font-semibold text-slate-400">Email administrador</label>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-400">Email administrador</label>
               <input
                 type="email"
                 value={email}
@@ -97,7 +97,7 @@ export default function AdminLoginPage() {
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-[11px] font-semibold text-slate-400">Contraseña</label>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-400">Contraseña</label>
               <input
                 type="password"
                 value={password}
@@ -125,7 +125,7 @@ export default function AdminLoginPage() {
           </form>
 
           <p className="mt-6 text-center">
-            <Link to="/" className="text-[11px] text-slate-500 hover:text-slate-300 transition-colors">
+            <Link to="/" className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
               Volver al inicio
             </Link>
           </p>

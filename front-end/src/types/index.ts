@@ -248,3 +248,51 @@ export interface UpdateChecklistItemPayload {
   completado?: boolean
   montoReal?: number
 }
+
+// --- Presupuesto ---
+
+export interface Presupuesto {
+  id: string
+  carteraId: string
+  tipo: 'mensual' | 'quincenal'
+  salarioMensual: number
+  salarioQ1: number
+  salarioQ2: number
+  sobranteAnterior: number
+  efectivoExtra: number
+  metaFijos: number
+  metaOcio: number
+  metaAhorro: number
+  userId: string
+  creadoEn: string
+  gastos?: Gasto[]
+}
+
+export interface Gasto {
+  id: string
+  descripcion: string
+  monto: number
+  categoria: 'fijos' | 'ocio' | 'ahorro'
+  quincena?: 'Q1' | 'Q2'
+  creadoEn: string
+}
+
+export interface CreatePresupuestoPayload {
+  carteraId: string
+  tipo: 'mensual' | 'quincenal'
+  salarioMensual?: number
+  salarioQ1?: number
+  salarioQ2?: number
+  sobranteAnterior: number
+  efectivoExtra: number
+  metaFijos: number
+  metaOcio: number
+  metaAhorro: number
+}
+
+export interface CreateGastoPayload {
+  descripcion: string
+  monto: number
+  categoria: 'fijos' | 'ocio' | 'ahorro'
+  quincena?: 'Q1' | 'Q2'
+}

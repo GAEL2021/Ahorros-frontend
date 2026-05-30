@@ -33,23 +33,23 @@ function AddBancoModal({ open, onClose }: { open: boolean; onClose: () => void }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-surface shadow-xl animate-scale-in">
+      <div className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-lg border border-border bg-surface shadow-xl animate-scale-in">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h2 className="text-base font-semibold text-ink">Agregar Banco</h2>
-          <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          <button type="button" onClick={handleClose} className="rounded-md p-2 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
           <div>
-            <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Nombre del banco</label>
+            <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Nombre del banco</label>
             <input type="text" required value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej. Santander" className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" />
           </div>
           <div>
-            <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Color</label>
+            <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Color</label>
             <div className="flex gap-1.5">
               {DEFAULT_COLORS.map((c) => (
-                <button key={c} type="button" onClick={() => setColor(c)} className={`h-7 w-7 rounded-full border-2 transition-all ${color === c ? 'border-ink scale-110' : 'border-transparent'}`} style={{ backgroundColor: c }} />
+                <button key={c} type="button" onClick={() => setColor(c)} className={`h-9 w-9 rounded-full border-2 transition-all ${color === c ? 'border-ink scale-110' : 'border-transparent'}`} style={{ backgroundColor: c }} />
               ))}
             </div>
           </div>
@@ -160,7 +160,7 @@ export default function CatalogoBancosPage() {
                   onSuccess: () => sileo.info(`"${b.nombre}" eliminado del catálogo`),
                   onError: () => sileo.error('Error al eliminar'),
                 })}
-                className="rounded p-1 text-ink-muted hover:bg-danger/10 hover:text-danger transition-colors"
+                className="rounded-lg p-1.5 text-ink-muted hover:bg-danger/10 hover:text-danger transition-colors"
                 title="Eliminar"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>

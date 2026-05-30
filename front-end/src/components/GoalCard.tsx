@@ -188,7 +188,7 @@ export default function GoalCard({ meta }: GoalCardProps) {
           )}
         </div>
 
-        <div className="flex flex-shrink-0 items-start gap-1">
+        <div className="flex flex-wrap flex-shrink-0 items-start gap-1">
           {isActive && (
             <button onClick={() => setShowContribute(true)} className="inline-flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1.5 text-[10px] font-semibold text-[#0a0e14] shadow-sm transition-all hover:bg-primary-light active:scale-[0.96] focus:outline-none focus:ring-2 focus:ring-primary/30">
               <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
