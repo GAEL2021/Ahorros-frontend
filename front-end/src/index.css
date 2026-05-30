@@ -136,6 +136,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+:root { color-scheme: light; }
+.dark { color-scheme: dark; }
 :root body {
   background-image:
     radial-gradient(ellipse 60% 40% at 50% 0%, rgba(160, 120, 10, 0.04), transparent),
