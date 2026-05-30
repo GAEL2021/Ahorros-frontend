@@ -173,6 +173,7 @@ export default function ProgramacionesPage() {
   const deleteProg = useDeleteProgramacion()
   const toggleProg = useToggleProgramacion()
   const [showCreate, setShowCreate] = useState(false)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
   const getBancoName = (id: string) => bancos?.find((b) => b.id === id)?.nombre ?? id
   const getBancoColor = (id: string) => bancos?.find((b) => b.id === id)?.color ?? '#94a3b8'
@@ -265,19 +266,16 @@ export default function ProgramacionesPage() {
                     >
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-surface transition-transform duration-200 shadow-sm ${prog.activo ? 'translate-x-5' : 'translate-x-1'}`} />
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => deleteProg.mutate(prog.id, {
-                        onSuccess: () => sileo.info('Programacion eliminada'),
-                        onError: () => sileo.error('Error al eliminar'),
-                      })}
-                      className="rounded-md p-1.5 text-ink-muted hover:bg-danger/10 hover:text-danger transition-colors"
-                      title="Eliminar"
-                    >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
+                    {confirmDeleteId === prog.id ? (
+                      <>
+                        <button type="button" onClick={() => { deleteProg.mutate(prog.id, { onSuccess: () => { sileo.info('Programación eliminada'); setConfirmDeleteId(null) }, onError: () => sileo.error('Error al eliminar') }) }} className="rounded-md px-2 py-1 text-[11px] font-semibold text-white bg-danger hover:bg-red-600 transition-colors">Confirmar</button>
+                        <button type="button" onClick={() => setConfirmDeleteId(null)} className="rounded-md p-1.5 text-ink-muted hover:bg-surface transition-colors"><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                      </>
+                    ) : (
+                      <button type="button" onClick={() => setConfirmDeleteId(prog.id)} className="rounded-md p-1.5 text-ink-muted hover:bg-danger/10 hover:text-danger transition-colors" title="Eliminar">
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
