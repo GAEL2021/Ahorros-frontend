@@ -43,40 +43,22 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
       </div>
 
       {total > 0 && (
-        <div>
-          <div className="hidden sm:grid grid-cols-[auto_1fr_90px_90px_80px] gap-2 items-center px-4 py-2 border-b border-border bg-surface-raised/50 text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
+        <div className="overflow-x-auto">
+          {/* Headers */}
+          <div className="grid grid-cols-[auto_1fr_90px_90px_80px] gap-2 items-center px-4 py-2 border-b border-border bg-surface-raised/50 text-[10px] font-semibold uppercase tracking-wider text-ink-muted min-w-[500px]">
             <span className="w-5" /><span>Descripción</span><span className="text-right">Estimado</span><span className="text-right">Real</span><span />
           </div>
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-border min-w-[500px]">
             {itemsList.map((item) => (
-              <li key={item.id}>
-                <div className="hidden sm:grid grid-cols-[auto_1fr_90px_90px_80px] gap-2 items-center px-4 py-2 hover:bg-surface-raised/50 transition-colors">
-                  <button type="button" onClick={() => handleToggle(item)} disabled={toggleItem.isPending} className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${item.completado ? 'bg-primary border-primary text-white' : 'border-border hover:border-primary/50'}`}>
-                    {item.completado && <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                  </button>
-                  <span className={`text-xs leading-tight truncate ${item.completado ? 'text-ink-muted line-through' : 'text-ink'}`}>{item.texto}</span>
-                  <span className="text-[11px] text-ink-muted text-right font-mono">${(item.monto ?? 0).toLocaleString()}</span>
-                  <span className="text-[11px] text-right font-mono">{item.completado && item.montoReal != null ? <span className={item.montoReal > (item.monto ?? 0) ? 'text-danger font-semibold' : item.montoReal < (item.monto ?? 0) ? 'text-success font-semibold' : 'text-ink-muted'}>${item.montoReal.toLocaleString()}</span> : <span className="text-ink-muted/30">—</span>}</span>
-                  <div className="flex items-center justify-end gap-0.5">
-                    {confirmDeleteId === item.id ? (<><button type="button" onClick={() => { deleteItem.mutate(item.id); setConfirmDeleteId(null) }} className="rounded px-2 py-1 text-[10px] font-semibold text-white bg-danger hover:bg-red-600">Eliminar</button><button type="button" onClick={() => setConfirmDeleteId(null)} className="rounded p-1 text-ink-muted hover:bg-surface"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></>) : (<><button type="button" onClick={() => openEdit(item)} className="rounded p-1 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button type="button" onClick={() => setConfirmDeleteId(item.id)} className="rounded p-1 text-ink-muted hover:bg-danger/10 hover:text-danger"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></>)}
-                  </div>
-                </div>
-                <div className="sm:hidden px-4 py-2.5 hover:bg-surface-raised/50 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <button type="button" onClick={() => handleToggle(item)} disabled={toggleItem.isPending} className={`h-5 w-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${item.completado ? 'bg-primary border-primary text-white' : 'border-border hover:border-primary/50'}`}>
-                      {item.completado && <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                    </button>
-                    <span className={`flex-1 text-xs leading-tight ${item.completado ? 'text-ink-muted line-through' : 'text-ink'}`}>{item.texto}</span>
-                  </div>
-                  <div className="flex items-center justify-between mt-1.5">
-                    <div className="flex items-center gap-3 text-[11px]">
-                      <span className="text-ink-muted">Est. <span className="font-mono font-medium">${(item.monto ?? 0).toLocaleString()}</span></span>
-                      {item.completado && item.montoReal != null && <span className={item.montoReal > (item.monto ?? 0) ? 'text-danger font-semibold' : item.montoReal < (item.monto ?? 0) ? 'text-success font-semibold' : 'text-ink-muted'}>Real <span className="font-mono">${item.montoReal.toLocaleString()}</span></span>}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {confirmDeleteId === item.id ? (<><button type="button" onClick={() => { deleteItem.mutate(item.id); setConfirmDeleteId(null) }} className="rounded-lg px-2 py-1.5 text-[11px] font-semibold text-white bg-danger">Eliminar</button><button type="button" onClick={() => setConfirmDeleteId(null)} className="rounded-lg p-1.5 text-ink-muted"><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></>) : (<><button type="button" onClick={() => openEdit(item)} className="rounded-lg p-2 text-ink-muted active:scale-95"><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button type="button" onClick={() => setConfirmDeleteId(item.id)} className="rounded-lg p-2 text-ink-muted active:scale-95"><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></>)}
-                    </div>
-                  </div>
+              <li key={item.id} className="grid grid-cols-[auto_1fr_90px_90px_80px] gap-2 items-center px-4 py-2 hover:bg-surface-raised/50 transition-colors">
+                <button type="button" onClick={() => handleToggle(item)} disabled={toggleItem.isPending} className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${item.completado ? 'bg-primary border-primary text-white' : 'border-border hover:border-primary/50'}`}>
+                  {item.completado && <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                </button>
+                <span className={`text-xs leading-tight truncate ${item.completado ? 'text-ink-muted line-through' : 'text-ink'}`}>{item.texto}</span>
+                <span className="text-[11px] text-ink-muted text-right font-mono">${(item.monto ?? 0).toLocaleString()}</span>
+                <span className="text-[11px] text-right font-mono">{item.completado && item.montoReal != null ? <span className={item.montoReal > (item.monto ?? 0) ? 'text-danger font-semibold' : item.montoReal < (item.monto ?? 0) ? 'text-success font-semibold' : 'text-ink-muted'}>${item.montoReal.toLocaleString()}</span> : <span className="text-ink-muted/30">—</span>}</span>
+                <div className="flex items-center justify-end gap-0.5">
+                  {confirmDeleteId === item.id ? (<><button type="button" onClick={() => { deleteItem.mutate(item.id); setConfirmDeleteId(null) }} className="rounded px-2 py-1 text-[10px] font-semibold text-white bg-danger hover:bg-red-600">Eliminar</button><button type="button" onClick={() => setConfirmDeleteId(null)} className="rounded p-1 text-ink-muted hover:bg-surface"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></>) : (<><button type="button" onClick={() => openEdit(item)} className="rounded p-1 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button type="button" onClick={() => setConfirmDeleteId(item.id)} className="rounded p-1 text-ink-muted hover:bg-danger/10 hover:text-danger"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></>)}
                 </div>
               </li>
             ))}
