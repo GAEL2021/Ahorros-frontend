@@ -62,8 +62,9 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
       toggleItem.mutate({ itemId: item.id, newValue: false })
       return
     }
-    if (metaMontoAcumulado < (item.monto ?? 0)) {
-      sileo.error(`Necesitás $${(item.monto ?? 0).toLocaleString()} ahorrados. Tenés $${metaMontoAcumulado.toLocaleString()}.`)
+    if (metaMontoAcumulado < metaMontoObjetivo) {
+      const pct = Math.round((metaMontoAcumulado / metaMontoObjetivo) * 100)
+      sileo.error(`La meta no está completa. Ahorro: ${pct}%. Necesitás $${metaMontoObjetivo.toLocaleString()} y tenés $${metaMontoAcumulado.toLocaleString()}.`)
       return
     }
     setRealCostItemId(item.id)
