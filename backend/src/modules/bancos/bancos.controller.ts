@@ -38,6 +38,11 @@ export class BancosController {
     return this.bancosService.joinBancoByCode(codigo, req.user as FirebaseUser);
   }
 
+  @Get('transactions')
+  getUserTransactions(@Req() req: Request) {
+    return this.bancosService.getUserTransactions(req.user as FirebaseUser);
+  }
+
   @Get(':id')
   async getBancoById(@Param('id') id: string, @Req() req: Request) {
     const banco = await this.bancosService.getBancoById(id, req.user as FirebaseUser);

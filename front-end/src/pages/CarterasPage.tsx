@@ -132,11 +132,7 @@ function CreateCarteraModal({ open, onClose }: { open: boolean; onClose: () => v
               </div>
             )}
           </div>
-          {createBanco.isError && (
-            <div className="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
-              {createBanco.error instanceof Error ? createBanco.error.message : 'Error al crear'}
-            </div>
-          )}
+
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">Cancelar</button>
             <button type="submit" disabled={createBanco.isPending || !catalogoBancoId} className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50 transition-colors">

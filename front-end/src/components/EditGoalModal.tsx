@@ -93,12 +93,6 @@ export default function EditGoalModal({ open, onClose, meta }: EditGoalModalProp
             </div>
           </div>
 
-          {updateGoal.isError && (
-            <div className="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
-              {updateGoal.error instanceof Error ? updateGoal.error.message : 'Error al actualizar'}
-            </div>
-          )}
-
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"

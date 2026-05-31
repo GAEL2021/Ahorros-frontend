@@ -49,25 +49,31 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
   const [editUploading, setEditUploading] = useState(false)
   const [editUploadProgress, setEditUploadProgress] = useState(0)
   const editFileRef = useRef<HTMLInputElement>(null)
+  const [showConfirmExcessModal, setShowConfirmExcessModal] = useState<{ type: 'add' | 'edit'; action: () => void } | null>(null)
 
   const itemsList = items ?? []
   const totalEstimado = itemsList.reduce((sum, i) => sum + (i.monto ?? 0), 0)
   const totalReal = itemsList.filter((i) => i.completado && i.montoReal != null).reduce((sum, i) => sum + (i.montoReal ?? 0), 0)
   const completados = itemsList.filter((i) => i.completado).length
   const total = itemsList.length
+  const exceso = totalEstimado - metaMontoObjetivo
 
-  const handleAdd = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAdd = async (e: React.FormEvent | null, ignoreExcesoConfirm = false) => {
+    if (e) e.preventDefault();
     if (!newText.trim() || addItem.isPending) return;
-    if (totalEstimado + newMonto > metaMontoObjetivo) {
-      sileo.error(`El total de los ítems ($${(totalEstimado + newMonto).toLocaleString()}) supera el monto objetivo de la meta ($${metaMontoObjetivo.toLocaleString()})`);
+    if (!ignoreExcesoConfirm && (totalEstimado + newMonto > metaMontoObjetivo)) {
+      setShowConfirmExcessModal({
+        type: 'add',
+        action: () => handleAdd(null, true)
+      });
       return;
     }
     try {
-      await addItem.mutateAsync({ texto: newText.trim(), monto: newMonto });
+      await addItem.mutateAsync({ texto: newText.trim(), monto: newMonto, ignorarExceso: true });
       setNewText('');
       setNewMonto(0);
       setShowAddModal(false);
+      setShowConfirmExcessModal(null);
     } catch (err) {
       sileo.error(err instanceof Error ? err.message : 'Error al agregar');
     }
@@ -101,25 +107,162 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
     }
   }
   const openEdit = (item: ChecklistItem) => { setEditingItem(item); setEditText(item.texto); setEditMonto(item.monto ?? 0); setEditUrl(item.comprobante ?? ''); setEditUploadProgress(0) }
-  const saveEdit = async () => {
+  const saveEdit = async (ignoreExcesoConfirm = false) => {
     if (!editingItem || !editText.trim() || updateItem.isPending) return;
     const currentItemMonto = editingItem.monto ?? 0;
-    if (totalEstimado - currentItemMonto + editMonto > metaMontoObjetivo) {
-      sileo.error(`El total de los ítems ($${(totalEstimado - currentItemMonto + editMonto).toLocaleString()}) supera el monto objetivo de la meta ($${metaMontoObjetivo.toLocaleString()})`);
+    if (!ignoreExcesoConfirm && (totalEstimado - currentItemMonto + editMonto > metaMontoObjetivo)) {
+      setShowConfirmExcessModal({
+        type: 'edit',
+        action: () => saveEdit(true)
+      });
       return;
     }
     try {
       await updateItem.mutateAsync({
         itemId: editingItem.id,
-        payload: { texto: editText.trim(), monto: editMonto, comprobante: editUrl || undefined }
+        payload: { texto: editText.trim(), monto: editMonto, comprobante: editUrl || undefined, ignorarExceso: true }
       });
       setEditingItem(null);
+      setShowConfirmExcessModal(null);
     } catch (err) {
       sileo.error(err instanceof Error ? err.message : 'Error al guardar');
     }
   }
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (!file) return;     if (file.size > 5000 * 1024) { sileo.error('Máximo 5MB'); return }; setUploading(true); const r = new FileReader(); r.onprogress = (ev) => { if (ev.lengthComputable) setUploadProgress(Math.round((ev.loaded / ev.total) * 100)) }; r.onload = () => { setRealCostUrl(r.result as string); setUploading(false) }; r.onerror = () => { sileo.error('Error al leer'); setUploading(false) }; r.readAsDataURL(file) }
-  const handleEditFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (!file) return;     if (file.size > 5000 * 1024) { sileo.error('Máximo 5MB'); return }; setEditUploading(true); const r = new FileReader(); r.onprogress = (ev) => { if (ev.lengthComputable) setEditUploadProgress(Math.round((ev.loaded / ev.total) * 100)) }; r.onload = () => { setEditUrl(r.result as string); setEditUploading(false) }; r.onerror = () => { sileo.error('Error al leer'); setEditUploading(false) }; r.readAsDataURL(file) }
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Redimensionar si es muy grande (máximo 1200px de ancho/alto)
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 1200;
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(event.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Comprimir como JPEG con calidad del 70%
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(dataUrl);
+        };
+        img.onerror = () => reject(new Error('Error al cargar la imagen para compresión'));
+        img.src = event.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error('Error al leer el archivo'));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setUploadProgress(10);
+
+    try {
+      if (file.type.startsWith('image/')) {
+        setUploadProgress(30);
+        const compressedDataUrl = await compressImage(file);
+        setUploadProgress(90);
+        setRealCostUrl(compressedDataUrl);
+        setUploadProgress(100);
+      } else {
+        // PDF u otros: Verificar tamaño máximo (5MB)
+        if (file.size > 5000 * 1024) {
+          sileo.error('Los archivos PDF no se pueden comprimir y deben ser menores a 5MB');
+          setUploading(false);
+          return;
+        }
+        const r = new FileReader();
+        r.onprogress = (ev) => {
+          if (ev.lengthComputable) {
+            setUploadProgress(Math.round((ev.loaded / ev.total) * 100));
+          }
+        };
+        r.onload = () => {
+          setRealCostUrl(r.result as string);
+          setUploading(false);
+        };
+        r.onerror = () => {
+          sileo.error('Error al leer el archivo');
+          setUploading(false);
+        };
+        r.readAsDataURL(file);
+        return;
+      }
+    } catch (err) {
+      sileo.error(err instanceof Error ? err.message : 'Error al procesar el archivo');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleEditFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setEditUploading(true);
+    setEditUploadProgress(10);
+
+    try {
+      if (file.type.startsWith('image/')) {
+        setEditUploadProgress(30);
+        const compressedDataUrl = await compressImage(file);
+        setEditUploadProgress(90);
+        setEditUrl(compressedDataUrl);
+        setEditUploadProgress(100);
+      } else {
+        // PDF u otros: Verificar tamaño máximo (5MB)
+        if (file.size > 5000 * 1024) {
+          sileo.error('Los archivos PDF no se pueden comprimir y deben ser menores a 5MB');
+          setEditUploading(false);
+          return;
+        }
+        const r = new FileReader();
+        r.onprogress = (ev) => {
+          if (ev.lengthComputable) {
+            setEditUploadProgress(Math.round((ev.loaded / ev.total) * 100));
+          }
+        };
+        r.onload = () => {
+          setEditUrl(r.result as string);
+          setEditUploading(false);
+        };
+        r.onerror = () => {
+          sileo.error('Error al leer el archivo');
+          setEditUploading(false);
+        };
+        r.readAsDataURL(file);
+        return;
+      }
+    } catch (err) {
+      sileo.error(err instanceof Error ? err.message : 'Error al procesar el archivo');
+    } finally {
+      setEditUploading(false);
+    }
+  };
 
   return (
     <div className="rounded-lg border border-border bg-surface overflow-hidden">
@@ -131,6 +274,21 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
           {total > 0 && <div className="h-1.5 w-16 rounded-full bg-border overflow-hidden"><div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${(completados / total) * 100}%` }} /></div>}
         </div>
       </div>
+
+      {exceso > 0 && (
+        <div className="mx-4 mt-4 rounded-xl border border-warning/30 bg-warning/10 p-4 text-xs text-warning animate-fade-in flex flex-col gap-2">
+          <div className="flex items-center gap-2 font-semibold">
+            <svg className="h-4 w-4 text-warning flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            <span>Advertencia: Presupuesto Excedido</span>
+          </div>
+          <p>
+            El total de tus ítems estimado en el checklist ($<strong>{totalEstimado.toLocaleString()}</strong>) supera el monto objetivo de la meta ($<strong>{metaMontoObjetivo.toLocaleString()}</strong>) por $<strong>{exceso.toLocaleString()}</strong>.
+          </p>
+          <p className="text-ink-muted">
+            <strong>Sugerencias:</strong> Puedes aumentar la meta desde la edición de la meta, o bien ajustar/eliminar elementos del checklist para mantener el presupuesto.
+          </p>
+        </div>
+      )}
 
       {total > 0 && (
         <div className="overflow-x-auto">
@@ -165,7 +323,6 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
           Agregar ítem
         </button>
       </div>
-      {addItem.isError && <p className="px-4 py-2 text-xs text-danger border-t border-border">{addItem.error instanceof Error ? addItem.error.message : 'Error'}</p>}
 
       {/* Full-screen modals */}
       {createPortal(<FullModal open={!!realCostItemId} onClose={() => setRealCostItemId(null)} title="Costo real">
@@ -239,6 +396,30 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
             </div>
           </div>
         </div>, document.body)}
+
+      {showConfirmExcessModal && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in" onClick={() => setShowConfirmExcessModal(null)}>
+          <div className="bg-[var(--bg-sidebar)] rounded-2xl border border-border shadow-2xl w-full max-w-sm overflow-hidden animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6">
+              <h3 className="text-base font-semibold text-ink flex items-center gap-2">
+                <svg className="h-5 w-5 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                Confirmar Exceso
+              </h3>
+              <p className="mt-3 text-xs text-ink-secondary leading-relaxed">
+                El total de los elementos del checklist superará el presupuesto objetivo de la meta de ahorro. ¿Deseas guardar este elemento de todos modos?
+              </p>
+              <div className="mt-6 flex justify-end gap-3">
+                <button type="button" onClick={() => setShowConfirmExcessModal(null)} className="rounded-xl border border-border px-4 py-2 text-xs font-semibold text-ink-muted hover:bg-surface-raised transition-colors">
+                  Cancelar
+                </button>
+                <button type="button" onClick={showConfirmExcessModal.action} className="rounded-xl bg-warning px-4 py-2 text-xs font-semibold text-white hover:bg-orange-600 transition-colors">
+                  Sí, guardar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>, document.body
+      )}
     </div>
   )
 }

@@ -91,7 +91,7 @@ export class GoalsController {
     @Body() dto: CreateChecklistItemDto,
     @Req() req: Request,
   ) {
-    return this.goalsService.addChecklistItem(id, dto.texto, dto.monto ?? 0, req.user as FirebaseUser);
+    return this.goalsService.addChecklistItem(id, dto.texto, dto.monto ?? 0, req.user as FirebaseUser, dto.ignorarExceso ?? false);
   }
 
   @Patch(':id/checklist/:itemId')

@@ -124,9 +124,6 @@ export default function GoalCard({ meta }: GoalCardProps) {
         )}
       </div>
 
-      {deleteGoal.isError && (
-        <div className="border-t border-danger/30 bg-danger/10 px-4 py-2 text-[11px] text-danger">{deleteGoal.error instanceof Error ? deleteGoal.error.message : 'Error al eliminar'}</div>
-      )}
 
       {createPortal(<ShareCodeModal open={showShare} onClose={() => setShowShare(false)} codigo={codigo} metaNombre={meta.nombre} />, document.body)}
       {createPortal(<EditGoalModal open={showEdit} onClose={() => setShowEdit(false)} meta={metaData} />, document.body)}

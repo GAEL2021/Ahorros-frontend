@@ -635,7 +635,7 @@ export class GoalsService {
     })) as Array<ChecklistItem & { id: string }>;
   }
 
-  async addChecklistItem(goalId: string, texto: string, monto: number, user: FirebaseUser) {
+  async addChecklistItem(goalId: string, texto: string, monto: number, user: FirebaseUser, ignorarExceso = false) {
     const db = this.firebaseService.firestore;
     const goalRef = db.collection('metas').doc(goalId);
     const goalDoc = await goalRef.get();
@@ -653,7 +653,7 @@ export class GoalsService {
       return sum + (item.monto ?? 0);
     }, 0);
 
-    if (existingTotal + monto > goalData.montoObjetivo) {
+    if (!ignorarExceso && (existingTotal + monto > goalData.montoObjetivo)) {
       throw new BadRequestException(
         `El total de los ítems ($${(existingTotal + monto).toLocaleString()}) supera el monto objetivo de la meta ($${goalData.montoObjetivo.toLocaleString()})`,
       );
@@ -692,7 +692,7 @@ export class GoalsService {
     return { id: itemId, completado: !data.completado };
   }
 
-  async updateChecklistItem(goalId: string, itemId: string, dto: { texto?: string; completado?: boolean; monto?: number; montoReal?: number; fechaReal?: string; comprobante?: string }) {
+  async updateChecklistItem(goalId: string, itemId: string, dto: { texto?: string; completado?: boolean; monto?: number; montoReal?: number; fechaReal?: string; comprobante?: string; ignorarExceso?: boolean }) {
     const db = this.firebaseService.firestore;
     const itemRef = db
       .collection('metas')
@@ -719,7 +719,7 @@ export class GoalsService {
       throw new BadRequestException('No hay campos para actualizar');
     }
 
-    if (dto.monto !== undefined && dto.monto !== data.monto) {
+    if (dto.monto !== undefined && dto.monto !== data.monto && !dto.ignorarExceso) {
       const goalDoc = await db.collection('metas').doc(goalId).get();
       if (!goalDoc.exists) {
         throw new NotFoundException('Meta no encontrada');

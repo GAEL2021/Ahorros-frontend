@@ -149,11 +149,6 @@ function CreateProgramacionModal({ open, onClose }: { open: boolean; onClose: ()
               ))}
             </select>
           </div>
-          {create.isError && (
-            <div className="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
-              {create.error instanceof Error ? create.error.message : 'Error al crear'}
-            </div>
-          )}
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">Cancelar</button>
             <button type="submit" disabled={create.isPending || !carteraId || !metaId} className="rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent/90 disabled:opacity-50 transition-colors">

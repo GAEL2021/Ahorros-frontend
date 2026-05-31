@@ -130,9 +130,6 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
             </div>
           )}
 
-          {createGoal.isError && (
-            <div className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">{createGoal.error instanceof Error ? createGoal.error.message : 'Error al crear'}</div>
-          )}
 
           <button type="submit" disabled={createGoal.isPending || (modoAporte === 'automatico' && bancos && bancos.length > 0 && !carteraId)} className="w-full rounded-xl bg-primary py-3.5 text-base font-semibold text-[var(--bg)] shadow-lg shadow-primary/20 transition-all hover:bg-primary-light active:scale-[0.98] disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary/30">
             {createGoal.isPending ? 'Creando...' : 'Crear meta'}

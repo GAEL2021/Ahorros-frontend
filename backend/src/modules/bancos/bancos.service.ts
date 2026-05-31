@@ -158,6 +158,44 @@ export class BancosService {
     return { id, ...bancoData };
   }
 
+  private async getMetasDistribucion(bancoRef: FirebaseFirestore.DocumentReference) {
+    const transaccionesSnap = await bancoRef.collection('transacciones').where('tipo', '==', 'aporte_meta').get();
+    const db = this.firebaseService.firestore;
+    const distribucionMap: Record<string, { metaId: string; montoAsignado: number; nombreMeta: string }> = {};
+    let totalAportado = 0;
+
+    for (const doc of transaccionesSnap.docs) {
+      const trans = doc.data() as TransaccionDocument;
+      if (trans.metaId && trans.monto > 0) {
+        totalAportado += trans.monto;
+        if (!distribucionMap[trans.metaId]) {
+          distribucionMap[trans.metaId] = {
+            metaId: trans.metaId,
+            montoAsignado: 0,
+            nombreMeta: 'Cargando meta...'
+          };
+        }
+        distribucionMap[trans.metaId].montoAsignado += trans.monto;
+      }
+    }
+
+    const list = Object.values(distribucionMap);
+
+    for (const item of list) {
+      const metaDoc = await db.collection('metas').doc(item.metaId).get();
+      if (metaDoc.exists) {
+        item.nombreMeta = metaDoc.data()?.['nombre'] ?? 'Meta';
+      } else {
+        item.nombreMeta = 'Meta eliminada';
+      }
+    }
+
+    return list.map(item => ({
+      ...item,
+      porcentaje: totalAportado > 0 ? Math.round((item.montoAsignado / totalAportado) * 100) : 0
+    }));
+  }
+
   async getUserBancos(user: FirebaseUser) {
     const db = this.firebaseService.firestore;
 
@@ -166,10 +204,11 @@ export class BancosService {
       .where('uid', '==', user.uid)
       .get();
 
-    const bancos: Array<BancoDocument & { id: string }> = [];
+    const bancos: Array<BancoDocument & { id: string; metasDistribucion?: any[] }> = [];
     for (const doc of propiosSnapshot.docs) {
       const data = doc.data() as BancoDocument;
-      bancos.push({ id: doc.id, ...data });
+      const metasDistribucion = await this.getMetasDistribucion(doc.ref);
+      bancos.push({ id: doc.id, ...data, metasDistribucion });
     }
 
     if (user.email) {
@@ -185,7 +224,8 @@ export class BancosService {
 
         if (!miembrosSnapshot.empty) {
           const data = bancoDoc.data() as BancoDocument;
-          bancos.push({ id: bancoDoc.id, ...data });
+          const metasDistribucion = await this.getMetasDistribucion(bancoDoc.ref);
+          bancos.push({ id: bancoDoc.id, ...data, metasDistribucion });
         }
       }
     }
@@ -211,9 +251,10 @@ export class BancosService {
       throw new ForbiddenException('No tienes acceso a esta cartera');
     }
 
-    const [miembrosSnapshot, transaccionesSnapshot] = await Promise.all([
+    const [miembrosSnapshot, transaccionesSnapshot, metasDistribucion] = await Promise.all([
       doc.ref.collection('miembros').get(),
       doc.ref.collection('transacciones').orderBy('fecha', 'desc').limit(50).get(),
+      this.getMetasDistribucion(doc.ref),
     ]);
 
     const miembros = miembrosSnapshot.docs.map((d) => ({
@@ -226,7 +267,7 @@ export class BancosService {
       ...d.data(),
     })) as Array<TransaccionDocument & { id: string }>;
 
-    return { id: doc.id, ...data, miembros, transacciones };
+    return { id: doc.id, ...data, miembros, transacciones, metasDistribucion };
   }
 
   async updateBanco(bancoId: string, dto: UpdateBancoDto, user: FirebaseUser) {
@@ -487,6 +528,27 @@ export class BancosService {
     } as TransaccionDocument);
 
     return { saldoAnterior: data.saldo, nuevoSaldo };
+  }
+
+  async getUserTransactions(user: FirebaseUser) {
+    const db = this.firebaseService.firestore;
+    const bancos = await this.getUserBancos(user);
+    const transacciones: Array<TransaccionDocument & { id: string; bancoNombre: string; bancoColor: string }> = [];
+
+    for (const banco of bancos) {
+      const transSnap = await db.collection('bancos').doc(banco.id).collection('transacciones').get();
+      for (const doc of transSnap.docs) {
+        const data = doc.data() as TransaccionDocument;
+        transacciones.push({
+          id: doc.id,
+          bancoNombre: banco.nombre,
+          bancoColor: banco.color,
+          ...data,
+        });
+      }
+    }
+
+    return transacciones.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
   }
 
   private async assertMember(

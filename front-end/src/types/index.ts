@@ -37,6 +37,12 @@ export interface Cartera {
   creadoPor: string
   creadoEn: string
   codigoCompartir: string
+  metasDistribucion?: Array<{
+    metaId: string
+    montoAsignado: number
+    nombreMeta: string
+    porcentaje: number
+  }>
 }
 
 export interface BancoMember {
@@ -242,6 +248,7 @@ export interface ChecklistItem {
 export interface CreateChecklistItemPayload {
   texto: string
   monto: number
+  ignorarExceso?: boolean
 }
 
 export interface UpdateChecklistItemPayload {
@@ -250,6 +257,7 @@ export interface UpdateChecklistItemPayload {
   completado?: boolean
   montoReal?: number
   comprobante?: string
+  ignorarExceso?: boolean
 }
 
 // --- Presupuesto ---

@@ -27,3 +27,16 @@ export function useBancoDetail(id: string) {
     enabled: !!id,
   })
 }
+
+async function fetchTransactions(): Promise<any[]> {
+  const { data } = await apiClient.get<any[]>('/bancos/transactions')
+  return data
+}
+
+export function useFetchTransactions() {
+  return useQuery<any[]>({
+    queryKey: ['transactions'],
+    queryFn: fetchTransactions,
+    refetchInterval: 15_000,
+  })
+}
