@@ -40,7 +40,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in" onClick={handleClose}>
-      <div className="glass rounded-2xl shadow-xl w-full max-w-md sm:max-w-xl max-h-[90vh] overflow-y-auto animate-scale-in" onClick={(e) => e.stopPropagation()}>
+      <div className="glass rounded-2xl shadow-xl w-full sm:max-w-xl max-h-[90vh] overflow-y-auto animate-scale-in" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-border px-5 py-4 sticky top-0 bg-[var(--glass-bg)] backdrop-blur-xl z-10">
           <h2 className="text-lg font-semibold text-ink">Nueva Meta</h2>
           <button type="button" onClick={handleClose} className="rounded-xl p-2 text-ink-muted hover:bg-surface hover:text-ink transition-colors">
