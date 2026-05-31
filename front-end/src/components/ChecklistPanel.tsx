@@ -98,10 +98,18 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
   const handleConfirmRealCost = async () => {
     if (!realCostItemId) return
     if (!realCostCarteraId) { sileo.error('Seleccioná una cartera para el gasto'); return }
+    const targetCarteraId = realCostCarteraId
     setRealCostItemId(null)
     try {
-      await toggleItem.mutateAsync({ itemId: realCostItemId, newValue: true, montoReal: realCostValue, fechaReal: realCostDate, comprobante: realCostUrl || undefined })
-      sileo.success(`✅ Gasto registrado: $${realCostValue.toLocaleString()}`)
+      await toggleItem.mutateAsync({
+        itemId: realCostItemId,
+        newValue: true,
+        montoReal: realCostValue,
+        fechaReal: realCostDate,
+        comprobante: realCostUrl || undefined,
+        carteraId: targetCarteraId
+      })
+      sileo.success(`✅ Gasto registrado y debitado: $${realCostValue.toLocaleString()}`)
     } catch (err) {
       sileo.error(err instanceof Error ? err.message : 'Error al guardar')
     }

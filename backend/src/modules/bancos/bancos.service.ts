@@ -262,12 +262,61 @@ export class BancosService {
       ...d.data(),
     })) as Array<BancoMember & { id: string }>;
 
-    const transacciones = transaccionesSnapshot.docs.map((d) => ({
+    const rawTransacciones = transaccionesSnapshot.docs.map((d) => ({
       id: d.id,
       ...d.data(),
     })) as Array<TransaccionDocument & { id: string }>;
 
+    const uidToEmailMap: Record<string, string> = {};
+    for (const m of miembros) {
+      if (m.uid) {
+        uidToEmailMap[m.uid] = m.email;
+      }
+    }
+
+    const resolvedTransacciones = await this.resolveMetaNames(rawTransacciones);
+    const transacciones = resolvedTransacciones.map((t) => {
+      let usuarioEmail = uidToEmailMap[t.userId];
+      if (!usuarioEmail) {
+        const creadorMiembro = miembros.find((m) => m.rol === 'creador');
+        usuarioEmail = creadorMiembro ? creadorMiembro.email : 'sistema@savesmart.com';
+      }
+      return {
+        ...t,
+        usuarioEmail,
+        usuarioNombre: usuarioEmail.split('@')[0],
+      };
+    });
+
     return { id: doc.id, ...data, miembros, transacciones, metasDistribucion };
+  }
+
+  private async resolveMetaNames(transacciones: any[]): Promise<any[]> {
+    const db = this.firebaseService.firestore;
+    const metaCache: Record<string, string> = {};
+    const result: any[] = [];
+
+    for (const t of transacciones) {
+      let descripcion = t.descripcion;
+      let metaNombre = undefined;
+
+      if (t.metaId) {
+        if (!metaCache[t.metaId]) {
+          const metaDoc = await db.collection('metas').doc(t.metaId).get();
+          metaCache[t.metaId] = metaDoc.exists ? (metaDoc.data()?.['nombre'] ?? 'Meta') : 'Meta eliminada';
+        }
+        metaNombre = metaCache[t.metaId];
+        if (t.tipo === 'aporte_meta') {
+          descripcion = `Aporte a meta: ${metaNombre}`;
+        }
+      }
+      result.push({
+        ...t,
+        descripcion,
+        metaNombre,
+      });
+    }
+    return result;
   }
 
   async updateBanco(bancoId: string, dto: UpdateBancoDto, user: FirebaseUser) {
@@ -513,17 +562,24 @@ export class BancosService {
 
     await this.assertMember(docRef, user);
 
-    const nuevoSaldo = data.saldo + monto;
+    if (data.saldo < monto) {
+      throw new BadRequestException('Saldo insuficiente en la cartera');
+    }
+
+    const nuevoSaldo = data.saldo - monto;
     const now = new Date().toISOString();
 
     await docRef.update({ saldo: nuevoSaldo });
+    const metaDoc = await db.collection('metas').doc(metaId).get();
+    const metaNombre = metaDoc.exists ? (metaDoc.data()?.['nombre'] ?? 'Meta') : 'Meta';
+
     await docRef.collection('transacciones').add({
       carteraId: bancoId,
       userId: user.uid,
       tipo: 'aporte_meta',
       monto,
       metaId,
-      descripcion: `Aporte a meta ${metaId}`,
+      descripcion: `Aporte a meta: ${metaNombre}`,
       fecha: now,
     } as TransaccionDocument);
 
@@ -533,22 +589,86 @@ export class BancosService {
   async getUserTransactions(user: FirebaseUser) {
     const db = this.firebaseService.firestore;
     const bancos = await this.getUserBancos(user);
-    const transacciones: Array<TransaccionDocument & { id: string; bancoNombre: string; bancoColor: string }> = [];
+    const rawTransacciones: any[] = [];
 
     for (const banco of bancos) {
-      const transSnap = await db.collection('bancos').doc(banco.id).collection('transacciones').get();
+      const bancoRef = db.collection('bancos').doc(banco.id);
+      const [transSnap, miembrosSnap] = await Promise.all([
+        bancoRef.collection('transacciones').get(),
+        bancoRef.collection('miembros').get(),
+      ]);
+
+      const miembros = miembrosSnap.docs.map((d) => d.data() as BancoMember);
+      const uidToEmailMap: Record<string, string> = {};
+      for (const m of miembros) {
+        if (m.uid) {
+          uidToEmailMap[m.uid] = m.email;
+        }
+      }
+
       for (const doc of transSnap.docs) {
         const data = doc.data() as TransaccionDocument;
-        transacciones.push({
+        let usuarioEmail = uidToEmailMap[data.userId];
+        if (!usuarioEmail) {
+          const creadorMiembro = miembros.find((m) => m.rol === 'creador');
+          usuarioEmail = creadorMiembro ? creadorMiembro.email : 'sistema@savesmart.com';
+        }
+
+        rawTransacciones.push({
           id: doc.id,
           bancoNombre: banco.nombre,
           bancoColor: banco.color,
+          usuarioEmail,
+          usuarioNombre: usuarioEmail.split('@')[0],
           ...data,
         });
       }
     }
 
+    const transacciones = await this.resolveMetaNames(rawTransacciones);
+
     return transacciones.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+  }
+
+  async debitarChecklist(
+    bancoId: string,
+    monto: number,
+    descripcion: string,
+    user: FirebaseUser,
+    metaId?: string,
+  ) {
+    const db = this.firebaseService.firestore;
+    const docRef = db.collection('bancos').doc(bancoId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      throw new NotFoundException('Cartera no encontrada');
+    }
+
+    const data = doc.data() as BancoDocument;
+
+    await this.assertMember(docRef, user);
+
+    if (data.saldo < monto) {
+      throw new BadRequestException('Saldo insuficiente en la cartera para este gasto');
+    }
+
+    const nuevoSaldo = data.saldo - monto;
+    const now = new Date().toISOString();
+
+    await docRef.update({ saldo: nuevoSaldo });
+    await docRef.collection('transacciones').add({
+      carteraId: bancoId,
+      userId: user.uid,
+      tipo: 'retiro',
+      monto,
+      descripcion,
+      fecha: now,
+      esChecklist: true,
+      metaId: metaId || null,
+    } as any);
+
+    return { saldoAnterior: data.saldo, nuevoSaldo };
   }
 
   private async assertMember(

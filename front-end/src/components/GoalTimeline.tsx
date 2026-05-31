@@ -35,19 +35,48 @@ function calcPace(meta: Meta): TimelinePace {
   return 'a_tiempo'
 }
 
-function ProgressRing({ pct, color }: { pct: number; color: string }) {
-  const r = 64; const circ = 2 * Math.PI * r
-  const offset = circ * (1 - Math.min(100, pct) / 100)
+function ProgressRing({
+  pct,
+  color,
+  checklistPct,
+  sobranteFinal,
+  checklistColor = '#a05a24' // copper accent matching dark/light mode tokens
+}: {
+  pct: number
+  color: string
+  checklistPct: number
+  sobranteFinal: number
+  checklistColor?: string
+}) {
+  const r1 = 92
+  const circ1 = 2 * Math.PI * r1
+  const offset1 = circ1 * (1 - Math.min(100, pct) / 100)
+
+  const r2 = 70
+  const circ2 = 2 * Math.PI * r2
+  const offset2 = circ2 * (1 - Math.min(100, checklistPct) / 100)
+
   return (
     <div className="relative inline-flex">
-      <svg width={150} height={150} viewBox="0 0 150 150" className="-rotate-90 w-32 h-32 sm:w-[150px] sm:h-[150px]">
-        <circle cx={75} cy={75} r={r} fill="none" stroke="var(--border)" strokeWidth={8} />
-        <circle cx={75} cy={75} r={r} fill="none" stroke={color} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={circ} strokeDashoffset={offset}
-          style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)', filter: `drop-shadow(0 0 6px ${color}40)` }} />
+      <svg width={220} height={220} viewBox="0 0 220 220" className="-rotate-90 w-44 h-44 sm:w-[220px] sm:h-[220px]">
+        {/* Outer Ring (Ahorros / Meta) */}
+        <circle cx={110} cy={110} r={r1} fill="none" stroke="var(--border)" strokeWidth={14} className="opacity-30" />
+        <circle cx={110} cy={110} r={r1} fill="none" stroke={color} strokeWidth={14} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={circ1} strokeDashoffset={offset1}
+          style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)', filter: `drop-shadow(0 0 6px ${color}30)` }} />
+
+        {/* Inner Ring (Gastos / Checklist) */}
+        <circle cx={110} cy={110} r={r2} fill="none" stroke="var(--border)" strokeWidth={14} className="opacity-30" />
+        <circle cx={110} cy={110} r={r2} fill="none" stroke={checklistPct > 0 ? checklistColor : 'transparent'} strokeWidth={14} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={circ2} strokeDashoffset={checklistPct > 0 ? offset2 : circ2}
+          style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)', filter: checklistPct > 0 ? `drop-shadow(0 0 6px ${checklistColor}30)` : 'none' }} />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl sm:text-4xl font-bold tabular-nums text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{pct}%</span>
-        <span className="text-[10px] font-semibold text-ink-muted uppercase tracking-widest mt-0.5">Completado</span>
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+        <span className="text-2xl sm:text-3xl font-extrabold tabular-nums text-ink leading-none animate-fade-in" style={{ fontFamily: "'Outfit', sans-serif" }}>
+          ${sobranteFinal.toLocaleString()}
+        </span>
+        <span className="text-xs font-semibold text-ink-muted uppercase tracking-wider mt-2">Disponible</span>
+        <span className="mt-2.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary tabular-nums">
+          {pct}% ahorrado
+        </span>
       </div>
     </div>
   )
@@ -58,7 +87,13 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
   const paceConfig = getPaceConfig(pace)
   const progressPct = Math.min(100, Math.round((meta.montoAcumulado / meta.montoObjetivo) * 100))
   const checklist = meta.checklist ?? []
-  const totalReal = useMemo(() => checklist.filter((i) => i.completado && i.montoReal != null).reduce((s: number, i) => s + (i.montoReal ?? 0), 0), [checklist])
+  const totalReal = useMemo(() => checklist.filter((i) => i.completado).reduce((s: number, i) => s + (i.montoReal ?? i.monto ?? 0), 0), [checklist])
+  const totalSpent = useMemo(() => checklist.filter((i) => i.completado).reduce((s: number, i) => s + (i.montoReal ?? i.monto ?? 0), 0), [checklist])
+  const checklistPct = useMemo(() => {
+    if (meta.montoAcumulado <= 0) return 0
+    return Math.min(100, Math.round((totalSpent / meta.montoAcumulado) * 100))
+  }, [totalSpent, meta.montoAcumulado])
+
   const sobranteFinal = Math.max(0, meta.montoAcumulado - totalReal)
 
   const [hoveredPoint, setHoveredPoint] = useState<{ x: number; y: number; label: string; ahorrado: number; disponible: number } | null>(null)
@@ -77,10 +112,10 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
       }))
 
     const spendingEvents = items
-      .filter((item) => item.completado && item.montoReal != null)
+      .filter((item) => item.completado)
       .map((item) => ({
         date: item.fechaReal ? new Date(item.fechaReal) : new Date(item.creadoEn),
-        monto: item.montoReal ?? 0,
+        monto: item.montoReal ?? item.monto ?? 0,
         tipo: 'gasto',
       }))
 
@@ -162,7 +197,7 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
 
       {/* Ring + Big money */}
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
-        <ProgressRing pct={progressPct} color={paceConfig.bar} />
+        <ProgressRing pct={progressPct} color={paceConfig.bar} checklistPct={checklistPct} sobranteFinal={sobranteFinal} />
         <div className="flex-1 w-full space-y-3">
           <div className="flex items-baseline justify-center sm:justify-start gap-2">
             <span className="text-2xl sm:text-3xl font-bold tabular-nums text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
@@ -172,27 +207,40 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
               / ${meta.montoObjetivo.toLocaleString()}
             </span>
           </div>
-          <div className="h-3 rounded-full bg-border overflow-hidden">
-            <div className="h-full rounded-full progress-gold transition-all duration-1000 ease-out" style={{ width: `${progressPct}%` }} />
-          </div>
 
-          {/* KPI cards */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="rounded-xl bg-surface-raised border border-border px-3 py-2.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Ahorrado</span>
-              <p className="mt-0.5 text-sm font-bold text-success" style={{ fontFamily: "'JetBrains Mono', monospace" }}>${meta.montoAcumulado.toLocaleString()}</p>
+          {/* Breakdown Rows (Reference UI Style, Flat, Non-Glass) */}
+          <div className="space-y-1.5 pt-1">
+            {/* Disponible (Cash) */}
+            <div className="flex items-center justify-between rounded-xl border border-border bg-surface px-3 py-2 transition-colors hover:border-success/30">
+              <div className="flex items-center gap-2.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-success shadow-[0_0_6px_rgba(46,204,113,0.2)]" />
+                <span className="text-xs font-medium text-ink">Disponible (Sobrante)</span>
+              </div>
+              <span className="rounded-lg bg-success/10 px-2 py-0.5 text-xs font-bold text-success font-mono">
+                ${sobranteFinal.toLocaleString()}
+              </span>
             </div>
-            <div className="rounded-xl bg-surface-raised border border-border px-3 py-2.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Gastado Real</span>
-              <p className="mt-0.5 text-sm font-bold text-danger" style={{ fontFamily: "'JetBrains Mono', monospace" }}>${totalReal.toLocaleString()}</p>
+
+            {/* Gastado (Checklist) */}
+            <div className="flex items-center justify-between rounded-xl border border-border bg-surface px-3 py-2 transition-colors hover:border-accent/30">
+              <div className="flex items-center gap-2.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_6px_rgba(160,90,36,0.2)]" />
+                <span className="text-xs font-medium text-ink">Gastado (Checklist)</span>
+              </div>
+              <span className="rounded-lg bg-accent/10 px-2 py-0.5 text-xs font-bold text-accent font-mono">
+                ${totalReal.toLocaleString()}
+              </span>
             </div>
-            <div className="rounded-xl bg-surface-raised border border-border px-3 py-2.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Sobrante Final</span>
-              <p className="mt-0.5 text-sm font-bold text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>${sobranteFinal.toLocaleString()}</p>
-            </div>
-            <div className="rounded-xl bg-surface-raised border border-border px-3 py-2.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Porcentaje Rest.</span>
-              <p className="mt-0.5 text-sm font-bold text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{100 - progressPct}%</p>
+
+            {/* Ahorrado (Total) */}
+            <div className="flex items-center justify-between rounded-xl border border-border bg-surface px-3 py-2 transition-colors hover:border-primary/30">
+              <div className="flex items-center gap-2.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_6px_rgba(201,168,76,0.25)]" />
+                <span className="text-xs font-medium text-ink">Ahorrado Total</span>
+              </div>
+              <span className="rounded-lg bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary/90 font-mono">
+                ${meta.montoAcumulado.toLocaleString()}
+              </span>
             </div>
           </div>
         </div>
@@ -275,7 +323,7 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
 
             {hoveredPoint && (
               <div
-                className="absolute bg-ink text-[10px] text-surface font-semibold px-2 py-1 rounded shadow-md pointer-events-none space-y-0.5"
+                className="absolute bg-ink text-[11px] sm:text-xs text-surface font-semibold px-2.5 py-1.5 rounded shadow-md pointer-events-none space-y-0.5"
                 style={{ left: `${(hoveredPoint.x / 500) * 100}%`, top: `${(hoveredPoint.y / 150) * 100}%`, transform: 'translate(-50%, -100%)' }}
               >
                 <div className="text-ink-muted border-b border-border-light pb-0.5">{hoveredPoint.label}</div>

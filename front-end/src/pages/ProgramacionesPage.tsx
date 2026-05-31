@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useFetchProgramaciones } from '@/hooks/useFetchProgramaciones'
 import { useCreateProgramacion } from '@/hooks/useCreateProgramacion'
 import { useDeleteProgramacion } from '@/hooks/useDeleteProgramacion'
 import { useToggleProgramacion } from '@/hooks/useToggleProgramacion'
 import { useFetchBancos } from '@/hooks/useFetchBancos'
 import { useFetchGoals } from '@/hooks/useFetchGoals'
+import { FilterBar } from '@/components/FilterBar'
 import { sileo } from '@/lib/sileo'
 import type { CreateProgramacionPayload } from '@/types'
 
@@ -169,13 +170,34 @@ export default function ProgramacionesPage() {
   const toggleProg = useToggleProgramacion()
   const [showCreate, setShowCreate] = useState(false)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [filterText, setFilterText] = useState('')
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>(() => {
+    return (localStorage.getItem('viewMode_programaciones') as 'cards' | 'table') || 'cards'
+  })
+
+  useEffect(() => {
+    localStorage.setItem('viewMode_programaciones', viewMode)
+  }, [viewMode])
 
   const getBancoName = (id: string) => bancos?.find((b) => b.id === id)?.nombre ?? id
   const getBancoColor = (id: string) => bancos?.find((b) => b.id === id)?.color ?? '#94a3b8'
   const getMetaName = (id: string) => goals?.find((g) => g.id === id)?.nombre ?? id
 
+  const filteredProgramaciones = useMemo(() => {
+    if (!programaciones) return []
+    // Ordenado por la ultima creada (fecha más nueva primero)
+    const sorted = [...programaciones].sort((a, b) => new Date(b.creadoEn).getTime() - new Date(a.creadoEn).getTime())
+    if (!filterText.trim()) return sorted
+    const q = filterText.toLowerCase()
+    return sorted.filter((p) => {
+      const bName = getBancoName(p.carteraId).toLowerCase()
+      const mName = getMetaName(p.metaId).toLowerCase()
+      return bName.includes(q) || mName.includes(q) || p.tipo.toLowerCase().includes(q)
+    })
+  }, [programaciones, filterText, bancos, goals])
+
   return (
-    <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+    <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between animate-fade-in">
         <div>
           <h1 className="text-xl font-semibold text-ink">Programaciones</h1>
@@ -218,65 +240,131 @@ export default function ProgramacionesPage() {
       )}
 
       {!isLoading && programaciones && programaciones.length > 0 && (
-        <div className="space-y-3 stagger">
-          {programaciones.map((prog) => {
-            const bancoColor = getBancoColor(prog.carteraId)
-            return (
-              <div
-                key={prog.id}
-                className="rounded-2xl border border-border bg-surface border-l-4 card-hover overflow-hidden"
-                style={{ borderLeftColor: bancoColor }}
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="h-9 w-9 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ backgroundColor: bancoColor }}>
-                      {getBancoName(prog.carteraId).charAt(0).toUpperCase()}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-ink truncate">{getBancoName(prog.carteraId)}</span>
-                        <svg className="h-3 w-3 flex-shrink-0 text-ink-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                        <span className="text-sm font-medium text-ink truncate">{getMetaName(prog.metaId)}</span>
+        <>
+          <FilterBar
+            filterText={filterText}
+            setFilterText={setFilterText}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            resultsCount={filteredProgramaciones.length}
+            typeOptions={[
+              { label: 'Fijo', value: 'fijo' },
+              { label: 'Porcentaje', value: 'porcentaje' }
+            ]}
+            typeFilter={filterText}
+            setTypeFilter={setFilterText}
+          />
+
+          {viewMode === 'cards' ? (
+            <div className="space-y-3 stagger animate-fade-in">
+              {filteredProgramaciones.map((prog) => {
+                const bancoColor = getBancoColor(prog.carteraId)
+                return (
+                  <div
+                    key={prog.id}
+                    className="savesmart-card bg-surface overflow-hidden"
+                    style={{ borderLeft: `5px solid ${bancoColor}` }}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="h-10 w-10 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm" style={{ backgroundColor: bancoColor }}>
+                          {getBancoName(prog.carteraId).charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-ink truncate">{getBancoName(prog.carteraId)}</span>
+                            <svg className="h-3.5 w-3.5 flex-shrink-0 text-ink-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                            <span className="text-sm font-bold text-ink truncate">{getMetaName(prog.metaId)}</span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="inline-flex items-center rounded-full bg-accent-subtle/50 px-2.5 py-0.5 text-[10px] font-bold text-accent border border-accent/15">
+                              {prog.tipo === 'fijo'
+                                ? `$${prog.monto?.toLocaleString() ?? 0} fijo`
+                                : `${prog.porcentaje ?? 0}% del saldo`}
+                            </span>
+                            <span className="text-[10px] text-ink-muted">·</span>
+                            <span className="text-xs text-ink-muted">Dia {prog.diaDelMes} de cada mes</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[11px] text-ink-muted">
-                          {prog.tipo === 'fijo'
-                            ? `$${prog.monto?.toLocaleString() ?? 0} fijo`
-                            : `${prog.porcentaje ?? 0}% del saldo`}
-                        </span>
-                        <span className="text-[10px] text-ink-muted">·</span>
-                        <span className="text-[11px] text-ink-muted">Dia {prog.diaDelMes} de cada mes</span>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => toggleProg.mutate(prog.id, {
+                            onError: () => sileo.error('Error al cambiar estado'),
+                          })}
+                          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ${prog.activo ? 'bg-accent' : 'bg-gray-200 dark:bg-gray-700'}`}
+                        >
+                          <span className={`inline-block h-4 w-4 transform rounded-full bg-surface transition-transform duration-200 shadow-sm ${prog.activo ? 'translate-x-6' : 'translate-x-1'}`} />
+                        </button>
+                        {confirmDeleteId === prog.id ? (
+                          <>
+                            <button type="button" onClick={() => { deleteProg.mutate(prog.id, { onSuccess: () => { sileo.info('Programación eliminada'); setConfirmDeleteId(null) }, onError: () => sileo.error('Error al eliminar') }) }} className="rounded-xl px-3 py-1.5 text-xs font-semibold text-white bg-danger hover:bg-red-600 transition-colors">Confirmar</button>
+                            <button type="button" onClick={() => setConfirmDeleteId(null)} className="rounded-xl p-1.5 text-ink-muted hover:bg-surface transition-colors"><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                          </>
+                        ) : (
+                          <button type="button" onClick={() => setConfirmDeleteId(prog.id)} className="rounded-xl p-2 text-ink-muted hover:bg-danger/10 hover:text-danger transition-colors" title="Eliminar">
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => toggleProg.mutate(prog.id, {
-                        onError: () => sileo.error('Error al cambiar estado'),
-                      })}
-                      className={`relative inline-flex h-6 w-10 flex-shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ${prog.activo ? 'bg-accent' : 'bg-gray-200'}`}
-                    >
-                      <span className={`inline-block h-4 w-4 transform rounded-full bg-surface transition-transform duration-200 shadow-sm ${prog.activo ? 'translate-x-5' : 'translate-x-1'}`} />
-                    </button>
-                    {confirmDeleteId === prog.id ? (
-                      <>
-                        <button type="button" onClick={() => { deleteProg.mutate(prog.id, { onSuccess: () => { sileo.info('Programación eliminada'); setConfirmDeleteId(null) }, onError: () => sileo.error('Error al eliminar') }) }} className="rounded-md px-2 py-1 text-[11px] font-semibold text-white bg-danger hover:bg-red-600 transition-colors">Confirmar</button>
-                        <button type="button" onClick={() => setConfirmDeleteId(null)} className="rounded-md p-1.5 text-ink-muted hover:bg-surface transition-colors"><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
-                      </>
-                    ) : (
-                      <button type="button" onClick={() => setConfirmDeleteId(prog.id)} className="rounded-md p-1.5 text-ink-muted hover:bg-danger/10 hover:text-danger transition-colors" title="Eliminar">
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                      </button>
-                    )}
-                  </div>
-                </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="savesmart-table-container bg-surface animate-fade-in">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left savesmart-table">
+                  <thead>
+                    <tr className="border-b border-border bg-surface-raised text-[11px] uppercase tracking-wider text-ink-muted">
+                      <th className="px-5 py-4 font-semibold">Origen</th>
+                      <th className="px-5 py-4 font-semibold">Destino</th>
+                      <th className="px-5 py-4 font-semibold">Aporte</th>
+                      <th className="px-5 py-4">Día</th>
+                      <th className="px-5 py-4 text-right">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredProgramaciones.map((prog) => (
+                      <tr key={prog.id} className="border-b border-border-light hover:bg-surface-raised/50 transition-colors">
+                        <td className="px-5 py-4 font-semibold text-ink">{getBancoName(prog.carteraId)}</td>
+                        <td className="px-5 py-4 font-medium text-ink">{getMetaName(prog.metaId)}</td>
+                        <td className="px-5 py-4 font-mono font-bold text-ink">
+                          {prog.tipo === 'fijo' ? `$${prog.monto?.toLocaleString()}` : `${prog.porcentaje}%`}
+                        </td>
+                        <td className="px-5 py-4 text-ink-muted">{prog.diaDelMes}</td>
+                        <td className="px-5 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() => toggleProg.mutate(prog.id, {
+                                onError: () => sileo.error('Error al cambiar estado'),
+                              })}
+                              className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ${prog.activo ? 'bg-accent' : 'bg-gray-200 dark:bg-gray-700'}`}
+                            >
+                              <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-surface transition-transform duration-200 shadow-sm ${prog.activo ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            </button>
+                            {confirmDeleteId === prog.id ? (
+                              <button type="button" onClick={() => { deleteProg.mutate(prog.id, { onSuccess: () => { sileo.info('Programación eliminada'); setConfirmDeleteId(null) }, onError: () => sileo.error('Error al eliminar') }) }} className="rounded-xl px-3 py-1.5 text-xs font-semibold text-white bg-danger hover:bg-red-600 transition-colors">Confirmar</button>
+                            ) : (
+                              <button type="button" onClick={() => setConfirmDeleteId(prog.id)} className="rounded-xl p-2 text-ink-muted hover:bg-danger/10 hover:text-danger transition-colors">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            )
-          })}
-        </div>
+            </div>
+          )}
+        </>
       )}
 
       <CreateProgramacionModal open={showCreate} onClose={() => setShowCreate(false)} />

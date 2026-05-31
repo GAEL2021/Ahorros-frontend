@@ -8,4 +8,5 @@ export class UpdateChecklistItemDto {
   @IsOptional() @IsString() fechaReal?: string;
   @IsOptional() @IsString() comprobante?: string;
   @IsOptional() @IsBoolean() ignorarExceso?: boolean;
+  @IsOptional() @IsString() carteraId?: string;
 }

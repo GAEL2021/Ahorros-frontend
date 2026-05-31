@@ -99,8 +99,9 @@ export class GoalsController {
     @Param('id') id: string,
     @Param('itemId') itemId: string,
     @Body() dto: UpdateChecklistItemDto,
+    @Req() req: Request,
   ) {
-    return this.goalsService.updateChecklistItem(id, itemId, dto);
+    return this.goalsService.updateChecklistItem(id, itemId, dto, req.user as FirebaseUser);
   }
 
   @Delete(':id/checklist/:itemId')

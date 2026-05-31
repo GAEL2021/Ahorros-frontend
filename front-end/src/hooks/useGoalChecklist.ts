@@ -36,14 +36,15 @@ export function useToggleChecklistItem(goalId: string) {
   return useMutation<
     { id: string; completado: boolean },
     Error,
-    { itemId: string; newValue: boolean; montoReal?: number; fechaReal?: string; comprobante?: string },
+    { itemId: string; newValue: boolean; montoReal?: number; fechaReal?: string; comprobante?: string; carteraId?: string },
     { prev: ChecklistItem[] | undefined }
   >({
-    mutationFn: async ({ itemId, newValue, montoReal, fechaReal, comprobante }) => {
+    mutationFn: async ({ itemId, newValue, montoReal, fechaReal, comprobante, carteraId }) => {
       const payload: Record<string, unknown> = { completado: newValue }
       if (montoReal !== undefined) payload.montoReal = montoReal
       if (fechaReal !== undefined) payload.fechaReal = fechaReal
       if (comprobante !== undefined) payload.comprobante = comprobante
+      if (carteraId !== undefined) payload.carteraId = carteraId
       const { data } = await apiClient.patch<{ id: string; completado: boolean }>(
         `/goals/${goalId}/checklist/${itemId}`,
         payload,
@@ -72,6 +73,7 @@ export function useToggleChecklistItem(goalId: string) {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['goal-checklist', goalId] })
       queryClient.invalidateQueries({ queryKey: ['goal-detail', goalId] })
+      queryClient.invalidateQueries({ queryKey: ['bancos'] })
     },
   })
 }

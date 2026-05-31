@@ -9,6 +9,7 @@ import CatalogoBancosPage from '@/pages/CatalogoBancosPage'
 import PresupuestosPage from '@/pages/PresupuestosPage'
 import LogrosPage from '@/pages/LogrosPage'
 import AdminLoginPage from '@/pages/AdminLoginPage'
+import ShowcasePage from '@/pages/ShowcasePage'
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="programaciones" element={<ProgramacionesPage />} />
         <Route path="presupuestos" element={<PresupuestosPage />} />
         <Route path="logros" element={<LogrosPage />} />
+        <Route path="showcase" element={<ShowcasePage />} />
         <Route path="admin/bancos" element={<CatalogoBancosPage />} />
       </Route>
     </Routes>

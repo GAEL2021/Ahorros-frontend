@@ -692,7 +692,21 @@ export class GoalsService {
     return { id: itemId, completado: !data.completado };
   }
 
-  async updateChecklistItem(goalId: string, itemId: string, dto: { texto?: string; completado?: boolean; monto?: number; montoReal?: number; fechaReal?: string; comprobante?: string; ignorarExceso?: boolean }) {
+  async updateChecklistItem(
+    goalId: string,
+    itemId: string,
+    dto: {
+      texto?: string;
+      completado?: boolean;
+      monto?: number;
+      montoReal?: number;
+      fechaReal?: string;
+      comprobante?: string;
+      ignorarExceso?: boolean;
+      carteraId?: string;
+    },
+    user: FirebaseUser,
+  ) {
     const db = this.firebaseService.firestore;
     const itemRef = db
       .collection('metas')
@@ -706,6 +720,19 @@ export class GoalsService {
     }
 
     const data = itemDoc.data() as ChecklistItem;
+
+    if (dto.completado === true && !data.completado && dto.carteraId) {
+      const montoDebito = dto.montoReal !== undefined ? dto.montoReal : (dto.monto ?? data.monto ?? 0);
+      if (montoDebito > 0) {
+        await this.bancosService.debitarChecklist(
+          dto.carteraId,
+          montoDebito,
+          `Compra checklist: ${dto.texto || data.texto}`,
+          user,
+          goalId,
+        );
+      }
+    }
 
     const updates: Record<string, unknown> = {};
     if (dto.texto !== undefined) updates.texto = dto.texto;

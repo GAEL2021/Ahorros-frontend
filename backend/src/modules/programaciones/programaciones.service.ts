@@ -94,13 +94,18 @@ export class ProgramacionesService {
     const snapshot = await db
       .collection('programaciones')
       .where('userId', '==', user.uid)
-      .orderBy('creadoEn', 'asc')
       .get();
 
-    return snapshot.docs.map((doc) => ({
+    const programaciones = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...(doc.data() as ProgramacionDocument),
     }));
+
+    return programaciones.sort((a, b) => {
+      const dateA = a.creadoEn ? new Date(a.creadoEn).getTime() : 0;
+      const dateB = b.creadoEn ? new Date(b.creadoEn).getTime() : 0;
+      return dateA - dateB;
+    });
   }
 
   async updateProgramacion(
