@@ -17,9 +17,9 @@ function LoginScreen() {
   const handleSubmit = async (e: React.FormEvent) => { e.preventDefault(); if (!email || !password) return; setSubmitting(true); try { if (isRegister) await registerWithEmail(email, password, name || email.split('@')[0]); else await loginWithEmail(email, password) } finally { setSubmitting(false) } }
 
   return (
-    <div className="flex min-h-screen bg-[var(--bg)]">
-      <div className="flex flex-col lg:flex-row w-full">
-        <div className="flex-1 flex flex-col justify-center px-6 py-12 lg:px-16 lg:py-0">
+    <div className="flex min-h-screen bg-[var(--bg)] items-center justify-center p-4">
+      <div className="flex flex-col lg:flex-row w-full max-w-5xl items-center justify-center lg:gap-8">
+        <div className="hidden lg:flex lg:flex-1 flex-col justify-center px-6 py-12 lg:px-16 lg:py-0">
           <div className="max-w-lg mx-auto lg:mx-0 animate-slide-up">
             <div className="flex items-center gap-3 mb-8">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-subtle border border-primary/20" style={{ animation: 'float 3s ease-in-out infinite' }}>
@@ -40,15 +40,23 @@ function LoginScreen() {
             <p className="text-[11px] text-ink-muted">Más de 1,000 personas ya están ahorrando con Ahorros Colaborativos.</p>
           </div>
         </div>
-        <div className="flex items-center justify-center px-6 py-8 lg:w-[480px] lg:border-l lg:border-border lg:bg-[var(--bg-sidebar)]/50">
-          <div className="w-full max-w-sm animate-slide-up">
-            <div className="glass rounded-2xl p-8">
-              <div className="mb-6"><h2 className="text-xl font-semibold text-ink">{isRegister ? 'Creá tu bóveda' : 'Abrí tu bóveda'}</h2><p className="text-sm text-ink-muted mt-1">{isRegister ? 'Empezá a ahorrar en grupo hoy.' : 'Continuá donde lo dejaste.'}</p></div>
+        <div className="flex items-center justify-center w-full lg:w-[450px]">
+          <div className="w-full max-w-sm animate-slide-up flex flex-col gap-5">
+            {/* Logo Mobile */}
+            <div className="flex items-center gap-3 lg:hidden justify-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-subtle border border-primary/20" style={{ animation: 'float 3s ease-in-out infinite' }}>
+                <svg className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </div>
+              <h1 className="text-xl font-extrabold text-ink tracking-tight">Ahorros Colaborativos</h1>
+            </div>
+
+            <div className="glass rounded-[2rem] p-6 sm:p-8 bg-white dark:bg-[#161920] border border-zinc-200/50 dark:border-white/5 shadow-xl">
+              <div className="mb-6"><h2 className="text-lg font-extrabold text-ink">{isRegister ? 'Creá tu bóveda' : 'Abrí tu bóveda'}</h2><p className="text-xs text-ink-muted mt-1">{isRegister ? 'Empezá a ahorrar en grupo hoy.' : 'Continuá donde lo dejaste.'}</p></div>
               {authError && <div className="mb-5 rounded-xl border border-danger/30 bg-danger-subtle px-4 py-3 text-sm text-danger">{authError}</div>}
               <form onSubmit={handleSubmit} className="space-y-4">
-                {isRegister && <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Nombre</label><input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Tu nombre completo" className="w-full rounded-xl border border-border bg-[var(--bg-input)] px-4 py-3 text-sm text-ink placeholder:text-ink-muted focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors" /></div>}
-                <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Email</label><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="tu@email.com" className="w-full rounded-xl border border-border bg-[var(--bg-input)] px-4 py-3 text-sm text-ink placeholder:text-ink-muted focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors" /></div>
-                <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Contraseña</label><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="Mínimo 6 caracteres" className="w-full rounded-xl border border-border bg-[var(--bg-input)] px-4 py-3 text-sm text-ink placeholder:text-ink-muted focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors" /></div>
+                {isRegister && <div><label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Nombre</label><input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Tu nombre completo" className="w-full rounded-xl border border-border bg-[var(--bg-input)] px-4 py-3 text-sm text-ink placeholder:text-ink-muted focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors" /></div>}
+                <div><label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Email</label><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="tu@email.com" className="w-full rounded-xl border border-border bg-[var(--bg-input)] px-4 py-3 text-sm text-ink placeholder:text-ink-muted focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors" /></div>
+                <div><label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Contraseña</label><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="Mínimo 6 caracteres" className="w-full rounded-xl border border-border bg-[var(--bg-input)] px-4 py-3 text-sm text-ink placeholder:text-ink-muted focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors" /></div>
                 <button type="submit" disabled={submitting || !email || password.length < 6 || (isRegister && !name)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-sm font-semibold text-[var(--bg)] shadow-lg shadow-primary/20 transition-all hover:bg-primary-light active:scale-[0.98] disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary/30">
                   {submitting ? <div className="flex items-center gap-2"><div className="h-5 w-5 animate-spin rounded-full border-2 border-ink/30 border-t-ink" />{isRegister ? 'Creando bóveda...' : 'Abriendo...'}</div> : isRegister ? 'Crear bóveda' : 'Abrir bóveda'}
                 </button>
