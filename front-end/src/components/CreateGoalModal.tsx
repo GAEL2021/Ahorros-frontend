@@ -4,10 +4,7 @@ import { useFetchBancos } from '@/hooks/useFetchBancos'
 import { sileo } from '@/lib/sileo'
 import type { CreateGoalPayload } from '@/types'
 
-interface CreateGoalModalProps {
-  open: boolean
-  onClose: () => void
-}
+interface CreateGoalModalProps { open: boolean; onClose: () => void }
 
 export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps) {
   const createGoal = useCreateGoal()
@@ -23,264 +20,124 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
   const [progMonto, setProgMonto] = useState(0)
   const [progPorcentaje, setProgPorcentaje] = useState(10)
   const [progDia, setProgDia] = useState(1)
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   if (!open) return null
 
-  const addInvitado = () => {
-    const email = invitadoEmail.trim()
-    if (email && !invitadosEmails.includes(email)) {
-      setInvitadosEmails([...invitadosEmails, email])
-      setInvitadoEmail('')
-    }
-  }
-
-  const removeInvitado = (email: string) => {
-    setInvitadosEmails(invitadosEmails.filter((e) => e !== email))
-  }
-
-  const resetForm = () => {
-    setNombre('')
-    setMontoObjetivo(0)
-    setFechaLimite('')
-    setInvitadosEmails([])
-    setInvitadoEmail('')
-    setModoAporte('manual')
-    setCarteraId('')
-    setProgTipo('fijo')
-    setProgMonto(0)
-    setProgPorcentaje(10)
-    setProgDia(1)
-  }
+  const addInvitado = () => { const e = invitadoEmail.trim(); if (e && !invitadosEmails.includes(e)) { setInvitadosEmails([...invitadosEmails, e]); setInvitadoEmail('') } }
+  const removeInvitado = (e: string) => setInvitadosEmails(invitadosEmails.filter((x) => x !== e))
+  const resetForm = () => { setNombre(''); setMontoObjetivo(0); setFechaLimite(''); setInvitadosEmails([]); setInvitadoEmail(''); setModoAporte('manual'); setCarteraId(''); setProgTipo('fijo'); setProgMonto(0); setProgPorcentaje(10); setProgDia(1); setShowAdvanced(false) }
+  const days = Array.from({ length: 28 }, (_, i) => i + 1)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const payload: CreateGoalPayload = {
-      nombre,
-      montoObjetivo,
-      fechaLimite: fechaLimite || new Date(Date.now() + 365 * 86400000).toISOString().split('T')[0],
-      invitadosEmails: invitadosEmails.length > 0 ? invitadosEmails : undefined,
-      modoAporte,
-    }
-    if (modoAporte === 'automatico' && carteraId) {
-      payload.carteraId = carteraId
-      payload.programacionTipo = progTipo
-      if (progTipo === 'fijo') {
-        payload.programacionMonto = progMonto
-      } else {
-        payload.programacionPorcentaje = progPorcentaje
-      }
-      payload.programacionDia = progDia
-    }
-    try {
-      await createGoal.mutateAsync(payload)
-      sileo.success(`Meta "${nombre}" creada correctamente`)
-      onClose()
-      resetForm()
-    } catch {
-      sileo.error('Error al crear la meta')
-    }
+    const payload: CreateGoalPayload = { nombre, montoObjetivo, fechaLimite: fechaLimite || new Date(Date.now() + 365 * 86400000).toISOString().split('T')[0], invitadosEmails: invitadosEmails.length > 0 ? invitadosEmails : undefined, modoAporte }
+    if (modoAporte === 'automatico' && carteraId) { payload.carteraId = carteraId; payload.programacionTipo = progTipo; if (progTipo === 'fijo') payload.programacionMonto = progMonto; else payload.programacionPorcentaje = progPorcentaje; payload.programacionDia = progDia }
+    try { await createGoal.mutateAsync(payload); sileo.success(`Meta "${nombre}" creada`); onClose(); resetForm() } catch { sileo.error('Error al crear la meta') }
   }
 
-  const handleClose = () => {
-    onClose()
-    if (!createGoal.isPending) resetForm()
-  }
-
-  const days = Array.from({ length: 28 }, (_, i) => i + 1)
+  const handleClose = () => { onClose(); if (!createGoal.isPending) resetForm() }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-lg rounded-lg border border-border bg-surface shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="text-base font-semibold text-ink">Nueva Meta</h2>
-          <button type="button" onClick={handleClose} className="rounded-md p-2 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in" onClick={handleClose}>
+      <div className="glass rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-scale-in" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-border px-5 py-4 sticky top-0 bg-[var(--glass-bg)] backdrop-blur-xl z-10">
+          <h2 className="text-lg font-semibold text-ink">Nueva Meta</h2>
+          <button type="button" onClick={handleClose} className="rounded-xl p-2 text-ink-muted hover:bg-surface hover:text-ink transition-colors">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
+        <form onSubmit={handleSubmit} className="p-5 space-y-5">
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Nombre</label>
-            <input
-              type="text"
-              required
-              minLength={3}
-              maxLength={120}
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              placeholder="Ej. Fondo de emergencia grupal"
-              className="w-full rounded-lg border border-border px-3 py-2.5 text-sm placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-green-500/20"
-            />
+            <label className="mb-1.5 block text-sm font-semibold text-ink">¿Qué querés ahorrar?</label>
+            <input type="text" required minLength={3} maxLength={120} value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej. Viaje a la playa, Auto nuevo..." className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Monto objetivo ($)</label>
-              <input
-                type="number"
-                required
-                min={1}
-                value={montoObjetivo || ''}
-                onChange={(e) => setMontoObjetivo(Number(e.target.value))}
-                placeholder="1000000"
-                className="w-full rounded-lg border border-border px-3 py-2.5 text-sm placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-green-500/20"
-              />
+              <label className="mb-1.5 block text-sm font-semibold text-ink">Monto objetivo</label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-base text-ink-muted">$</span>
+                <input type="number" required min={1} value={montoObjetivo || ''} onChange={(e) => setMontoObjetivo(Number(e.target.value))} placeholder="1,000,000" className="w-full rounded-xl border border-border bg-surface py-3 pl-9 pr-4 text-base font-mono placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+              </div>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Fecha limite</label>
-              <input
-                type="date"
-                required
-                value={fechaLimite}
-                onChange={(e) => setFechaLimite(e.target.value)}
-                className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-green-500/20"
-              />
+              <label className="mb-1.5 block text-sm font-semibold text-ink">Fecha límite</label>
+              <input type="date" required value={fechaLimite} onChange={(e) => setFechaLimite(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
             </div>
           </div>
 
+          {/* Invitados */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">
-              Invitados (email) — opcional
-            </label>
+            <label className="mb-1.5 block text-sm font-semibold text-ink">Invitados (opcional)</label>
             <div className="flex gap-2">
-              <input
-                type="email"
-                value={invitadoEmail}
-                onChange={(e) => setInvitadoEmail(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addInvitado() } }}
-                placeholder="amigo@email.com"
-                className="flex-1 rounded-lg border border-border px-3 py-2.5 text-sm placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-green-500/20"
-              />
-              <button type="button" onClick={addInvitado} className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-dark transition-colors">
-                Agregar
-              </button>
+              <input type="email" value={invitadoEmail} onChange={(e) => setInvitadoEmail(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addInvitado() } }} placeholder="amigo@email.com" className="flex-1 rounded-xl border border-border bg-surface px-4 py-3 text-base placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+              <button type="button" onClick={addInvitado} className="rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-[var(--bg)] hover:bg-primary-light transition-colors flex-shrink-0">Agregar</button>
             </div>
             {invitadosEmails.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {invitadosEmails.map((email) => (
-                  <span key={email} className="inline-flex items-center gap-1 rounded-md bg-primary-subtle px-2.5 py-1 text-xs font-medium text-primary">
-                    {email}
-                    <button type="button" onClick={() => removeInvitado(email)} className="ml-0.5 hover:text-danger transition-colors">&times;</button>
-                  </span>
+                  <span key={email} className="inline-flex items-center gap-1 rounded-lg bg-primary/10 border border-primary/15 px-2.5 py-1 text-xs font-medium text-primary">{email}<button type="button" onClick={() => removeInvitado(email)} className="hover:text-danger transition-colors">&times;</button></span>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Modo de Aporte */}
-          <div className="rounded-lg border border-border bg-surface-raised px-4 py-3">
-            <label className="mb-2 block text-xs font-semibold text-ink-secondary">Modo de aporte</label>
-            <div className="flex rounded-lg border border-border overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setModoAporte('manual')}
-                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-semibold transition-colors ${
-                  modoAporte === 'manual'
-                    ? 'bg-primary text-white'
-                    : 'bg-surface text-ink-muted hover:bg-surface-raised'
-                }`}
-              >
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-                Manual
-              </button>
-              <button
-                type="button"
-                onClick={() => setModoAporte('automatico')}
-                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-semibold transition-colors ${
-                  modoAporte === 'automatico'
-                    ? 'bg-accent text-white'
-                    : 'bg-surface text-ink-muted hover:bg-surface-raised'
-                }`}
-              >
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Automatico
-              </button>
-            </div>
+          {/* Advanced: Modo de aporte automático */}
+          <button type="button" onClick={() => setShowAdvanced(!showAdvanced)} className="flex items-center gap-2 text-sm text-ink-muted hover:text-ink transition-colors w-full">
+            <svg className={`h-4 w-4 transition-transform ${showAdvanced ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+            Configuración avanzada
+          </button>
 
-            {modoAporte === 'automatico' && (
-              <div className="mt-3 space-y-3 pt-3 border-t border-border-light">
-                {(!bancos || bancos.length === 0) ? (
-                  <p className="text-xs text-accent">
-                    No tienes carteras. Crea una en la seccion "Carteras" primero para usar aporte automatico.
-                  </p>
-                ) : (
-                  <>
-                    <div>
-                      <label className="mb-1.5 block text-xs font-semibold text-ink-muted">Cartera origen</label>
-                      <select
-                        value={carteraId}
-                        onChange={(e) => setCarteraId(e.target.value)}
-                        required
-                        className="w-full rounded-lg border border-border px-3 py-2.5 text-xs focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
-                      >
-                        <option value="" disabled>Seleccionar cartera</option>
-                        {bancos.map((b) => (
-                          <option key={b.id} value={b.id}>{b.nombre} (${b.saldo.toLocaleString()})</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="mb-1.5 block text-xs font-semibold text-ink-muted">Tipo de aporte automatico</label>
-                      <div className="flex rounded-lg border border-border overflow-hidden">
-                        <button type="button" onClick={() => setProgTipo('fijo')} className={`flex-1 px-2.5 py-2 text-xs font-semibold transition-colors ${progTipo === 'fijo' ? 'bg-accent-subtle text-accent' : 'bg-surface text-ink-muted'}`}>Monto fijo</button>
-                        <button type="button" onClick={() => setProgTipo('porcentaje')} className={`flex-1 px-2.5 py-2 text-xs font-semibold transition-colors ${progTipo === 'porcentaje' ? 'bg-accent-subtle text-accent' : 'bg-surface text-ink-muted'}`}>Porcentaje</button>
-                      </div>
-                    </div>
-
-                    {progTipo === 'fijo' ? (
-                      <div>
-                        <label className="mb-1.5 block text-xs font-semibold text-ink-muted">Monto a transferir ($)</label>
-                        <input type="number" min={1} value={progMonto || ''} onChange={(e) => setProgMonto(Number(e.target.value))} placeholder="Ej. 50000" className="w-full rounded-lg border border-border px-3 py-2.5 text-xs focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20" />
-                      </div>
-                    ) : (
-                      <div>
-                        <label className="mb-1.5 block text-xs font-semibold text-ink-muted">Porcentaje del saldo (%)</label>
-                        <div className="flex items-center gap-2">
-                          <input type="range" min={1} max={100} value={progPorcentaje} onChange={(e) => setProgPorcentaje(Number(e.target.value))} className="flex-1" />
-                          <span className="text-xs font-semibold text-ink w-9 text-right">{progPorcentaje}%</span>
-                        </div>
-                      </div>
-                    )}
-
-                    <div>
-                      <label className="mb-1.5 block text-xs font-semibold text-ink-muted">Dia del mes</label>
-                      <select value={progDia} onChange={(e) => setProgDia(Number(e.target.value))} className="w-full rounded-lg border border-border px-3 py-2.5 text-xs focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20">
-                        {days.map((d) => (
-                          <option key={d} value={d}>{d}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </>
-                )}
+          {showAdvanced && (
+            <div className="rounded-xl border border-border bg-surface-raised p-4 space-y-4 animate-slide-up">
+              <label className="block text-sm font-semibold text-ink">Modo de aporte</label>
+              <div className="flex rounded-xl border border-border overflow-hidden">
+                <button type="button" onClick={() => setModoAporte('manual')} className={`flex-1 py-3 text-sm font-semibold transition-colors ${modoAporte === 'manual' ? 'bg-primary text-[var(--bg)]' : 'bg-surface text-ink-muted hover:bg-surface-raised'}`}>Manual</button>
+                <button type="button" onClick={() => setModoAporte('automatico')} className={`flex-1 py-3 text-sm font-semibold transition-colors ${modoAporte === 'automatico' ? 'bg-accent text-[var(--bg)]' : 'bg-surface text-ink-muted hover:bg-surface-raised'}`}>Automático</button>
               </div>
-            )}
-          </div>
 
-          {createGoal.isError && (
-            <div className="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
-              {createGoal.error instanceof Error ? createGoal.error.message : 'Error al crear la meta'}
+              {modoAporte === 'automatico' && (
+                (!bancos || bancos.length === 0) ? (
+                  <p className="text-sm text-ink-muted">Necesitás crear una cartera primero para usar aporte automático.</p>
+                ) : (
+                  <div className="space-y-3 pt-1">
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-ink-muted">Cartera origen</label>
+                      <select value={carteraId} onChange={(e) => setCarteraId(e.target.value)} required className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20">
+                        <option value="" disabled>Seleccionar cartera</option>
+                        {bancos.map((b) => <option key={b.id} value={b.id}>{b.nombre} (${b.saldo.toLocaleString()})</option>)}
+                      </select>
+                    </div>
+                    <div className="flex rounded-xl border border-border overflow-hidden">
+                      <button type="button" onClick={() => setProgTipo('fijo')} className={`flex-1 py-2.5 text-xs font-semibold ${progTipo === 'fijo' ? 'bg-primary/10 text-primary' : 'text-ink-muted'}`}>Monto fijo</button>
+                      <button type="button" onClick={() => setProgTipo('porcentaje')} className={`flex-1 py-2.5 text-xs font-semibold ${progTipo === 'porcentaje' ? 'bg-primary/10 text-primary' : 'text-ink-muted'}`}>Porcentaje</button>
+                    </div>
+                    {progTipo === 'fijo' ? (
+                      <div className="relative"><span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-ink-muted">$</span><input type="number" min={1} value={progMonto || ''} onChange={(e) => setProgMonto(Number(e.target.value))} placeholder="50,000" className="w-full rounded-xl border border-border bg-surface py-3 pl-9 pr-4 text-sm font-mono focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" /></div>
+                    ) : (
+                      <div className="flex items-center gap-3"><input type="range" min={1} max={100} value={progPorcentaje} onChange={(e) => setProgPorcentaje(Number(e.target.value))} className="flex-1 accent-primary" /><span className="text-sm font-bold text-ink w-10 text-right">{progPorcentaje}%</span></div>
+                    )}
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-ink-muted">Día del mes</label>
+                      <select value={progDia} onChange={(e) => setProgDia(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20">
+                        {days.map((d) => <option key={d} value={d}>{d}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                )
+              )}
             </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-3 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={createGoal.isPending || (modoAporte === 'automatico' && bancos && bancos.length > 0 && !carteraId)}
-              className="rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500/30"
-            >
-              {createGoal.isPending ? 'Creando...' : 'Crear meta'}
-            </button>
-          </div>
+          {createGoal.isError && (
+            <div className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">{createGoal.error instanceof Error ? createGoal.error.message : 'Error al crear'}</div>
+          )}
+
+          <button type="submit" disabled={createGoal.isPending || (modoAporte === 'automatico' && bancos && bancos.length > 0 && !carteraId)} className="w-full rounded-xl bg-primary py-3.5 text-base font-semibold text-[var(--bg)] shadow-lg shadow-primary/20 transition-all hover:bg-primary-light active:scale-[0.98] disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary/30">
+            {createGoal.isPending ? 'Creando...' : 'Crear meta'}
+          </button>
         </form>
       </div>
     </div>
