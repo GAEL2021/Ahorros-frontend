@@ -233,6 +233,7 @@ input[type="password"],
 input[type="number"],
 input[type="date"],
 input[type="search"],
+input[type="url"],
 select,
 textarea {
   background-color: var(--bg-input);
@@ -240,11 +241,15 @@ textarea {
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 0.625rem 0.875rem;
-  font-size: 0.875rem;
+  font-size: 16px;
   font-family: 'Questrial', ui-sans-serif, system-ui, sans-serif;
   transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
   width: 100%;
+}
+/* Prevent iOS zoom on focus */
+@media screen and (max-width: 640px) {
+  input, select, textarea { font-size: 16px !important; }
 }
 input:focus,
 select:focus,
