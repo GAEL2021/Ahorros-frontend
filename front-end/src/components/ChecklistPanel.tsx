@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react'
 import type { ChecklistItem } from '@/types'
 import { useGoalChecklist, useAddChecklistItem, useToggleChecklistItem, useDeleteChecklistItem, useUpdateChecklistItem } from '@/hooks/useGoalChecklist'
-import { useAddContribution } from '@/hooks/useAddContribution'
 import { sileo } from '@/lib/sileo'
 
 interface ChecklistPanelProps { goalId: string; metaMontoObjetivo: number }
@@ -12,7 +11,6 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
   const toggleItem = useToggleChecklistItem(goalId)
   const deleteItem = useDeleteChecklistItem(goalId)
   const updateItem = useUpdateChecklistItem(goalId)
-  const contribute = useAddContribution()
   const [newText, setNewText] = useState('')
   const [newMonto, setNewMonto] = useState(0)
   const [realCostItemId, setRealCostItemId] = useState<string | null>(null)
@@ -43,13 +41,10 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
   const handleConfirmRealCost = async () => {
     if (!realCostItemId) return
     setRealCostItemId(null)
-    try {
-      await toggleItem.mutateAsync({ itemId: realCostItemId, newValue: true, montoReal: realCostValue, fechaReal: realCostDate, comprobante: realCostUrl || undefined })
-      await contribute.mutateAsync({ goalId, monto: realCostValue })
-      sileo.success(`✅ $${realCostValue.toLocaleString()} aportado a la meta`)
-    } catch (err) {
-      sileo.error(err instanceof Error ? err.message : 'Error al guardar')
-    }
+    toggleItem.mutate({ itemId: realCostItemId, newValue: true, montoReal: realCostValue, fechaReal: realCostDate, comprobante: realCostUrl || undefined }, {
+      onSuccess: () => sileo.success(`✅ $${realCostValue.toLocaleString()} aportado a la meta`),
+      onError: (err) => sileo.error(err instanceof Error ? err.message : 'Error al guardar'),
+    })
   }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
