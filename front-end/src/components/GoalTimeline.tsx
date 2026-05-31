@@ -66,10 +66,7 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
   const remaining = meta.montoObjetivo - meta.montoAcumulado
 
   const checklist = meta.checklist ?? []
-  const totalEstimado = checklist.reduce((s: number, i) => s + (i.monto ?? 0), 0)
   const totalReal = checklist.filter((i) => i.completado && i.montoReal != null).reduce((s: number, i) => s + (i.montoReal ?? 0), 0)
-  const diffChecklist = totalReal - totalEstimado
-  const maxCheckVal = Math.max(totalEstimado, totalReal, 1)
 
   return (
     <div className="space-y-4">
@@ -144,33 +141,36 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
         </svg>
       </div>
 
-      {/* Checklist comparison */}
+      {/* Ahorro vs Costo Real */}
       {checklist.length > 0 && (
         <div className="rounded-xl bg-surface-raised border border-border px-4 py-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Checklist: Estimado vs Real</span>
-            {diffChecklist !== 0 && (
-              <span className={`text-[10px] font-semibold ${diffChecklist > 0 ? 'text-danger' : 'text-success'}`}>
-                {diffChecklist > 0 ? `+$${diffChecklist.toLocaleString()}` : `-$${Math.abs(diffChecklist).toLocaleString()}`}
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Ahorro vs Costo Real</span>
+            {totalReal > 0 && (
+              <span className={`text-[10px] font-semibold ${totalReal > meta.montoAcumulado ? 'text-danger' : 'text-success'}`}>
+                {totalReal > meta.montoAcumulado ? `⚠️ $${(totalReal - meta.montoAcumulado).toLocaleString()} excedido` : `✅ $${(meta.montoAcumulado - totalReal).toLocaleString()} restante`}
               </span>
             )}
           </div>
           <svg width={260} height={64} viewBox="0 0 260 64" className="w-full h-auto">
             <defs>
-              <linearGradient id="creal" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor={diffChecklist > 0 ? '#e74c3c' : '#2ecc71'} />
-                <stop offset="100%" stopColor={diffChecklist > 0 ? '#c0392b' : '#27ae60'} />
+              <linearGradient id="ahorrobar" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#c9a84c" /><stop offset="100%" stopColor="#d4b86a" />
+              </linearGradient>
+              <linearGradient id="realbar" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor={totalReal > meta.montoAcumulado ? '#e74c3c' : '#2ecc71'} />
+                <stop offset="100%" stopColor={totalReal > meta.montoAcumulado ? '#c0392b' : '#27ae60'} />
               </linearGradient>
             </defs>
-            <text x={0} y={9} fill="var(--text-muted)" fontSize="7" fontWeight="700">ESTIMADO</text>
+            <text x={0} y={9} fill="var(--text-muted)" fontSize="7" fontWeight="700">AHORRO</text>
             <rect x={0} y={12} width={260} height={16} rx="4" fill="var(--border)" />
-            <rect x={0} y={12} width={Math.max(4, (totalEstimado / maxCheckVal) * 260)} height={16} rx="4" fill="var(--text-muted)" opacity="0.4" style={{ transition: 'width 1s ease-out' }} />
-            <text x={Math.max(4, (totalEstimado / maxCheckVal) * 260 - 6)} y={23} textAnchor={(totalEstimado / maxCheckVal) > 0.15 ? 'end' : 'start'} fill={(totalEstimado / maxCheckVal) > 0.15 ? 'var(--bg)' : 'var(--text-secondary)'} fontSize="8" fontFamily="'JetBrains Mono', monospace" fontWeight="700">${totalEstimado.toLocaleString()}</text>
+            <rect x={0} y={12} width={Math.max(4, (meta.montoAcumulado / Math.max(meta.montoAcumulado, totalReal, 1)) * 260)} height={16} rx="4" fill="url(#ahorrobar)" style={{ transition: 'width 1s ease-out' }} />
+            <text x={Math.max(4, (meta.montoAcumulado / Math.max(meta.montoAcumulado, totalReal, 1)) * 260 - 6)} y={23} textAnchor={(Math.max(meta.montoAcumulado, totalReal) > 0 && meta.montoAcumulado / Math.max(meta.montoAcumulado, totalReal) > 0.15) ? 'end' : 'start'} fill={(Math.max(meta.montoAcumulado, totalReal) > 0 && meta.montoAcumulado / Math.max(meta.montoAcumulado, totalReal) > 0.15) ? 'var(--bg)' : 'var(--text-secondary)'} fontSize="8" fontFamily="'JetBrains Mono', monospace" fontWeight="700">${meta.montoAcumulado.toLocaleString()}</text>
 
-            <text x={0} y={40} fill="var(--text-muted)" fontSize="7" fontWeight="700">REAL</text>
+            <text x={0} y={40} fill="var(--text-muted)" fontSize="7" fontWeight="700">COSTO REAL</text>
             <rect x={0} y={43} width={260} height={16} rx="4" fill="var(--border)" />
-            <rect x={0} y={43} width={Math.max(4, (totalReal / maxCheckVal) * 260)} height={16} rx="4" fill="url(#creal)" style={{ transition: 'width 1s ease-out' }} />
-            <text x={Math.max(4, (totalReal / maxCheckVal) * 260 - 6)} y={54} textAnchor={(totalReal / maxCheckVal) > 0.15 ? 'end' : 'start'} fill={(totalReal / maxCheckVal) > 0.15 ? 'white' : 'var(--text-secondary)'} fontSize="8" fontFamily="'JetBrains Mono', monospace" fontWeight="700">${totalReal.toLocaleString()}</text>
+            <rect x={0} y={43} width={Math.max(4, (totalReal / Math.max(meta.montoAcumulado, totalReal, 1)) * 260)} height={16} rx="4" fill="url(#realbar)" style={{ transition: 'width 1s ease-out' }} />
+            <text x={Math.max(4, (totalReal / Math.max(meta.montoAcumulado, totalReal, 1)) * 260 - 6)} y={54} textAnchor={(Math.max(meta.montoAcumulado, totalReal) > 0 && totalReal / Math.max(meta.montoAcumulado, totalReal) > 0.15) ? 'end' : 'start'} fill={(Math.max(meta.montoAcumulado, totalReal) > 0 && totalReal / Math.max(meta.montoAcumulado, totalReal) > 0.15) ? 'white' : 'var(--text-secondary)'} fontSize="8" fontFamily="'JetBrains Mono', monospace" fontWeight="700">${totalReal.toLocaleString()}</text>
           </svg>
         </div>
       )}
