@@ -39,16 +39,15 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
   const handleClose = () => { onClose(); if (!createGoal.isPending) resetForm() }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in" onClick={handleClose}>
-      <div className="glass rounded-2xl shadow-xl w-full sm:max-w-xl max-h-[90vh] overflow-y-auto animate-scale-in" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between border-b border-border px-5 py-4 sticky top-0 bg-[var(--glass-bg)] backdrop-blur-xl z-10">
-          <h2 className="text-lg font-semibold text-ink">Nueva Meta</h2>
-          <button type="button" onClick={handleClose} className="rounded-xl p-2 text-ink-muted hover:bg-surface hover:text-ink transition-colors">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-5 space-y-5">
+    <div className="fixed inset-0 z-50 bg-[var(--bg-sidebar)] flex flex-col animate-fade-in">
+      <div className="flex items-center justify-between border-b border-border px-5 py-4 flex-shrink-0">
+        <h2 className="text-lg font-semibold text-ink">Nueva Meta</h2>
+        <button type="button" onClick={handleClose} className="rounded-xl p-2 text-ink-muted hover:bg-surface hover:text-ink transition-colors">
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+      <div className="flex-1 overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-5 space-y-5 sm:max-w-[80%] sm:mx-auto">
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-ink">¿Qué querés ahorrar?</label>
             <input type="text" required minLength={3} maxLength={120} value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej. Viaje a la playa, Auto nuevo..." className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
