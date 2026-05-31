@@ -162,14 +162,19 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
       {/* Preview modal */}
       {previewUrl && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-fade-in" onClick={() => setPreviewUrl(null)}>
-          <div className="relative max-w-2xl w-full max-h-[90vh] animate-scale-in" onClick={(e) => e.stopPropagation()}>
-            <button type="button" onClick={() => setPreviewUrl(null)} className="absolute -top-10 right-0 rounded-xl p-2 text-white/70 hover:text-white hover:bg-white/10"><svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+          <div className="relative max-w-2xl w-full max-h-[90vh] flex flex-col animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-white/70">Comprobante</span>
+              <button type="button" onClick={() => setPreviewUrl(null)} className="rounded-xl p-2 text-white/70 hover:text-white hover:bg-white/10 transition-colors">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
             {previewUrl.startsWith('data:image/') ? (
-              <img src={previewUrl} alt="Comprobante" className="w-full rounded-2xl max-h-[85vh] object-contain" />
+              <img src={previewUrl} alt="Comprobante" className="w-full rounded-2xl max-h-[75vh] object-contain" />
             ) : (
-              <iframe src={previewUrl} className="w-full h-[80vh] rounded-2xl bg-white" title="Comprobante" />
+              <iframe src={previewUrl} className="w-full h-[75vh] rounded-2xl bg-white" title="Comprobante" />
             )}
-            <a href={previewUrl} download="comprobante" className="mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-[var(--bg)] hover:bg-primary-light" onClick={(e) => e.stopPropagation()}>
+            <a href={previewUrl} download="comprobante" className="mt-3 self-center inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-[var(--bg)] hover:bg-primary-light" onClick={(e) => e.stopPropagation()}>
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
               Descargar
             </a>
