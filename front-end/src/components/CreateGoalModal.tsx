@@ -57,9 +57,9 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1.5 block text-sm font-semibold text-ink">Monto objetivo</label>
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-base text-ink-muted">$</span>
-                <input type="number" required min={1} value={montoObjetivo || ''} onChange={(e) => setMontoObjetivo(Number(e.target.value))} placeholder="1,000,000" className="w-full rounded-xl border border-border bg-surface py-3 pl-9 pr-4 text-base font-mono placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+              <div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden">
+                <span className="pl-3.5 pr-1 text-base text-ink-muted">$</span>
+                <input type="number" required min={1} value={montoObjetivo || ''} onChange={(e) => setMontoObjetivo(Number(e.target.value))} placeholder="1,000,000" className="flex-1 py-3 pr-4 text-base font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" />
               </div>
             </div>
             <div>
@@ -115,7 +115,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
                       <button type="button" onClick={() => setProgTipo('porcentaje')} className={`flex-1 py-2.5 text-xs font-semibold ${progTipo === 'porcentaje' ? 'bg-primary/10 text-primary' : 'text-ink-muted'}`}>Porcentaje</button>
                     </div>
                     {progTipo === 'fijo' ? (
-                      <div className="relative"><span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-ink-muted">$</span><input type="number" min={1} value={progMonto || ''} onChange={(e) => setProgMonto(Number(e.target.value))} placeholder="50,000" className="w-full rounded-xl border border-border bg-surface py-3 pl-9 pr-4 text-sm font-mono focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" /></div>
+                      <div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 overflow-hidden"><span className="pl-3.5 pr-1 text-sm text-ink-muted">$</span><input type="number" min={1} value={progMonto || ''} onChange={(e) => setProgMonto(Number(e.target.value))} placeholder="50,000" className="flex-1 py-3 pr-4 text-sm font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div>
                     ) : (
                       <div className="flex items-center gap-3"><input type="range" min={1} max={100} value={progPorcentaje} onChange={(e) => setProgPorcentaje(Number(e.target.value))} className="flex-1 accent-primary" /><span className="text-sm font-bold text-ink w-10 text-right">{progPorcentaje}%</span></div>
                     )}

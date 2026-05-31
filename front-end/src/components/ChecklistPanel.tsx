@@ -20,6 +20,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [showAddModal, setShowAddModal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [editingItem, setEditingItem] = useState<ChecklistItem | null>(null)
@@ -36,7 +37,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
   const completados = itemsList.filter((i) => i.completado).length
   const total = itemsList.length
 
-  const handleAdd = async (e: React.FormEvent) => { e.preventDefault(); if (!newText.trim() || addItem.isPending) return; try { await addItem.mutateAsync({ texto: newText.trim(), monto: newMonto }); setNewText(''); setNewMonto(0) } catch {} }
+  const handleAdd = async (e: React.FormEvent) => { e.preventDefault(); if (!newText.trim() || addItem.isPending) return; try { await addItem.mutateAsync({ texto: newText.trim(), monto: newMonto }); setNewText(''); setNewMonto(0); setShowAddModal(false) } catch {} }
   const handleToggle = (item: ChecklistItem) => { if (item.completado) { toggleItem.mutate({ itemId: item.id, newValue: false }) } else { setRealCostItemId(item.id); setRealCostValue(item.monto ?? 0); setRealCostDate(new Date().toISOString().split('T')[0]); setRealCostUrl(item.comprobante ?? ''); setUploadProgress(0) } }
   const handleConfirmRealCost = async () => {
     if (!realCostItemId) return
@@ -127,7 +128,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
               <p className="text-xs text-ink-muted">Estimado: <span className="font-semibold text-ink">${(itemsList.find((i) => i.id === realCostItemId)?.monto ?? 0).toLocaleString()}</span></p>
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Monto real</label>
-                <div className="relative"><span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-ink-muted">$</span><input type="number" min={0} value={realCostValue || ''} onChange={(e) => setRealCostValue(Number(e.target.value))} autoFocus className="w-full rounded-xl border border-border bg-surface py-3 pl-9 pr-4 text-sm font-mono focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" /></div>
+                <div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden"><span className="pl-3.5 pr-1 text-sm text-ink-muted">$</span><input type="number" min={0} value={realCostValue || ''} onChange={(e) => setRealCostValue(Number(e.target.value))} autoFocus className="flex-1 py-3 pr-4 text-sm font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div>
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Fecha de pago</label>
@@ -162,11 +163,12 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
         </div>
       )}
 
-      <form onSubmit={handleAdd} className="flex gap-2 border-t border-border px-4 py-3 bg-surface-raised/50">
-        <input type="text" value={newText} onChange={(e) => setNewText(e.target.value)} placeholder="Nuevo ítem..." maxLength={300} className="flex-1 rounded-md border border-border bg-surface px-3 py-2 text-xs placeholder:text-ink-muted focus:border-primary focus:outline-none" />
-        <div className="relative w-24"><span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-ink-muted">$</span><input type="number" min={0} value={newMonto || ''} onChange={(e) => setNewMonto(Number(e.target.value))} placeholder="0" className="w-full rounded-md border border-border bg-surface pl-5 pr-2 py-2 text-xs focus:border-primary focus:outline-none" /></div>
-        <button type="submit" disabled={!newText.trim() || addItem.isPending} className="rounded-md bg-primary px-3 py-2 text-xs font-semibold text-white hover:bg-primary-dark disabled:opacity-50">{addItem.isPending ? '...' : 'Agregar'}</button>
-      </form>
+      <div className="border-t border-border px-4 py-3 bg-surface-raised/50">
+        <button type="button" onClick={() => { setNewText(''); setNewMonto(0); setShowAddModal(true) }} className="w-full rounded-xl border-2 border-dashed border-border px-4 py-3 text-sm text-ink-muted hover:border-primary/50 hover:text-primary transition-colors text-center">
+          <svg className="h-5 w-5 inline mr-1.5 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+          Agregar ítem
+        </button>
+      </div>
       {addItem.isError && <p className="px-4 py-2 text-xs text-danger border-t border-border">{addItem.error instanceof Error ? addItem.error.message : 'Error'}</p>}
 
       {editingItem && (
@@ -175,7 +177,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
             <div className="flex items-center justify-between border-b border-border px-5 py-4"><h3 className="text-base font-semibold text-ink">Editar ítem</h3><button type="button" onClick={() => setEditingItem(null)} className="rounded-xl p-1.5 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
             <div className="px-5 py-4 space-y-4">
               <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Descripción</label><input type="text" value={editText} onChange={(e) => setEditText(e.target.value)} maxLength={300} autoFocus onKeyDown={(e) => { if (e.key === 'Enter') saveEdit() }} className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" /></div>
-              <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Monto estimado</label><div className="relative"><span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-ink-muted">$</span><input type="number" min={0} value={editMonto || ''} onChange={(e) => setEditMonto(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface py-3 pl-9 pr-4 text-sm font-mono focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" /></div></div>
+              <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Monto estimado</label><div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden"><span className="pl-3.5 pr-1 text-sm text-ink-muted">$</span><input type="number" min={0} value={editMonto || ''} onChange={(e) => setEditMonto(Number(e.target.value))} className="flex-1 py-3 pr-4 text-sm font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div></div>
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Comprobante</label>
                 <input ref={editFileRef} type="file" accept="image/*,.pdf" onChange={handleEditFileChange} className="hidden" />
@@ -215,6 +217,32 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
               Descargar
             </a>
+          </div>
+        </div>
+      )}
+
+      {/* Add modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in" onClick={() => setShowAddModal(false)}>
+          <div className="glass rounded-2xl shadow-xl w-full max-w-sm animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-border px-5 py-4">
+              <h3 className="text-base font-semibold text-ink">Nuevo ítem</h3>
+              <button type="button" onClick={() => setShowAddModal(false)} className="rounded-xl p-1.5 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+            </div>
+            <form onSubmit={handleAdd} className="px-5 py-4 space-y-4">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Descripción</label>
+                <input type="text" value={newText} onChange={(e) => setNewText(e.target.value)} maxLength={300} autoFocus placeholder="Ej. Pasajes de avión" className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Monto estimado</label>
+                <div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden"><span className="pl-3.5 pr-1 text-sm text-ink-muted">$</span><input type="number" min={0} value={newMonto || ''} onChange={(e) => setNewMonto(Number(e.target.value))} placeholder="0" className="flex-1 py-3 pr-4 text-sm font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div>
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" onClick={() => setShowAddModal(false)} className="rounded-xl border border-border px-4 py-2.5 text-sm text-ink-muted hover:bg-surface">Cancelar</button>
+                <button type="submit" disabled={!newText.trim() || addItem.isPending} className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-[var(--bg)] hover:bg-primary-light disabled:opacity-50">{addItem.isPending ? 'Agregando...' : 'Agregar'}</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
