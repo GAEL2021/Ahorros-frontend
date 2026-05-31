@@ -141,14 +141,14 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
         </svg>
       </div>
 
-      {/* Ahorro vs Costo Real */}
+      {/* Ahorro vs Gastado (Checklist) */}
       {checklist.length > 0 && (
         <div className="rounded-xl bg-surface-raised border border-border px-4 py-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Ahorro vs Costo Real</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Ahorro vs Gastado</span>
             {totalReal > 0 && (
               <span className={`text-[10px] font-semibold ${totalReal > meta.montoAcumulado ? 'text-danger' : 'text-success'}`}>
-                {totalReal > meta.montoAcumulado ? `⚠️ $${(totalReal - meta.montoAcumulado).toLocaleString()} excedido` : `✅ $${(meta.montoAcumulado - totalReal).toLocaleString()} restante`}
+                {totalReal > meta.montoAcumulado ? `⚠️ -$${(totalReal - meta.montoAcumulado).toLocaleString()}` : `✅ $${(meta.montoAcumulado - totalReal).toLocaleString()} libre`}
               </span>
             )}
           </div>
@@ -157,19 +157,19 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
               <linearGradient id="ahorrobar" x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor="#c9a84c" /><stop offset="100%" stopColor="#d4b86a" />
               </linearGradient>
-              <linearGradient id="realbar" x1="0" y1="0" x2="1" y2="0">
+              <linearGradient id="gastobar" x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor={totalReal > meta.montoAcumulado ? '#e74c3c' : '#2ecc71'} />
                 <stop offset="100%" stopColor={totalReal > meta.montoAcumulado ? '#c0392b' : '#27ae60'} />
               </linearGradient>
             </defs>
-            <text x={0} y={9} fill="var(--text-muted)" fontSize="7" fontWeight="700">AHORRO</text>
+            <text x={0} y={9} fill="var(--text-muted)" fontSize="7" fontWeight="700">AHORRADO</text>
             <rect x={0} y={12} width={260} height={16} rx="4" fill="var(--border)" />
             <rect x={0} y={12} width={Math.max(4, (meta.montoAcumulado / Math.max(meta.montoAcumulado, totalReal, 1)) * 260)} height={16} rx="4" fill="url(#ahorrobar)" style={{ transition: 'width 1s ease-out' }} />
             <text x={Math.max(4, (meta.montoAcumulado / Math.max(meta.montoAcumulado, totalReal, 1)) * 260 - 6)} y={23} textAnchor={(Math.max(meta.montoAcumulado, totalReal) > 0 && meta.montoAcumulado / Math.max(meta.montoAcumulado, totalReal) > 0.15) ? 'end' : 'start'} fill={(Math.max(meta.montoAcumulado, totalReal) > 0 && meta.montoAcumulado / Math.max(meta.montoAcumulado, totalReal) > 0.15) ? 'var(--bg)' : 'var(--text-secondary)'} fontSize="8" fontFamily="'JetBrains Mono', monospace" fontWeight="700">${meta.montoAcumulado.toLocaleString()}</text>
 
-            <text x={0} y={40} fill="var(--text-muted)" fontSize="7" fontWeight="700">COSTO REAL</text>
+            <text x={0} y={40} fill="var(--text-muted)" fontSize="7" fontWeight="700">GASTADO</text>
             <rect x={0} y={43} width={260} height={16} rx="4" fill="var(--border)" />
-            <rect x={0} y={43} width={Math.max(4, (totalReal / Math.max(meta.montoAcumulado, totalReal, 1)) * 260)} height={16} rx="4" fill="url(#realbar)" style={{ transition: 'width 1s ease-out' }} />
+            <rect x={0} y={43} width={Math.max(4, (totalReal / Math.max(meta.montoAcumulado, totalReal, 1)) * 260)} height={16} rx="4" fill="url(#gastobar)" style={{ transition: 'width 1s ease-out' }} />
             <text x={Math.max(4, (totalReal / Math.max(meta.montoAcumulado, totalReal, 1)) * 260 - 6)} y={54} textAnchor={(Math.max(meta.montoAcumulado, totalReal) > 0 && totalReal / Math.max(meta.montoAcumulado, totalReal) > 0.15) ? 'end' : 'start'} fill={(Math.max(meta.montoAcumulado, totalReal) > 0 && totalReal / Math.max(meta.montoAcumulado, totalReal) > 0.15) ? 'white' : 'var(--text-secondary)'} fontSize="8" fontFamily="'JetBrains Mono', monospace" fontWeight="700">${totalReal.toLocaleString()}</text>
           </svg>
         </div>

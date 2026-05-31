@@ -2,7 +2,6 @@ import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import type { ChecklistItem } from '@/types'
 import { useGoalChecklist, useAddChecklistItem, useToggleChecklistItem, useDeleteChecklistItem, useUpdateChecklistItem } from '@/hooks/useGoalChecklist'
-import { useAddContribution } from '@/hooks/useAddContribution'
 import { useFetchBancos } from '@/hooks/useFetchBancos'
 import { sileo } from '@/lib/sileo'
 
@@ -29,7 +28,6 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
   const toggleItem = useToggleChecklistItem(goalId)
   const deleteItem = useDeleteChecklistItem(goalId)
   const updateItem = useUpdateChecklistItem(goalId)
-  const contribute = useAddContribution()
   const { data: bancos } = useFetchBancos()
   const [newText, setNewText] = useState('')
   const [newMonto, setNewMonto] = useState(0)
@@ -62,12 +60,11 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
   const handleToggle = (item: ChecklistItem) => { if (item.completado) { toggleItem.mutate({ itemId: item.id, newValue: false }) } else { setRealCostItemId(item.id); setRealCostValue(item.monto ?? 0); setRealCostDate(new Date().toISOString().split('T')[0]); setRealCostUrl(item.comprobante ?? ''); setRealCostCarteraId(''); setUploadProgress(0) } }
   const handleConfirmRealCost = async () => {
     if (!realCostItemId) return
-    if (!realCostCarteraId) { sileo.error('Seleccioná una cartera para el aporte'); return }
+    if (!realCostCarteraId) { sileo.error('Seleccioná una cartera para el gasto'); return }
     setRealCostItemId(null)
     try {
       await toggleItem.mutateAsync({ itemId: realCostItemId, newValue: true, montoReal: realCostValue, fechaReal: realCostDate, comprobante: realCostUrl || undefined })
-      await contribute.mutateAsync({ goalId, monto: realCostValue, carteraId: realCostCarteraId })
-      sileo.success(`✅ $${realCostValue.toLocaleString()} aportado a la meta`)
+      sileo.success(`✅ Gasto registrado: $${realCostValue.toLocaleString()}`)
     } catch (err) {
       sileo.error(err instanceof Error ? err.message : 'Error al guardar')
     }
