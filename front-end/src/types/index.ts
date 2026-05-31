@@ -249,6 +249,7 @@ export interface UpdateChecklistItemPayload {
   monto?: number
   completado?: boolean
   montoReal?: number
+  comprobante?: string
 }
 
 // --- Presupuesto ---

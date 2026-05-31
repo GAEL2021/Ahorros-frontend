@@ -25,6 +25,10 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
   const [editingItem, setEditingItem] = useState<ChecklistItem | null>(null)
   const [editText, setEditText] = useState('')
   const [editMonto, setEditMonto] = useState(0)
+  const [editUrl, setEditUrl] = useState('')
+  const [editUploading, setEditUploading] = useState(false)
+  const [editUploadProgress, setEditUploadProgress] = useState(0)
+  const editFileRef = useRef<HTMLInputElement>(null)
 
   const itemsList = items ?? []
   const totalEstimado = itemsList.reduce((sum, i) => sum + (i.monto ?? 0), 0)
@@ -47,8 +51,20 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
     reader.onerror = () => { sileo.error('Error al leer el archivo'); setUploading(false) }
     reader.readAsDataURL(file)
   }
-  const openEdit = (item: ChecklistItem) => { setEditingItem(item); setEditText(item.texto); setEditMonto(item.monto ?? 0) }
-  const saveEdit = async () => { if (!editingItem || !editText.trim() || updateItem.isPending) return; try { await updateItem.mutateAsync({ itemId: editingItem.id, payload: { texto: editText.trim(), monto: editMonto } }); setEditingItem(null) } catch {} }
+  const openEdit = (item: ChecklistItem) => { setEditingItem(item); setEditText(item.texto); setEditMonto(item.monto ?? 0); setEditUrl(item.comprobante ?? ''); setEditUploadProgress(0) }
+  const saveEdit = async () => { if (!editingItem || !editText.trim() || updateItem.isPending) return; try { await updateItem.mutateAsync({ itemId: editingItem.id, payload: { texto: editText.trim(), monto: editMonto, comprobante: editUrl || undefined } }); setEditingItem(null) } catch {} }
+
+  const handleEditFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 500 * 1024) { sileo.error('El archivo no puede superar 500KB'); return }
+    setEditUploading(true)
+    const reader = new FileReader()
+    reader.onprogress = (ev) => { if (ev.lengthComputable) setEditUploadProgress(Math.round((ev.loaded / ev.total) * 100)) }
+    reader.onload = () => { setEditUrl(reader.result as string); setEditUploading(false) }
+    reader.onerror = () => { sileo.error('Error al leer el archivo'); setEditUploading(false) }
+    reader.readAsDataURL(file)
+  }
 
   return (
     <div className="rounded-lg border border-border bg-surface overflow-hidden">
@@ -153,6 +169,20 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
             <div className="px-5 py-4 space-y-4">
               <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Descripción</label><input type="text" value={editText} onChange={(e) => setEditText(e.target.value)} maxLength={300} autoFocus onKeyDown={(e) => { if (e.key === 'Enter') saveEdit() }} className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" /></div>
               <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Monto estimado</label><div className="relative"><span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-ink-muted">$</span><input type="number" min={0} value={editMonto || ''} onChange={(e) => setEditMonto(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface py-3 pl-9 pr-4 text-sm font-mono focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" /></div></div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Comprobante</label>
+                <input ref={editFileRef} type="file" accept="image/*,.pdf" onChange={handleEditFileChange} className="hidden" />
+                {editUrl ? (
+                  <div className="flex items-center gap-2">
+                    <span className="flex-1 text-xs text-success truncate">✅ Archivo adjunto</span>
+                    <button type="button" onClick={() => { setEditUrl(''); if (editFileRef.current) editFileRef.current.value = '' }} className="text-xs text-danger hover:underline">Quitar</button>
+                  </div>
+                ) : editUploading ? (
+                  <div className="flex items-center gap-2"><div className="flex-1 h-2 rounded-full bg-border overflow-hidden"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${editUploadProgress}%` }} /></div><span className="text-xs text-ink-muted">{editUploadProgress}%</span></div>
+                ) : (
+                  <button type="button" onClick={() => editFileRef.current?.click()} className="w-full rounded-xl border-2 border-dashed border-border px-4 py-3 text-xs text-ink-muted hover:border-primary/50 hover:text-primary transition-colors text-center">Adjuntar imagen o PDF</button>
+                )}
+              </div>
               <div className="flex justify-end gap-3 pt-2"><button type="button" onClick={() => setEditingItem(null)} className="rounded-xl border border-border px-4 py-2.5 text-sm text-ink-muted hover:bg-surface">Cancelar</button><button type="button" onClick={saveEdit} disabled={updateItem.isPending || !editText.trim()} className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-[var(--bg)] hover:bg-primary-light disabled:opacity-50">{updateItem.isPending ? 'Guardando...' : 'Guardar'}</button></div>
             </div>
           </div>
