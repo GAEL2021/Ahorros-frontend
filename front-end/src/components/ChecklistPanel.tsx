@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import type { ChecklistItem } from '@/types'
 import { useGoalChecklist, useAddChecklistItem, useToggleChecklistItem, useDeleteChecklistItem, useUpdateChecklistItem } from '@/hooks/useGoalChecklist'
+import { useAddContribution } from '@/hooks/useAddContribution'
 import { sileo } from '@/lib/sileo'
 
 interface ChecklistPanelProps { goalId: string; metaMontoObjetivo: number }
@@ -11,6 +12,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
   const toggleItem = useToggleChecklistItem(goalId)
   const deleteItem = useDeleteChecklistItem(goalId)
   const updateItem = useUpdateChecklistItem(goalId)
+  const contribute = useAddContribution()
   const [newText, setNewText] = useState('')
   const [newMonto, setNewMonto] = useState(0)
   const [realCostItemId, setRealCostItemId] = useState<string | null>(null)
@@ -38,7 +40,17 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
 
   const handleAdd = async (e: React.FormEvent) => { e.preventDefault(); if (!newText.trim() || addItem.isPending) return; try { await addItem.mutateAsync({ texto: newText.trim(), monto: newMonto }); setNewText(''); setNewMonto(0) } catch {} }
   const handleToggle = (item: ChecklistItem) => { if (item.completado) { toggleItem.mutate({ itemId: item.id, newValue: false }) } else { setRealCostItemId(item.id); setRealCostValue(item.monto ?? 0); setRealCostDate(new Date().toISOString().split('T')[0]); setRealCostUrl(item.comprobante ?? ''); setUploadProgress(0) } }
-  const handleConfirmRealCost = () => { if (!realCostItemId) return; toggleItem.mutate({ itemId: realCostItemId, newValue: true, montoReal: realCostValue, fechaReal: realCostDate, comprobante: realCostUrl || undefined }, { onError: (err) => { sileo.error(err instanceof Error ? err.message : 'Error al guardar') } }); setRealCostItemId(null) }
+  const handleConfirmRealCost = async () => {
+    if (!realCostItemId) return
+    setRealCostItemId(null)
+    try {
+      await toggleItem.mutateAsync({ itemId: realCostItemId, newValue: true, montoReal: realCostValue, fechaReal: realCostDate, comprobante: realCostUrl || undefined })
+      await contribute.mutateAsync({ goalId, monto: realCostValue })
+      sileo.success(`✅ $${realCostValue.toLocaleString()} aportado a la meta`)
+    } catch (err) {
+      sileo.error(err instanceof Error ? err.message : 'Error al guardar')
+    }
+  }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

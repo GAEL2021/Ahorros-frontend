@@ -1,37 +1,13 @@
 import { useMemo } from 'react'
 import type { Meta, TimelinePace } from '@/types'
 
-interface GoalTimelineProps {
-  meta: Meta
-}
+interface GoalTimelineProps { meta: Meta }
 
 function getPaceConfig(pace: TimelinePace) {
   switch (pace) {
-    case 'adelantado':
-      return {
-        label: 'Adelantado',
-        main: '#059669',
-        mainBg: '#d1fae5',
-        badge: 'bg-success/10 text-emerald-700 border-success/30',
-        dot: 'bg-emerald-500',
-      }
-    case 'retrasado':
-      return {
-        label: 'Retrasado',
-        main: '#e11d48',
-        mainBg: '#ffe4e6',
-        badge: 'bg-danger/10 text-rose-700 border-danger/30',
-        dot: 'bg-rose-500',
-      }
-    case 'a_tiempo':
-    default:
-      return {
-        label: 'A tiempo',
-        main: '#0d6b46',
-        mainBg: '#d1fae5',
-        badge: 'bg-success/10 text-emerald-700 border-success/30',
-        dot: 'bg-emerald-500',
-      }
+    case 'adelantado': return { label: 'Adelantado', badge: 'bg-success/10 text-success border-success/20', dot: 'bg-success', bar: '#2ecc71' }
+    case 'retrasado': return { label: 'Retrasado', badge: 'bg-danger/10 text-danger border-danger/20', dot: 'bg-danger', bar: '#e74c3c' }
+    default: return { label: 'A tiempo', badge: 'bg-primary/10 text-primary border-primary/20', dot: 'bg-primary', bar: '#c9a84c' }
   }
 }
 
@@ -59,140 +35,21 @@ function calcPace(meta: Meta): TimelinePace {
   return 'a_tiempo'
 }
 
-function CoinRing({ progress, paceColor }: { progress: number; paceColor: string }) {
-  const r = 52
-  const circumference = 2 * Math.PI * r
-  const offset = circumference * (1 - Math.min(100, progress) / 100)
-  const gradId = `coin-grad-${Math.random().toString(36).slice(2, 8)}`
-
+function ProgressRing({ pct, color }: { pct: number; color: string }) {
+  const r = 64; const circ = 2 * Math.PI * r
+  const offset = circ * (1 - Math.min(100, pct) / 100)
   return (
     <div className="relative inline-flex">
-      <svg width={100} height={100} viewBox="0 0 130 130" className="-rotate-90 drop-shadow-sm sm:w-[130px] sm:h-[130px]">
-        <defs>
-          <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#059669" />
-            <stop offset="50%" stopColor={paceColor} />
-            <stop offset="100%" stopColor="#047857" />
-          </linearGradient>
-        </defs>
-        {/* Outer rim - coin edge */}
-        <circle cx="65" cy="65" r="58" fill="none" stroke="#e5e7e4" strokeWidth="2" />
-        {/* Track */}
-        <circle cx="65" cy="65" r={r} fill="none" stroke="#e5e7e4" strokeWidth="8" />
-        {/* Progress arc with gradient */}
-        <circle
-          cx="65"
-          cy="65"
-          r={r}
-          fill="none"
-          stroke={`url(#${gradId})`}
-          strokeWidth="8"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          style={{ transition: 'stroke-dashoffset 1.4s cubic-bezier(0.4, 0, 0.2, 1)' }}
-        />
-        {/* Inner glow ring */}
-        <circle cx="65" cy="65" r="44" fill="none" stroke="#e5e7e4" strokeWidth="0.5" opacity="0.5" />
+      <svg width={150} height={150} viewBox="0 0 150 150" className="-rotate-90 w-32 h-32 sm:w-[150px] sm:h-[150px]">
+        <circle cx={75} cy={75} r={r} fill="none" stroke="var(--border)" strokeWidth={8} />
+        <circle cx={75} cy={75} r={r} fill="none" stroke={color} strokeWidth={8} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset}
+          style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)', filter: `drop-shadow(0 0 6px ${color}40)` }} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span
-          className="text-2xl font-bold tabular-nums text-ink leading-none"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
-        >
-          {Math.min(100, progress)}%
-        </span>
-        <span className="mt-0.5 text-[10px] font-medium text-ink-muted tracking-wide">COMPLETADO</span>
+        <span className="text-3xl sm:text-4xl font-bold tabular-nums text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{pct}%</span>
+        <span className="text-[10px] font-semibold text-ink-muted uppercase tracking-widest mt-0.5">Completado</span>
       </div>
     </div>
-  )
-}
-
-function MoneyBars({
-  progress,
-  timePct,
-  montoAcumulado,
-  montoObjetivo,
-}: {
-  progress: number
-  timePct: number
-  montoAcumulado: number
-  montoObjetivo: number
-}) {
-  const width = 260
-  const height = 72
-  const barH = 18
-  const barGap = 8
-  const padX = 0
-  const barW = width - padX * 2
-
-  const savingsW = (progress / 100) * barW
-  const timeW = (timePct / 100) * barW
-
-  // Build stripe pattern for gold bar effect
-  const stripeId = `stripe-${Math.random().toString(36).slice(2, 6)}`
-
-  return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="w-full h-auto">
-      <defs>
-        <pattern id={stripeId} width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <rect width="4" height="8" fill="white" opacity="0.15" />
-          <rect x="4" width="4" height="8" fill="black" opacity="0.08" />
-        </pattern>
-        <linearGradient id={`gold-bar`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#b7870a" />
-          <stop offset="40%" stopColor="#c5a344" />
-          <stop offset="60%" stopColor="#b7870a" />
-          <stop offset="100%" stopColor="#9a6e04" />
-        </linearGradient>
-      </defs>
-
-      {/* Savings bar - gold/money look */}
-      <text x={padX} y={10} fill="#a3a3a3" fontSize="8" fontFamily="Inter, sans-serif" fontWeight="600" letterSpacing="0.5">AHORRO</text>
-      <rect x={padX} y={14} width={barW} height={barH} rx="3" fill="#e5e7e4" />
-      <rect x={padX} y={14} width={Math.max(4, savingsW)} height={barH} rx="3" fill={`url(#gold-bar)`} style={{ transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)' }} />
-      <rect x={padX} y={14} width={Math.max(4, savingsW)} height={barH} rx="3" fill={`url(#${stripeId})`} style={{ transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)' }} />
-      <text
-        x={Math.max(padX + 6, savingsW - 4)}
-        y={14 + barH / 2 + 1.5}
-        textAnchor={progress > 15 ? 'end' : 'start'}
-        fill={progress > 15 ? 'white' : '#525252'}
-        fontSize="9"
-        fontFamily="'JetBrains Mono', monospace"
-        fontWeight="700"
-      >
-        ${montoAcumulado.toLocaleString()}
-      </text>
-
-      {/* Time bar */}
-      <text x={padX} y={14 + barH + barGap + 10} fill="#a3a3a3" fontSize="8" fontFamily="Inter, sans-serif" fontWeight="600" letterSpacing="0.5">TIEMPO</text>
-      <rect x={padX} y={14 + barH + barGap + 14} width={barW} height={barH} rx="3" fill="#e5e7e4" />
-      <rect
-        x={padX}
-        y={14 + barH + barGap + 14}
-        width={Math.max(4, timeW)}
-        height={barH}
-        rx="3"
-        fill="#a3a3a3"
-        style={{ transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)' }}
-      />
-      <text
-        x={Math.max(padX + 6, timeW - 4)}
-        y={14 + barH + barGap + 14 + barH / 2 + 1.5}
-        textAnchor={timePct > 15 ? 'end' : 'start'}
-        fill={timePct > 15 ? 'white' : '#525252'}
-        fontSize="9"
-        fontFamily="'JetBrains Mono', monospace"
-        fontWeight="700"
-      >
-        {timePct}%
-      </text>
-
-      {/* Meta line on savings bar */}
-      <line x1={barW - 0.5} y1={14} x2={barW - 0.5} y2={14 + barH + barGap + 14 + barH} stroke="#0d6b46" strokeWidth="1" strokeDasharray="3 2" opacity="0.5" />
-      <text x={barW + 4} y={14 + barH / 2 + 1.5} fill="#0d6b46" fontSize="7" fontFamily="Inter, sans-serif" fontWeight="700">META</text>
-      <text x={barW + 4} y={14 + barH / 2 + 11} fill="#525252" fontSize="7" fontFamily="Inter, sans-serif" fontWeight="500">${montoObjetivo.toLocaleString()}</text>
-    </svg>
   )
 }
 
@@ -200,7 +57,6 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
   const pace = useMemo(() => calcPace(meta), [meta])
   const paceConfig = getPaceConfig(pace)
   const progressPct = Math.min(100, Math.round((meta.montoAcumulado / meta.montoObjetivo) * 100))
-
   const now = Date.now()
   const start = calcStartDate(meta).getTime()
   const end = new Date(meta.fechaLimite).getTime()
@@ -209,69 +65,115 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
   const timePct = totalDuration > 0 ? Math.min(100, Math.round((elapsed / totalDuration) * 100)) : 0
   const remaining = meta.montoObjetivo - meta.montoAcumulado
 
+  const checklist = meta.checklist ?? []
+  const totalEstimado = checklist.reduce((s: number, i) => s + (i.monto ?? 0), 0)
+  const totalReal = checklist.filter((i) => i.completado && i.montoReal != null).reduce((s: number, i) => s + (i.montoReal ?? 0), 0)
+  const diffChecklist = totalReal - totalEstimado
+  const maxCheckVal = Math.max(totalEstimado, totalReal, 1)
+
   return (
-    <div className="rounded-lg border border-border bg-surface p-5">
-      <div className="flex items-center justify-between mb-5">
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-ink">Progreso de la Meta</h3>
-          <p className="mt-0.5 text-xs text-ink-muted">{meta.nombre}</p>
+          <h3 className="text-sm font-semibold text-ink">{meta.nombre}</h3>
+          <p className="text-xs text-ink-muted mt-0.5">Progreso de la meta</p>
         </div>
-        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${paceConfig.badge}`}>
+        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${paceConfig.badge}`}>
           <span className={`h-1.5 w-1.5 rounded-full ${paceConfig.dot}`} />
           {paceConfig.label}
         </span>
       </div>
 
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8">
-        {/* Coin ring */}
-        <div className="flex justify-center sm:flex-shrink-0">
-          <CoinRing progress={progressPct} paceColor={paceConfig.main} />
-        </div>
-
-        {/* KPI grid + money bars */}
-        <div className="flex-1 min-w-0 space-y-3">
-          {/* 4 KPI cards */}
-          <div className="grid grid-cols-2 gap-2.5">
-            <div className="rounded-lg border border-primary/10 bg-primary-subtle/50 px-3 py-2.5">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-primary-dark">Meta Total</span>
-              <p className="mt-0.5 text-sm font-bold tabular-nums text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                ${meta.montoObjetivo.toLocaleString()}
-              </p>
-            </div>
-            <div className="rounded-lg border border-primary/10 bg-primary-subtle/50 px-3 py-2.5">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-primary-dark">Ahorrado</span>
-              <p className="mt-0.5 text-sm font-bold tabular-nums text-primary-dark" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                ${meta.montoAcumulado.toLocaleString()}
-              </p>
-            </div>
-            <div className="rounded-lg border border-border bg-surface-raised px-3 py-2.5">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">Restante</span>
-              <p className="mt-0.5 text-sm font-bold tabular-nums text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                ${remaining.toLocaleString()}
-              </p>
-            </div>
-            <div className="rounded-lg border border-border bg-surface-raised px-3 py-2.5">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">T. Transcurrido</span>
-              <p className="mt-0.5 text-sm font-bold tabular-nums text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                {timePct}%
-              </p>
-            </div>
+      {/* Ring + Big money */}
+      <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
+        <ProgressRing pct={progressPct} color={paceConfig.bar} />
+        <div className="flex-1 w-full space-y-3">
+          <div className="flex items-baseline justify-center sm:justify-start gap-2">
+            <span className="text-2xl sm:text-3xl font-bold tabular-nums text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              ${meta.montoAcumulado.toLocaleString()}
+            </span>
+            <span className="text-sm text-ink-muted" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              / ${meta.montoObjetivo.toLocaleString()}
+            </span>
+          </div>
+          <div className="h-3 rounded-full bg-border overflow-hidden">
+            <div className="h-full rounded-full progress-gold transition-all duration-1000 ease-out" style={{ width: `${progressPct}%` }} />
           </div>
 
-          {/* Money bars chart */}
-          <div className="rounded-lg border border-border bg-surface-raised px-3 py-3">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">Ahorro acumulado vs Tiempo</span>
-            <div className="mt-2">
-              <MoneyBars
-                progress={progressPct}
-                timePct={timePct}
-                montoAcumulado={meta.montoAcumulado}
-                montoObjetivo={meta.montoObjetivo}
-              />
+          {/* KPI cards */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-xl bg-surface-raised border border-border px-3 py-2.5">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Restante</span>
+              <p className="mt-0.5 text-sm font-bold text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>${remaining.toLocaleString()}</p>
+            </div>
+            <div className="rounded-xl bg-surface-raised border border-border px-3 py-2.5">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Tiempo</span>
+              <p className="mt-0.5 text-sm font-bold text-ink" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{timePct}%</p>
+            </div>
+            <div className="rounded-xl bg-surface-raised border border-border px-3 py-2.5">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Meses rest.</span>
+              <p className="mt-0.5 text-sm font-bold text-ink">{meta.mesesRestantes}</p>
+            </div>
+            <div className="rounded-xl bg-surface-raised border border-border px-3 py-2.5">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Participantes</span>
+              <p className="mt-0.5 text-sm font-bold text-ink">{meta.miembros?.length ?? 1}</p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Savings vs Time bar */}
+      <div className="rounded-xl bg-surface-raised border border-border px-4 py-3">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted mb-2 block">Ahorro vs Tiempo</span>
+        <svg width={260} height={64} viewBox="0 0 260 64" className="w-full h-auto">
+          <defs>
+            <linearGradient id="gbar" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#b8940c" /><stop offset="50%" stopColor="#c9a84c" /><stop offset="100%" stopColor="#d4b86a" />
+            </linearGradient>
+          </defs>
+          <text x={0} y={9} fill="var(--text-muted)" fontSize="7" fontWeight="700">AHORRO</text>
+          <rect x={0} y={12} width={260} height={16} rx="4" fill="var(--border)" />
+          <rect x={0} y={12} width={Math.max(4, (progressPct / 100) * 260)} height={16} rx="4" fill="url(#gbar)" style={{ transition: 'width 1s ease-out' }} />
+          <text x={Math.max(4, (progressPct / 100) * 260 - 6)} y={23} textAnchor={progressPct > 15 ? 'end' : 'start'} fill={progressPct > 15 ? 'var(--bg)' : 'var(--text-secondary)'} fontSize="8" fontFamily="'JetBrains Mono', monospace" fontWeight="700">${meta.montoAcumulado.toLocaleString()}</text>
+
+          <text x={0} y={40} fill="var(--text-muted)" fontSize="7" fontWeight="700">TIEMPO</text>
+          <rect x={0} y={43} width={260} height={16} rx="4" fill="var(--border)" />
+          <rect x={0} y={43} width={Math.max(4, (timePct / 100) * 260)} height={16} rx="4" fill="var(--text-muted)" opacity="0.6" style={{ transition: 'width 1s ease-out' }} />
+          <text x={Math.max(4, (timePct / 100) * 260 - 6)} y={54} textAnchor={timePct > 15 ? 'end' : 'start'} fill={timePct > 15 ? 'white' : 'var(--text-secondary)'} fontSize="8" fontFamily="'JetBrains Mono', monospace" fontWeight="700">{timePct}%</text>
+        </svg>
+      </div>
+
+      {/* Checklist comparison */}
+      {checklist.length > 0 && (
+        <div className="rounded-xl bg-surface-raised border border-border px-4 py-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">Checklist: Estimado vs Real</span>
+            {diffChecklist !== 0 && (
+              <span className={`text-[10px] font-semibold ${diffChecklist > 0 ? 'text-danger' : 'text-success'}`}>
+                {diffChecklist > 0 ? `+$${diffChecklist.toLocaleString()}` : `-$${Math.abs(diffChecklist).toLocaleString()}`}
+              </span>
+            )}
+          </div>
+          <svg width={260} height={64} viewBox="0 0 260 64" className="w-full h-auto">
+            <defs>
+              <linearGradient id="creal" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor={diffChecklist > 0 ? '#e74c3c' : '#2ecc71'} />
+                <stop offset="100%" stopColor={diffChecklist > 0 ? '#c0392b' : '#27ae60'} />
+              </linearGradient>
+            </defs>
+            <text x={0} y={9} fill="var(--text-muted)" fontSize="7" fontWeight="700">ESTIMADO</text>
+            <rect x={0} y={12} width={260} height={16} rx="4" fill="var(--border)" />
+            <rect x={0} y={12} width={Math.max(4, (totalEstimado / maxCheckVal) * 260)} height={16} rx="4" fill="var(--text-muted)" opacity="0.4" style={{ transition: 'width 1s ease-out' }} />
+            <text x={Math.max(4, (totalEstimado / maxCheckVal) * 260 - 6)} y={23} textAnchor={(totalEstimado / maxCheckVal) > 0.15 ? 'end' : 'start'} fill={(totalEstimado / maxCheckVal) > 0.15 ? 'var(--bg)' : 'var(--text-secondary)'} fontSize="8" fontFamily="'JetBrains Mono', monospace" fontWeight="700">${totalEstimado.toLocaleString()}</text>
+
+            <text x={0} y={40} fill="var(--text-muted)" fontSize="7" fontWeight="700">REAL</text>
+            <rect x={0} y={43} width={260} height={16} rx="4" fill="var(--border)" />
+            <rect x={0} y={43} width={Math.max(4, (totalReal / maxCheckVal) * 260)} height={16} rx="4" fill="url(#creal)" style={{ transition: 'width 1s ease-out' }} />
+            <text x={Math.max(4, (totalReal / maxCheckVal) * 260 - 6)} y={54} textAnchor={(totalReal / maxCheckVal) > 0.15 ? 'end' : 'start'} fill={(totalReal / maxCheckVal) > 0.15 ? 'white' : 'var(--text-secondary)'} fontSize="8" fontFamily="'JetBrains Mono', monospace" fontWeight="700">${totalReal.toLocaleString()}</text>
+          </svg>
+        </div>
+      )}
     </div>
   )
 }
