@@ -119,7 +119,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
 
       {realCostItemId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in" onClick={() => setRealCostItemId(null)}>
-          <div className="glass rounded-2xl shadow-xl w-full max-w-sm animate-scale-in" onClick={(e) => e.stopPropagation()}>
+          <div className="glass rounded-2xl shadow-xl w-full max-w-sm sm:max-w-lg animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <h3 className="text-base font-semibold text-ink">Costo real</h3>
               <button type="button" onClick={() => setRealCostItemId(null)} className="rounded-xl p-1.5 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
@@ -173,7 +173,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
 
       {editingItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in" onClick={() => setEditingItem(null)}>
-          <div className="glass rounded-2xl shadow-xl w-full max-w-sm animate-scale-in" onClick={(e) => e.stopPropagation()}>
+          <div className="glass rounded-2xl shadow-xl w-full max-w-sm sm:max-w-lg animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-border px-5 py-4"><h3 className="text-base font-semibold text-ink">Editar ítem</h3><button type="button" onClick={() => setEditingItem(null)} className="rounded-xl p-1.5 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
             <div className="px-5 py-4 space-y-4">
               <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Descripción</label><input type="text" value={editText} onChange={(e) => setEditText(e.target.value)} maxLength={300} autoFocus onKeyDown={(e) => { if (e.key === 'Enter') saveEdit() }} className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" /></div>
@@ -200,23 +200,25 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
 
       {/* Preview modal */}
       {previewUrl && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-fade-in" onClick={() => setPreviewUrl(null)}>
-          <div className="relative max-w-2xl w-full max-h-[90vh] flex flex-col animate-scale-in" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-white/70">Comprobante</span>
+        <div className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-sm animate-fade-in">
+          <div className="flex items-center justify-between px-4 py-3 flex-shrink-0">
+            <span className="text-sm text-white/70">Comprobante</span>
+            <div className="flex items-center gap-2">
+              <a href={previewUrl} download="comprobante" className="rounded-xl bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 transition-colors" onClick={(e) => e.stopPropagation()}>
+                <svg className="h-4 w-4 inline mr-1.5 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                Descargar
+              </a>
               <button type="button" onClick={() => setPreviewUrl(null)} className="rounded-xl p-2 text-white/70 hover:text-white hover:bg-white/10 transition-colors">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
+          </div>
+          <div className="flex-1 flex items-center justify-center p-4">
             {previewUrl.startsWith('data:image/') ? (
-              <img src={previewUrl} alt="Comprobante" className="w-full rounded-2xl max-h-[75vh] object-contain" />
+              <img src={previewUrl} alt="Comprobante" className="max-w-full max-h-full object-contain rounded-xl" />
             ) : (
-              <iframe src={previewUrl} className="w-full h-[75vh] rounded-2xl bg-white" title="Comprobante" />
+              <iframe src={previewUrl} className="w-full h-full rounded-xl bg-white" title="Comprobante" />
             )}
-            <a href={previewUrl} download="comprobante" className="mt-3 self-center inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-[var(--bg)] hover:bg-primary-light" onClick={(e) => e.stopPropagation()}>
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-              Descargar
-            </a>
           </div>
         </div>
       )}
@@ -224,7 +226,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
       {/* Add modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in" onClick={() => setShowAddModal(false)}>
-          <div className="glass rounded-2xl shadow-xl w-full max-w-sm animate-scale-in" onClick={(e) => e.stopPropagation()}>
+          <div className="glass rounded-2xl shadow-xl w-full max-w-sm sm:max-w-lg animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <h3 className="text-base font-semibold text-ink">Nuevo ítem</h3>
               <button type="button" onClick={() => setShowAddModal(false)} className="rounded-xl p-1.5 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
