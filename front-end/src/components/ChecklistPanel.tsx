@@ -57,7 +57,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
   const total = itemsList.length
 
   const handleAdd = async (e: React.FormEvent) => { e.preventDefault(); if (!newText.trim() || addItem.isPending) return; try { await addItem.mutateAsync({ texto: newText.trim(), monto: newMonto }); setNewText(''); setNewMonto(0); setShowAddModal(false) } catch {} }
-  const handleToggle = (item: ChecklistItem) => { if (item.completado) { toggleItem.mutate({ itemId: item.id, newValue: false }) } else { setRealCostItemId(item.id); setRealCostValue(item.monto ?? 0); setRealCostDate(new Date().toISOString().split('T')[0]); setRealCostUrl(item.comprobante ?? ''); setRealCostCarteraId(''); setUploadProgress(0) } }
+  const handleToggle = (item: ChecklistItem) => { if (item.completado) { toggleItem.mutate({ itemId: item.id, newValue: false }) } else { if (metaMontoAcumulado < (item.monto ?? 0)) { sileo.error(`Necesitás $${(item.monto ?? 0).toLocaleString()} ahorrados. Tenés $${metaMontoAcumulado.toLocaleString()}.`); return }; setRealCostItemId(item.id); setRealCostValue(item.monto ?? 0); setRealCostDate(new Date().toISOString().split('T')[0]); setRealCostUrl(item.comprobante ?? ''); setRealCostCarteraId(''); setUploadProgress(0) } }
   const handleConfirmRealCost = async () => {
     if (!realCostItemId) return
     if (!realCostCarteraId) { sileo.error('Seleccioná una cartera para el gasto'); return }
