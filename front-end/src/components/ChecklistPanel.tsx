@@ -342,7 +342,29 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
             <label className="mb-1.5 block text-sm font-semibold text-ink">Comprobante</label>
             <input ref={fileInputRef} type="file" accept="image/*,.pdf" onChange={handleFileChange} className="hidden" />
             {realCostUrl ? (
-              <div className="flex items-center gap-2"><span className="flex-1 text-sm text-success">✅ Archivo adjunto</span><button type="button" onClick={() => { setRealCostUrl(''); if (fileInputRef.current) fileInputRef.current.value = '' }} className="text-sm text-danger hover:underline">Quitar</button></div>
+              <div className="flex flex-col gap-2 rounded-xl border border-border bg-surface-raised p-3">
+                <div className="flex items-center gap-2">
+                  <span className="flex-1 text-sm text-success font-semibold">✅ Archivo adjunto</span>
+                  <button type="button" onClick={() => setPreviewUrl(realCostUrl)} className="text-xs text-primary font-semibold hover:underline">Ver archivo</button>
+                  <span className="text-ink-muted">·</span>
+                  <button type="button" onClick={() => { setRealCostUrl(''); if (fileInputRef.current) fileInputRef.current.value = '' }} className="text-xs text-danger hover:underline">Quitar</button>
+                </div>
+                {realCostUrl.startsWith('data:image/') ? (
+                  <div onClick={() => setPreviewUrl(realCostUrl)} className="relative w-20 h-20 rounded-lg overflow-hidden border border-border mt-1 cursor-pointer hover:opacity-85 transition-opacity">
+                    <img src={realCostUrl} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div onClick={() => setPreviewUrl(realCostUrl)} className="flex items-center gap-2.5 rounded-lg border border-border bg-surface p-2.5 mt-1 w-fit cursor-pointer hover:bg-surface-raised transition-colors">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/10 border border-red-500/20 text-red-500">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /><path strokeLinecap="round" strokeLinejoin="round" d="M9 9h1.5m-1.5 3h4m-4 3h4" /></svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-ink">Documento PDF</p>
+                      <p className="text-[10px] text-ink-muted">Clic para previsualizar</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : uploading ? (
               <div className="flex items-center gap-3"><div className="flex-1 h-2 rounded-full bg-border overflow-hidden"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${uploadProgress}%` }} /></div><span className="text-xs text-ink-muted">{uploadProgress}%</span></div>
             ) : (
@@ -361,7 +383,29 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
             <label className="mb-1.5 block text-sm font-semibold text-ink">Comprobante</label>
             <input ref={editFileRef} type="file" accept="image/*,.pdf" onChange={handleEditFileChange} className="hidden" />
             {editUrl ? (
-              <div className="flex items-center gap-2"><span className="flex-1 text-sm text-success">✅ Archivo adjunto</span><button type="button" onClick={() => { setEditUrl(''); if (editFileRef.current) editFileRef.current.value = '' }} className="text-sm text-danger hover:underline">Quitar</button></div>
+              <div className="flex flex-col gap-2 rounded-xl border border-border bg-surface-raised p-3">
+                <div className="flex items-center gap-2">
+                  <span className="flex-1 text-sm text-success font-semibold">✅ Archivo adjunto</span>
+                  <button type="button" onClick={() => setPreviewUrl(editUrl)} className="text-xs text-primary font-semibold hover:underline">Ver archivo</button>
+                  <span className="text-ink-muted">·</span>
+                  <button type="button" onClick={() => { setEditUrl(''); if (editFileRef.current) editFileRef.current.value = '' }} className="text-xs text-danger hover:underline">Quitar</button>
+                </div>
+                {editUrl.startsWith('data:image/') ? (
+                  <div onClick={() => setPreviewUrl(editUrl)} className="relative w-20 h-20 rounded-lg overflow-hidden border border-border mt-1 cursor-pointer hover:opacity-85 transition-opacity">
+                    <img src={editUrl} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div onClick={() => setPreviewUrl(editUrl)} className="flex items-center gap-2.5 rounded-lg border border-border bg-surface p-2.5 mt-1 w-fit cursor-pointer hover:bg-surface-raised transition-colors">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/10 border border-red-500/20 text-red-500">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /><path strokeLinecap="round" strokeLinejoin="round" d="M9 9h1.5m-1.5 3h4m-4 3h4" /></svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-ink">Documento PDF</p>
+                      <p className="text-[10px] text-ink-muted">Clic para previsualizar</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : editUploading ? (
               <div className="flex items-center gap-3"><div className="flex-1 h-2 rounded-full bg-border overflow-hidden"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${editUploadProgress}%` }} /></div><span className="text-xs text-ink-muted">{editUploadProgress}%</span></div>
             ) : (

@@ -146,30 +146,31 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
           </div>
 
           {/* Wallet selector */}
-          {bancosList.length > 0 && (
-            <div>
-              <label className="mb-2.5 block text-xs font-semibold text-ink-secondary">Cartera de destino (opcional)</label>
-              <select
-                value={carteraId}
-                onChange={(e) => {
-                  setCarteraId(e.target.value)
-                }}
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="">Aporte directo (sin asociar a cartera)</option>
-                {bancosList.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.nombre} (${b.saldo.toLocaleString()} de saldo)
-                  </option>
-                ))}
-              </select>
-              {selectedBanco && (
-                <p className="mt-1.5 text-xs text-ink-muted">
-                  Saldo actual: <span className="font-semibold text-primary">${selectedBanco.saldo.toLocaleString()}</span>
-                </p>
-              )}
-            </div>
-          )}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-ink-secondary">Cartera de origen (Obligatoria donde se sumará el dinero)</label>
+            <select
+              value={carteraId}
+              required
+              onChange={(e) => {
+                setCarteraId(e.target.value)
+              }}
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="" disabled>Seleccionar cartera</option>
+              {bancosList.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.nombre} (${b.saldo.toLocaleString()} de saldo)
+                </option>
+              ))}
+            </select>
+            {selectedBanco ? (
+              <p className="text-xs text-ink-muted">
+                Saldo actual: <span className="font-semibold text-primary">${selectedBanco.saldo.toLocaleString()}</span>
+              </p>
+            ) : (
+              <p className="text-xs text-danger font-semibold">* Es necesario seleccionar una cartera para registrar el aporte.</p>
+            )}
+          </div>
 
           {/* Manual input for precision */}
           <div className="relative">
@@ -197,7 +198,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
             </button>
             <button
               type="submit"
-              disabled={addContribution.isPending || !monto || monto < 1 || monto > maxContribution}
+              disabled={addContribution.isPending || !monto || monto < 1 || monto > maxContribution || !carteraId}
               className="rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
               {addContribution.isPending ? 'Aportando...' : 'Confirmar aporte'}

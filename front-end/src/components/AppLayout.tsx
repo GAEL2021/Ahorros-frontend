@@ -68,10 +68,52 @@ function LoginScreen() {
 
 function LoadingScreen() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--bg)]">
-      <div className="flex flex-col items-center gap-4 animate-fade-in">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-subtle border border-primary/20"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary/20 border-t-primary" /></div>
-        <p className="text-sm text-ink-muted">Abriendo bóveda...</p>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bg)]">
+      <div className="flex flex-col items-center gap-6 animate-fade-in">
+        <div className="relative flex h-28 w-28 items-center justify-center">
+          {/* Glowing background aura */}
+          <div className="absolute inset-0 rounded-full bg-primary/25 blur-xl animate-vault-glow" />
+          
+          {/* Vault Door SVG */}
+          <svg className="relative h-24 w-24 text-primary drop-shadow-[0_0_15px_rgba(201,168,76,0.35)]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Outer heavy circular frame */}
+            <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="4" className="opacity-20" />
+            <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="opacity-40 animate-[spin_60s_linear_infinite]" />
+            
+            {/* Middle lock dial with notches */}
+            <circle cx="50" cy="50" r="34" stroke="currentColor" strokeWidth="3" className="opacity-30" />
+            <circle cx="50" cy="50" r="30" stroke="currentColor" strokeWidth="1" strokeDasharray="2 4" className="opacity-60" />
+            
+            {/* Lock dial numbers index indicators */}
+            <circle cx="50" cy="50" r="26" stroke="currentColor" strokeWidth="1" strokeDasharray="1 8" className="opacity-50" />
+            
+            {/* Animated Vault Wheel/Handle Spokes */}
+            <g className="animate-dial-turn origin-[50px_50px]">
+              {/* Outer wheel ring of the handle */}
+              <circle cx="50" cy="50" r="18" stroke="currentColor" strokeWidth="3" className="drop-shadow-[0_0_4px_rgba(201,168,76,0.5)]" />
+              
+              {/* 3 Heavy spokes */}
+              <line x1="50" y1="50" x2="50" y2="14" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+              <line x1="50" y1="50" x2="19" y2="68" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+              <line x1="50" y1="50" x2="81" y2="68" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+              
+              {/* Handle Knobs at the end of spokes */}
+              <circle cx="50" cy="14" r="5" fill="currentColor" className="text-primary-light" />
+              <circle cx="19" cy="68" r="5" fill="currentColor" className="text-primary-light" />
+              <circle cx="81" cy="68" r="5" fill="currentColor" className="text-primary-light" />
+              
+              {/* Central hub cover */}
+              <circle cx="50" cy="50" r="8" fill="currentColor" stroke="var(--bg)" strokeWidth="2" />
+              <circle cx="50" cy="50" r="4" fill="var(--bg)" />
+            </g>
+          </svg>
+        </div>
+        <div className="flex flex-col items-center gap-1.5">
+          <p className="text-base font-semibold text-shimmer tracking-wider">Abriendo bóveda...</p>
+          <span className="h-1 w-12 rounded-full bg-primary/10 overflow-hidden relative">
+            <span className="absolute inset-y-0 left-0 bg-primary w-1/2 rounded-full animate-[shimmer_1.5s_infinite_linear]" style={{ backgroundSize: '200% 100%' }} />
+          </span>
+        </div>
       </div>
     </div>
   )
@@ -103,10 +145,11 @@ export default function AppLayout() {
           <span className="text-sm font-semibold text-ink leading-tight">Ahorros<br />Colaborativos</span>
         </div>
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-          <NavLink to="/" end className={navLinkClass} onClick={() => setSidebarOpen(false)}><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>Mis Metas</NavLink>
+          <NavLink to="/" end className={navLinkClass} onClick={() => setSidebarOpen(false)}><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>Dashboard</NavLink>
+          <NavLink to="/metas" className={navLinkClass} onClick={() => setSidebarOpen(false)}><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>Mis Metas</NavLink>
           <NavLink to="/carteras" className={navLinkClass} onClick={() => setSidebarOpen(false)}><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>Carteras</NavLink>
           <NavLink to="/programaciones" className={navLinkClass} onClick={() => setSidebarOpen(false)}><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Programaciones</NavLink>
-          <NavLink to="/presupuestos" className={navLinkClass} onClick={() => setSidebarOpen(false)}><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>Presupuestos</NavLink>
+          {/* <NavLink to="/presupuestos" className={navLinkClass} onClick={() => setSidebarOpen(false)}><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>Presupuestos</NavLink> */}
           <NavLink to="/logros" className={navLinkClass} onClick={() => setSidebarOpen(false)}><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>Logros</NavLink>
           {esAdmin && <><div className="pt-3 mt-3 border-t border-border"><span className="px-3 text-[9px] font-semibold uppercase tracking-widest text-ink-muted">Admin</span></div><NavLink to="/admin/bancos" className={navLinkClass} onClick={() => setSidebarOpen(false)}><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>Catálogo</NavLink></>}
           <NavLink to="/calendario" className={navLinkClass} onClick={() => setSidebarOpen(false)}><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>Calendario</NavLink>

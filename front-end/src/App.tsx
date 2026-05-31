@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import AppLayout from '@/components/AppLayout'
 import DashboardPage from '@/pages/DashboardPage'
+import MetasPage from '@/pages/MetasPage'
 import CalendarPage from '@/pages/CalendarPage'
 import CarterasPage from '@/pages/CarterasPage'
 import ProgramacionesPage from '@/pages/ProgramacionesPage'
@@ -15,6 +16,7 @@ export default function App() {
       <Route path="admin/login" element={<AdminLoginPage />} />
       <Route element={<AppLayout />}>
         <Route index element={<DashboardPage />} />
+        <Route path="metas" element={<MetasPage />} />
         <Route path="calendario" element={<CalendarPage />} />
         <Route path="carteras" element={<CarterasPage />} />
         <Route path="programaciones" element={<ProgramacionesPage />} />
