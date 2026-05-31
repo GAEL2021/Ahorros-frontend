@@ -56,7 +56,22 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
   const completados = itemsList.filter((i) => i.completado).length
   const total = itemsList.length
 
-  const handleAdd = async (e: React.FormEvent) => { e.preventDefault(); if (!newText.trim() || addItem.isPending) return; try { await addItem.mutateAsync({ texto: newText.trim(), monto: newMonto }); setNewText(''); setNewMonto(0); setShowAddModal(false) } catch {} }
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newText.trim() || addItem.isPending) return;
+    if (totalEstimado + newMonto > metaMontoObjetivo) {
+      sileo.error(`El total de los ítems ($${(totalEstimado + newMonto).toLocaleString()}) supera el monto objetivo de la meta ($${metaMontoObjetivo.toLocaleString()})`);
+      return;
+    }
+    try {
+      await addItem.mutateAsync({ texto: newText.trim(), monto: newMonto });
+      setNewText('');
+      setNewMonto(0);
+      setShowAddModal(false);
+    } catch (err) {
+      sileo.error(err instanceof Error ? err.message : 'Error al agregar');
+    }
+  }
   const handleToggle = (item: ChecklistItem) => {
     if (item.completado) {
       toggleItem.mutate({ itemId: item.id, newValue: false })
@@ -86,7 +101,23 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
     }
   }
   const openEdit = (item: ChecklistItem) => { setEditingItem(item); setEditText(item.texto); setEditMonto(item.monto ?? 0); setEditUrl(item.comprobante ?? ''); setEditUploadProgress(0) }
-  const saveEdit = async () => { if (!editingItem || !editText.trim() || updateItem.isPending) return; try { await updateItem.mutateAsync({ itemId: editingItem.id, payload: { texto: editText.trim(), monto: editMonto, comprobante: editUrl || undefined } }); setEditingItem(null) } catch {} }
+  const saveEdit = async () => {
+    if (!editingItem || !editText.trim() || updateItem.isPending) return;
+    const currentItemMonto = editingItem.monto ?? 0;
+    if (totalEstimado - currentItemMonto + editMonto > metaMontoObjetivo) {
+      sileo.error(`El total de los ítems ($${(totalEstimado - currentItemMonto + editMonto).toLocaleString()}) supera el monto objetivo de la meta ($${metaMontoObjetivo.toLocaleString()})`);
+      return;
+    }
+    try {
+      await updateItem.mutateAsync({
+        itemId: editingItem.id,
+        payload: { texto: editText.trim(), monto: editMonto, comprobante: editUrl || undefined }
+      });
+      setEditingItem(null);
+    } catch (err) {
+      sileo.error(err instanceof Error ? err.message : 'Error al guardar');
+    }
+  }
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (!file) return;     if (file.size > 5000 * 1024) { sileo.error('Máximo 5MB'); return }; setUploading(true); const r = new FileReader(); r.onprogress = (ev) => { if (ev.lengthComputable) setUploadProgress(Math.round((ev.loaded / ev.total) * 100)) }; r.onload = () => { setRealCostUrl(r.result as string); setUploading(false) }; r.onerror = () => { sileo.error('Error al leer'); setUploading(false) }; r.readAsDataURL(file) }
   const handleEditFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (!file) return;     if (file.size > 5000 * 1024) { sileo.error('Máximo 5MB'); return }; setEditUploading(true); const r = new FileReader(); r.onprogress = (ev) => { if (ev.lengthComputable) setEditUploadProgress(Math.round((ev.loaded / ev.total) * 100)) }; r.onload = () => { setEditUrl(r.result as string); setEditUploading(false) }; r.onerror = () => { sileo.error('Error al leer'); setEditUploading(false) }; r.readAsDataURL(file) }
 
@@ -142,12 +173,12 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
           <p className="text-sm text-ink-muted">Estimado: <span className="font-semibold text-ink">${(itemsList.find((i) => i.id === realCostItemId)?.monto ?? 0).toLocaleString()}</span> · Ahorrado: <span className="font-semibold text-ink">${metaMontoAcumulado.toLocaleString()}</span></p>
           <div><label className="mb-1.5 block text-sm font-semibold text-ink">Monto real</label><div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden"><span className="pl-4 pr-1 text-base text-ink-muted">$</span><input type="number" min={0} value={realCostValue || ''} onChange={(e) => setRealCostValue(Number(e.target.value))} autoFocus className="flex-1 py-3 pr-4 text-base font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div></div>
           <div>
-            <label className="mb-1.5 block text-sm font-semibold text-ink">Cartera de origen</label>
+            <label className="mb-1.5 block text-sm font-semibold text-ink">Cartera de destino</label>
             <select value={realCostCarteraId} onChange={(e) => setRealCostCarteraId(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
               <option value="" disabled>Seleccionar cartera</option>
               {bancos?.map((b) => <option key={b.id} value={b.id}>{b.nombre} (${b.saldo.toLocaleString()})</option>)}
             </select>
-            {!realCostCarteraId && <p className="mt-1 text-xs text-ink-muted">El aporte se descontará de esta cartera</p>}
+            {!realCostCarteraId && <p className="mt-1 text-xs text-ink-muted">El aporte se sumará a esta cartera</p>}
           </div>
           <div><label className="mb-1.5 block text-sm font-semibold text-ink">Fecha de pago</label><input type="date" value={realCostDate} onChange={(e) => setRealCostDate(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" /></div>
           <div>

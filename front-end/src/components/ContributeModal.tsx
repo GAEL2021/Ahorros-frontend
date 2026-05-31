@@ -21,15 +21,15 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
   const [monto, setMonto] = useState(0)
   const [carteraId, setCarteraId] = useState<string>('')
 
-  const bancosConSaldo = bancos?.filter((b) => b.saldo > 0) ?? []
-  const selectedBanco = bancosConSaldo.find((b) => b.id === carteraId)
+  const bancosList = bancos ?? []
+  const selectedBanco = bancosList.find((b) => b.id === carteraId)
 
   if (!open) return null
 
   const metaData = detail ?? meta
   const progressPct = Math.min(100, Math.round((metaData.montoAcumulado / metaData.montoObjetivo) * 100))
   const remaining = metaData.montoObjetivo - metaData.montoAcumulado
-  const maxContribution = Math.max(1, Math.min(remaining, selectedBanco ? selectedBanco.saldo : remaining))
+  const maxContribution = Math.max(1, remaining)
 
   const miembroActual = metaData.miembros?.find((m) => m.email === user?.email)
   const sugerido = miembroActual?.cuotaMensual ?? Math.ceil(remaining / Math.max(1, meta.mesesRestantes))
@@ -146,30 +146,26 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
           </div>
 
           {/* Wallet selector */}
-          {bancosConSaldo.length > 0 && (
+          {bancosList.length > 0 && (
             <div>
-              <label className="mb-2.5 block text-xs font-semibold text-ink-secondary">Cartera de origen (opcional)</label>
+              <label className="mb-2.5 block text-xs font-semibold text-ink-secondary">Cartera de destino (opcional)</label>
               <select
                 value={carteraId}
                 onChange={(e) => {
                   setCarteraId(e.target.value)
-                  if (e.target.value) {
-                    const banco = bancosConSaldo.find((b) => b.id === e.target.value)
-                    if (banco && monto > banco.saldo) setMonto(0)
-                  }
                 }}
                 className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
-                <option value="">Sin cartera (aporte directo)</option>
-                {bancosConSaldo.map((b) => (
+                <option value="">Aporte directo (sin asociar a cartera)</option>
+                {bancosList.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.nombre} (${b.saldo.toLocaleString()} disponible)
+                    {b.nombre} (${b.saldo.toLocaleString()} de saldo)
                   </option>
                 ))}
               </select>
               {selectedBanco && (
                 <p className="mt-1.5 text-xs text-ink-muted">
-                  Maximo disponible: <span className="font-semibold text-primary">${selectedBanco.saldo.toLocaleString()}</span>
+                  Saldo actual: <span className="font-semibold text-primary">${selectedBanco.saldo.toLocaleString()}</span>
                 </p>
               )}
             </div>

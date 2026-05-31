@@ -529,7 +529,7 @@ export class GoalsService {
     const miembroData = miembroDoc.data() as GoalMember;
 
     if (dto.carteraId) {
-      await this.bancosService.deducirDeCartera(
+      await this.bancosService.aportarACartera(
         dto.carteraId,
         dto.monto,
         goalId,
@@ -705,6 +705,8 @@ export class GoalsService {
       throw new NotFoundException('Ítem no encontrado');
     }
 
+    const data = itemDoc.data() as ChecklistItem;
+
     const updates: Record<string, unknown> = {};
     if (dto.texto !== undefined) updates.texto = dto.texto;
     if (dto.completado !== undefined) updates.completado = dto.completado;
@@ -715,6 +717,28 @@ export class GoalsService {
 
     if (Object.keys(updates).length === 0) {
       throw new BadRequestException('No hay campos para actualizar');
+    }
+
+    if (dto.monto !== undefined && dto.monto !== data.monto) {
+      const goalDoc = await db.collection('metas').doc(goalId).get();
+      if (!goalDoc.exists) {
+        throw new NotFoundException('Meta no encontrada');
+      }
+      const goalData = goalDoc.data() as GoalDocument;
+
+      const checklistRef = db.collection('metas').doc(goalId).collection('checklist');
+      const existing = await checklistRef.get();
+      const existingTotal = existing.docs.reduce((sum, d) => {
+        if (d.id === itemId) return sum;
+        const it = d.data() as ChecklistItem;
+        return sum + (it.monto ?? 0);
+      }, 0);
+
+      if (existingTotal + dto.monto > goalData.montoObjetivo) {
+        throw new BadRequestException(
+          `El total de los ítems ($${(existingTotal + dto.monto).toLocaleString()}) supera el monto objetivo de la meta ($${goalData.montoObjetivo.toLocaleString()})`,
+        );
+      }
     }
 
     try {
