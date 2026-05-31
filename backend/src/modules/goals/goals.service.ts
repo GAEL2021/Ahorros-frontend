@@ -691,7 +691,7 @@ export class GoalsService {
     return { id: itemId, completado: !data.completado };
   }
 
-  async updateChecklistItem(goalId: string, itemId: string, dto: { texto?: string; completado?: boolean; monto?: number; montoReal?: number }) {
+  async updateChecklistItem(goalId: string, itemId: string, dto: { texto?: string; completado?: boolean; monto?: number; montoReal?: number; fechaReal?: string; comprobante?: string }) {
     const db = this.firebaseService.firestore;
     const itemRef = db
       .collection('metas')
@@ -709,12 +709,21 @@ export class GoalsService {
     if (dto.completado !== undefined) updates.completado = dto.completado;
     if (dto.monto !== undefined) updates.monto = dto.monto;
     if (dto.montoReal !== undefined) updates.montoReal = dto.montoReal;
+    if (dto.fechaReal !== undefined) updates.fechaReal = dto.fechaReal;
+    if (dto.comprobante !== undefined) updates.comprobante = dto.comprobante;
 
     if (Object.keys(updates).length === 0) {
       throw new BadRequestException('No hay campos para actualizar');
     }
 
-    await itemRef.update(updates);
+    try {
+      await itemRef.update(updates);
+    } catch (err) {
+      throw new BadRequestException(
+        `Error al actualizar: ${err instanceof Error ? err.message : 'Error desconocido'}`,
+      );
+    }
+
     return { id: itemId, ...updates };
   }
 

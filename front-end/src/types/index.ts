@@ -232,6 +232,8 @@ export interface ChecklistItem {
   texto: string
   monto: number
   montoReal?: number
+  fechaReal?: string
+  comprobante?: string
   completado: boolean
   orden: number
   creadoEn: string

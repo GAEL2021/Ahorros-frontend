@@ -36,26 +36,28 @@ export function useToggleChecklistItem(goalId: string) {
   return useMutation<
     { id: string; completado: boolean },
     Error,
-    { itemId: string; newValue: boolean; montoReal?: number },
+    { itemId: string; newValue: boolean; montoReal?: number; fechaReal?: string; comprobante?: string },
     { prev: ChecklistItem[] | undefined }
   >({
-    mutationFn: async ({ itemId, newValue, montoReal }) => {
+    mutationFn: async ({ itemId, newValue, montoReal, fechaReal, comprobante }) => {
       const payload: Record<string, unknown> = { completado: newValue }
       if (montoReal !== undefined) payload.montoReal = montoReal
+      if (fechaReal !== undefined) payload.fechaReal = fechaReal
+      if (comprobante !== undefined) payload.comprobante = comprobante
       const { data } = await apiClient.patch<{ id: string; completado: boolean }>(
         `/goals/${goalId}/checklist/${itemId}`,
         payload,
       )
       return data
     },
-    onMutate: async ({ itemId, newValue, montoReal }) => {
+    onMutate: async ({ itemId, newValue, montoReal, fechaReal, comprobante }) => {
       await queryClient.cancelQueries({ queryKey: ['goal-checklist', goalId] })
       const prev = queryClient.getQueryData<ChecklistItem[]>(['goal-checklist', goalId])
       if (prev) {
         queryClient.setQueryData<ChecklistItem[]>(['goal-checklist', goalId], (old) =>
           old?.map((item) =>
             item.id === itemId
-              ? { ...item, completado: newValue, montoReal: montoReal ?? item.montoReal }
+              ? { ...item, completado: newValue, montoReal: montoReal ?? item.montoReal, fechaReal: fechaReal ?? item.fechaReal, comprobante: comprobante ?? item.comprobante }
               : item,
           ),
         )

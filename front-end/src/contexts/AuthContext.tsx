@@ -11,7 +11,8 @@ import {
   type User,
   onAuthStateChanged,
   onIdTokenChanged,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
@@ -64,6 +65,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const initialCheckDone = useRef(false)
 
   useEffect(() => {
+    // Handle redirect result (for Safari compatibility)
+    getRedirectResult(auth)
+      .then(async (result) => {
+        if (result) {
+          const mappedUser = await mapFirebaseUser(result.user)
+          localStorage.setItem('authToken', mappedUser.token)
+          setUser(mappedUser)
+        }
+        if (!initialCheckDone.current) {
+          initialCheckDone.current = true
+          setLoading(false)
+        }
+      })
+      .catch((err) => {
+        setAuthError(parseFirebaseError(err))
+        if (!initialCheckDone.current) {
+          initialCheckDone.current = true
+          setLoading(false)
+        }
+      })
+
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
         if (firebaseUser) {
@@ -113,10 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const provider = new GoogleAuthProvider()
       provider.setCustomParameters({ prompt: 'select_account' })
-      const result = await signInWithPopup(auth, provider)
-      const mappedUser = await mapFirebaseUser(result.user)
-      localStorage.setItem('authToken', mappedUser.token)
-      setUser(mappedUser)
+      await signInWithRedirect(auth, provider)
     } catch (err) {
       setAuthError(parseFirebaseError(err))
     }
