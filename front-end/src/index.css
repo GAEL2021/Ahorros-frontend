@@ -253,8 +253,21 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
 }
 input::placeholder,
-textarea::placeholder {
+textarea::placeholder,
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
   color: var(--text-muted);
+  opacity: 0.6;
+}
+input:focus::placeholder,
+textarea:focus::placeholder,
+input:focus::-webkit-input-placeholder,
+textarea:focus::-webkit-input-placeholder {
+  opacity: 0.2;
+}
+input:not(:placeholder-shown)::placeholder,
+textarea:not(:placeholder-shown)::placeholder {
+  opacity: 0;
 }
 select {
   appearance: none;
