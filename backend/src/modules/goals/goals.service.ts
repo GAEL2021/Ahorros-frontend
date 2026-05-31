@@ -688,22 +688,8 @@ export class GoalsService {
     }
 
     const data = itemDoc.data() as ChecklistItem;
-    const newCompletado = !data.completado;
-    await itemRef.update({ completado: newCompletado });
-
-    // Adjust goal's montoAcumulado when toggling
-    if (data.montoReal && data.montoReal > 0) {
-      const goalRef = db.collection('metas').doc(goalId);
-      const goalDoc = await goalRef.get();
-      if (goalDoc.exists) {
-        const goalData = goalDoc.data() as GoalDocument;
-        const ajuste = newCompletado ? data.montoReal : -data.montoReal;
-        const nuevoAcumulado = Math.max(0, goalData.montoAcumulado + ajuste);
-        await goalRef.update({ montoAcumulado: nuevoAcumulado });
-      }
-    }
-
-    return { id: itemId, completado: newCompletado };
+    await itemRef.update({ completado: !data.completado });
+    return { id: itemId, completado: !data.completado };
   }
 
   async updateChecklistItem(goalId: string, itemId: string, dto: { texto?: string; completado?: boolean; monto?: number; montoReal?: number; fechaReal?: string; comprobante?: string }) {
@@ -753,18 +739,6 @@ export class GoalsService {
     const itemDoc = await itemRef.get();
     if (!itemDoc.exists) {
       throw new NotFoundException('Ítem no encontrado');
-    }
-
-    // If item was completed with real cost, deduct from goal's acumulado
-    const itemData = itemDoc.data() as ChecklistItem;
-    if (itemData.completado && itemData.montoReal && itemData.montoReal > 0) {
-      const goalRef = db.collection('metas').doc(goalId);
-      const goalDoc = await goalRef.get();
-      if (goalDoc.exists) {
-        const goalData = goalDoc.data() as GoalDocument;
-        const nuevoAcumulado = Math.max(0, goalData.montoAcumulado - itemData.montoReal);
-        await goalRef.update({ montoAcumulado: nuevoAcumulado });
-      }
     }
 
     await itemRef.delete();

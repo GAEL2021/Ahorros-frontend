@@ -2,9 +2,11 @@ import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import type { ChecklistItem } from '@/types'
 import { useGoalChecklist, useAddChecklistItem, useToggleChecklistItem, useDeleteChecklistItem, useUpdateChecklistItem } from '@/hooks/useGoalChecklist'
+import { useAddContribution } from '@/hooks/useAddContribution'
+import { useFetchBancos } from '@/hooks/useFetchBancos'
 import { sileo } from '@/lib/sileo'
 
-interface ChecklistPanelProps { goalId: string; metaMontoObjetivo: number }
+interface ChecklistPanelProps { goalId: string; metaMontoObjetivo: number; metaMontoAcumulado: number }
 
 function FullModal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
   if (!open) return null
@@ -21,18 +23,21 @@ function FullModal({ open, onClose, title, children }: { open: boolean; onClose:
   )
 }
 
-export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistPanelProps) {
+export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcumulado }: ChecklistPanelProps) {
   const { data: items, isLoading } = useGoalChecklist(goalId)
   const addItem = useAddChecklistItem(goalId)
   const toggleItem = useToggleChecklistItem(goalId)
   const deleteItem = useDeleteChecklistItem(goalId)
   const updateItem = useUpdateChecklistItem(goalId)
+  const contribute = useAddContribution()
+  const { data: bancos } = useFetchBancos()
   const [newText, setNewText] = useState('')
   const [newMonto, setNewMonto] = useState(0)
   const [realCostItemId, setRealCostItemId] = useState<string | null>(null)
   const [realCostValue, setRealCostValue] = useState(0)
   const [realCostDate, setRealCostDate] = useState(new Date().toISOString().split('T')[0])
   const [realCostUrl, setRealCostUrl] = useState('')
+  const [realCostCarteraId, setRealCostCarteraId] = useState('')
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -54,12 +59,23 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
   const total = itemsList.length
 
   const handleAdd = async (e: React.FormEvent) => { e.preventDefault(); if (!newText.trim() || addItem.isPending) return; try { await addItem.mutateAsync({ texto: newText.trim(), monto: newMonto }); setNewText(''); setNewMonto(0); setShowAddModal(false) } catch {} }
-  const handleToggle = (item: ChecklistItem) => { if (item.completado) { toggleItem.mutate({ itemId: item.id, newValue: false }) } else { setRealCostItemId(item.id); setRealCostValue(item.monto ?? 0); setRealCostDate(new Date().toISOString().split('T')[0]); setRealCostUrl(item.comprobante ?? ''); setUploadProgress(0) } }
-  const handleConfirmRealCost = () => { if (!realCostItemId) return; toggleItem.mutate({ itemId: realCostItemId, newValue: true, montoReal: realCostValue, fechaReal: realCostDate, comprobante: realCostUrl || undefined }, { onSuccess: () => sileo.success(`✅ $${realCostValue.toLocaleString()} aportado`), onError: (err) => sileo.error(err instanceof Error ? err.message : 'Error') }); setRealCostItemId(null) }
+  const handleToggle = (item: ChecklistItem) => { if (item.completado) { toggleItem.mutate({ itemId: item.id, newValue: false }) } else { setRealCostItemId(item.id); setRealCostValue(item.monto ?? 0); setRealCostDate(new Date().toISOString().split('T')[0]); setRealCostUrl(item.comprobante ?? ''); setRealCostCarteraId(''); setUploadProgress(0) } }
+  const handleConfirmRealCost = async () => {
+    if (!realCostItemId) return
+    if (!realCostCarteraId) { sileo.error('Seleccioná una cartera para el aporte'); return }
+    setRealCostItemId(null)
+    try {
+      await toggleItem.mutateAsync({ itemId: realCostItemId, newValue: true, montoReal: realCostValue, fechaReal: realCostDate, comprobante: realCostUrl || undefined })
+      await contribute.mutateAsync({ goalId, monto: realCostValue, carteraId: realCostCarteraId })
+      sileo.success(`✅ $${realCostValue.toLocaleString()} aportado a la meta`)
+    } catch (err) {
+      sileo.error(err instanceof Error ? err.message : 'Error al guardar')
+    }
+  }
   const openEdit = (item: ChecklistItem) => { setEditingItem(item); setEditText(item.texto); setEditMonto(item.monto ?? 0); setEditUrl(item.comprobante ?? ''); setEditUploadProgress(0) }
   const saveEdit = async () => { if (!editingItem || !editText.trim() || updateItem.isPending) return; try { await updateItem.mutateAsync({ itemId: editingItem.id, payload: { texto: editText.trim(), monto: editMonto, comprobante: editUrl || undefined } }); setEditingItem(null) } catch {} }
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (!file) return; if (file.size > 500 * 1024) { sileo.error('Máximo 500KB'); return }; setUploading(true); const r = new FileReader(); r.onprogress = (ev) => { if (ev.lengthComputable) setUploadProgress(Math.round((ev.loaded / ev.total) * 100)) }; r.onload = () => { setRealCostUrl(r.result as string); setUploading(false) }; r.onerror = () => { sileo.error('Error al leer'); setUploading(false) }; r.readAsDataURL(file) }
-  const handleEditFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (!file) return; if (file.size > 500 * 1024) { sileo.error('Máximo 500KB'); return }; setEditUploading(true); const r = new FileReader(); r.onprogress = (ev) => { if (ev.lengthComputable) setEditUploadProgress(Math.round((ev.loaded / ev.total) * 100)) }; r.onload = () => { setEditUrl(r.result as string); setEditUploading(false) }; r.onerror = () => { sileo.error('Error al leer'); setEditUploading(false) }; r.readAsDataURL(file) }
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (!file) return;     if (file.size > 5000 * 1024) { sileo.error('Máximo 5MB'); return }; setUploading(true); const r = new FileReader(); r.onprogress = (ev) => { if (ev.lengthComputable) setUploadProgress(Math.round((ev.loaded / ev.total) * 100)) }; r.onload = () => { setRealCostUrl(r.result as string); setUploading(false) }; r.onerror = () => { sileo.error('Error al leer'); setUploading(false) }; r.readAsDataURL(file) }
+  const handleEditFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (!file) return;     if (file.size > 5000 * 1024) { sileo.error('Máximo 5MB'); return }; setEditUploading(true); const r = new FileReader(); r.onprogress = (ev) => { if (ev.lengthComputable) setEditUploadProgress(Math.round((ev.loaded / ev.total) * 100)) }; r.onload = () => { setEditUrl(r.result as string); setEditUploading(false) }; r.onerror = () => { sileo.error('Error al leer'); setEditUploading(false) }; r.readAsDataURL(file) }
 
   return (
     <div className="rounded-lg border border-border bg-surface overflow-hidden">
@@ -88,7 +104,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
                 <span className="text-[11px] text-right font-mono">{item.completado && item.montoReal != null ? <span className={item.montoReal > (item.monto ?? 0) ? 'text-danger font-semibold' : item.montoReal < (item.monto ?? 0) ? 'text-success font-semibold' : 'text-ink-muted'}>${item.montoReal.toLocaleString()}</span> : <span className="text-ink-muted/30">—</span>}</span>
                 <div className="flex items-center justify-end gap-0.5">
                   {item.comprobante && <button type="button" onClick={(ev) => { ev.stopPropagation(); setPreviewUrl(item.comprobante ?? null) }} className="rounded p-1 text-primary hover:bg-primary/10" title="Ver comprobante"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg></button>}
-                  {confirmDeleteId === item.id ? (<><button type="button" onClick={() => { deleteItem.mutate(item.id); setConfirmDeleteId(null) }} className="rounded px-2 py-1 text-[10px] font-semibold text-white bg-danger hover:bg-red-600">Eliminar</button><button type="button" onClick={() => setConfirmDeleteId(null)} className="rounded p-1 text-ink-muted hover:bg-surface"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></>) : (<><button type="button" onClick={() => openEdit(item)} className="rounded p-1 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button type="button" onClick={() => setConfirmDeleteId(item.id)} className="rounded p-1 text-ink-muted hover:bg-danger/10 hover:text-danger"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></>)}
+                  {confirmDeleteId === item.id ? (<><button type="button" onClick={() => { deleteItem.mutate(item.id, { onError: (err) => sileo.error(err instanceof Error ? err.message : 'Error al eliminar') }); setConfirmDeleteId(null) }} className="rounded px-2 py-1 text-[10px] font-semibold text-white bg-danger hover:bg-red-600">Eliminar</button><button type="button" onClick={() => setConfirmDeleteId(null)} className="rounded p-1 text-ink-muted hover:bg-surface"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></>) : (<><button type="button" onClick={() => openEdit(item)} className="rounded p-1 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button type="button" onClick={() => setConfirmDeleteId(item.id)} className="rounded p-1 text-ink-muted hover:bg-danger/10 hover:text-danger"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></>)}
                 </div>
               </li>
             ))}
@@ -110,8 +126,16 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo }: ChecklistP
       {/* Full-screen modals */}
       {createPortal(<FullModal open={!!realCostItemId} onClose={() => setRealCostItemId(null)} title="Costo real">
         <div className="p-5 space-y-4 sm:max-w-[80%] sm:mx-auto">
-          <p className="text-sm text-ink-muted">Estimado: <span className="font-semibold text-ink">${(itemsList.find((i) => i.id === realCostItemId)?.monto ?? 0).toLocaleString()}</span></p>
+          <p className="text-sm text-ink-muted">Estimado: <span className="font-semibold text-ink">${(itemsList.find((i) => i.id === realCostItemId)?.monto ?? 0).toLocaleString()}</span> · Ahorrado: <span className="font-semibold text-ink">${metaMontoAcumulado.toLocaleString()}</span></p>
           <div><label className="mb-1.5 block text-sm font-semibold text-ink">Monto real</label><div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden"><span className="pl-4 pr-1 text-base text-ink-muted">$</span><input type="number" min={0} value={realCostValue || ''} onChange={(e) => setRealCostValue(Number(e.target.value))} autoFocus className="flex-1 py-3 pr-4 text-base font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div></div>
+          <div>
+            <label className="mb-1.5 block text-sm font-semibold text-ink">Cartera de origen</label>
+            <select value={realCostCarteraId} onChange={(e) => setRealCostCarteraId(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+              <option value="" disabled>Seleccionar cartera</option>
+              {bancos?.map((b) => <option key={b.id} value={b.id}>{b.nombre} (${b.saldo.toLocaleString()})</option>)}
+            </select>
+            {!realCostCarteraId && <p className="mt-1 text-xs text-ink-muted">El aporte se descontará de esta cartera</p>}
+          </div>
           <div><label className="mb-1.5 block text-sm font-semibold text-ink">Fecha de pago</label><input type="date" value={realCostDate} onChange={(e) => setRealCostDate(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" /></div>
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-ink">Comprobante</label>

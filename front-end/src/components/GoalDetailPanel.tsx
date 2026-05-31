@@ -131,7 +131,7 @@ export default function GoalDetailPanel({ open, onClose, meta }: GoalDetailPanel
           ) : (
             <>
               {tab === 'progress' && <GoalTimeline meta={metaData} />}
-              {tab === 'checklist' && <ChecklistPanel goalId={meta.id} metaMontoObjetivo={meta.montoObjetivo} />}
+              {tab === 'checklist' && <ChecklistPanel goalId={meta.id} metaMontoObjetivo={meta.montoObjetivo} metaMontoAcumulado={meta.montoAcumulado} />}
               {tab === 'movements' && (
                 miembros && miembros.length > 0 ? (
                   <MovementsPanel goalId={meta.id} totalMonths={meta.mesesRestantes} members={miembros} />
