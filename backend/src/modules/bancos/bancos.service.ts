@@ -209,7 +209,7 @@ export class BancosService {
     for (const doc of propiosSnapshot.docs) {
       const data = doc.data() as BancoDocument;
       const metasDistribucion = await this.getMetasDistribucion(doc.ref);
-      bancos.push({ id: doc.id, ...data, metasDistribucion });
+      bancos.push({ id: doc.id, ...data, creadoPorNombre: data.creadoPorNombre ?? user.email?.split('@')[0] ?? 'Usuario', metasDistribucion });
     }
 
     if (user.email) {
@@ -225,8 +225,21 @@ export class BancosService {
 
         if (!miembrosSnapshot.empty) {
           const data = bancoDoc.data() as BancoDocument;
+          const creadorMiembroSnap = await bancoDoc.ref
+            .collection('miembros')
+            .where('rol', '==', 'creador')
+            .limit(1)
+            .get();
+          let creadorNombre = data.creadoPorNombre;
+          if (!creadorNombre) {
+            if (!creadorMiembroSnap.empty) {
+              creadorNombre = (creadorMiembroSnap.docs[0].data() as BancoMember).email?.split('@')[0] ?? 'Usuario';
+            } else {
+              creadorNombre = 'Usuario';
+            }
+          }
           const metasDistribucion = await this.getMetasDistribucion(bancoDoc.ref);
-          bancos.push({ id: bancoDoc.id, ...data, metasDistribucion });
+          bancos.push({ id: bancoDoc.id, ...data, creadoPorNombre: creadorNombre, metasDistribucion });
         }
       }
     }
@@ -289,7 +302,9 @@ export class BancosService {
       };
     });
 
-    return { id: doc.id, ...data, miembros, transacciones, metasDistribucion };
+    const creadorMiembro = miembros.find((m) => m.rol === 'creador');
+    const creadorNombreFallback = data.creadoPorNombre ?? (creadorMiembro ? creadorMiembro.email?.split('@')[0] : user.email?.split('@')[0]) ?? 'Usuario';
+    return { id: doc.id, ...data, creadoPorNombre: creadorNombreFallback, miembros, transacciones, metasDistribucion };
   }
 
   private async resolveMetaNames(transacciones: any[]): Promise<any[]> {
