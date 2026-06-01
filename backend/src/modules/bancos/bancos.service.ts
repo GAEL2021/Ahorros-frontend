@@ -757,15 +757,12 @@ export class BancosService {
     user: FirebaseUser,
   ) {
     const data = (await docRef.get()).data() as BancoDocument;
-    if (data.tipo === 'compartida') {
-      if (user.email) {
-        const miembroDoc = await docRef
-          .collection('miembros')
-          .doc(user.email)
-          .get();
-        if (miembroDoc.exists) return;
-      }
-      throw new ForbiddenException('No eres miembro de esta cartera compartida');
+    if (user.email) {
+      const miembroDoc = await docRef
+        .collection('miembros')
+        .doc(user.email)
+        .get();
+      if (miembroDoc.exists) return;
     }
     if (data.uid !== user.uid) {
       throw new ForbiddenException('No tienes acceso a esta cartera');
