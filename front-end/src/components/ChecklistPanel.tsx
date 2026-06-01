@@ -186,6 +186,12 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 5 * 1024 * 1024) {
+      sileo.error('Los archivos deben ser menores a 5MB');
+      setUploading(false);
+      return;
+    }
+
     setUploading(true);
     setUploadProgress(10);
 
@@ -197,12 +203,6 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
         setRealCostUrl(compressedDataUrl);
         setUploadProgress(100);
       } else {
-        // PDF u otros: Verificar tamaño máximo (5MB)
-        if (file.size > 5000 * 1024) {
-          sileo.error('Los archivos PDF no se pueden comprimir y deben ser menores a 5MB');
-          setUploading(false);
-          return;
-        }
         const r = new FileReader();
         r.onprogress = (ev) => {
           if (ev.lengthComputable) {
@@ -231,6 +231,12 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 5 * 1024 * 1024) {
+      sileo.error('Los archivos deben ser menores a 5MB');
+      setEditUploading(false);
+      return;
+    }
+
     setEditUploading(true);
     setEditUploadProgress(10);
 
@@ -242,12 +248,6 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
         setEditUrl(compressedDataUrl);
         setEditUploadProgress(100);
       } else {
-        // PDF u otros: Verificar tamaño máximo (5MB)
-        if (file.size > 5000 * 1024) {
-          sileo.error('Los archivos PDF no se pueden comprimir y deben ser menores a 5MB');
-          setEditUploading(false);
-          return;
-        }
         const r = new FileReader();
         r.onprogress = (ev) => {
           if (ev.lengthComputable) {

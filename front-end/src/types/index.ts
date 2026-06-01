@@ -1,4 +1,4 @@
-export type PaymentState = 'PAGADO' | 'PENDIENTE' | 'PARCIAL'
+export type PaymentState = 'PAGADO' | 'PENDIENTE'
 
 export type GoalType = 'individual' | 'shared'
 

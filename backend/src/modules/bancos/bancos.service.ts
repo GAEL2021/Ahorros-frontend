@@ -562,11 +562,7 @@ export class BancosService {
 
     await this.assertMember(docRef, user);
 
-    if (data.saldo < monto) {
-      throw new BadRequestException('Saldo insuficiente en la cartera');
-    }
-
-    const nuevoSaldo = data.saldo - monto;
+    const nuevoSaldo = data.saldo + monto;
     const now = new Date().toISOString();
 
     await docRef.update({ saldo: nuevoSaldo });

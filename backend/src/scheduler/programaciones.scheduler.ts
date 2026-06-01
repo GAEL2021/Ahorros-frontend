@@ -78,13 +78,6 @@ export class ProgramacionesScheduler {
       return;
     }
 
-    if (carteraData.saldo < montoATransferir) {
-      this.logger.warn(
-        `Saldo insuficiente en cartera "${carteraData.nombre}" (${carteraData.saldo}) para transferir ${montoATransferir} a meta ${prog.metaId}`,
-      );
-      return;
-    }
-
     const goalDoc = await db.collection('metas').doc(prog.metaId).get();
     if (!goalDoc.exists) {
       this.logger.warn(`Meta ${prog.metaId} no encontrada, saltando programacion ${prog.id}`);
@@ -117,7 +110,7 @@ export class ProgramacionesScheduler {
 
     const now = new Date().toISOString();
 
-    const nuevoSaldoCartera = carteraData.saldo - montoATransferir;
+    const nuevoSaldoCartera = carteraData.saldo + montoATransferir;
     const nuevoMontoAcumulado = goalData['montoAcumulado'] + montoATransferir;
     const nuevoSaldoMiembro = miembroData.saldoAportado + montoATransferir;
 
@@ -149,18 +142,13 @@ export class ProgramacionesScheduler {
 
     let remaining = montoATransferir;
     const batch = db.batch();
-
     for (const cuota of cuotasOrdenadas) {
       if (remaining <= 0) break;
-      if (remaining >= cuota.data.cuotaEsperada) {
-        batch.update(cuota.ref, { estado: 'PAGADO' });
-        remaining -= cuota.data.cuotaEsperada;
-      } else {
-        batch.update(cuota.ref, { estado: 'PARCIAL' });
-        remaining = 0;
-      }
-    }
+      if (remaining < cuota.data.cuotaEsperada) break;
 
+      batch.update(cuota.ref, { estado: 'PAGADO' });
+      remaining -= cuota.data.cuotaEsperada;
+    }
     if (cuotasOrdenadas.length > 0) {
       await batch.commit();
     }

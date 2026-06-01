@@ -7,11 +7,10 @@ interface MovementsPanelProps {
   members: MetaMember[]
 }
 
-type StatusKey = 'PAGADO' | 'PARCIAL' | 'PENDIENTE'
+type StatusKey = 'PAGADO' | 'PENDIENTE'
 
 const STATUS_STYLE: Record<StatusKey, { bg: string; text: string; dot: string; label: string }> = {
   PAGADO: { bg: 'bg-success/10', text: 'text-emerald-700', dot: 'bg-emerald-500', label: 'Pagado' },
-  PARCIAL: { bg: 'bg-accent-subtle', text: 'text-accent', dot: 'bg-accent', label: 'Parcial' },
   PENDIENTE: { bg: 'bg-ink/5', text: 'text-ink-muted', dot: 'bg-ink-muted', label: 'Pendiente' },
 }
 
@@ -45,15 +44,16 @@ export default function MovementsPanel({ goalId, totalMonths, members }: Movemen
   const cuotasList = cuotas ?? []
 
   // Group cuotas by month for chronological view
-  const months = Array.from({ length: totalMonths }, (_, i) => i + 1)
+  const months = Array.from({ length: totalMonths }, (_, i) => i + 1).filter((mes) =>
+    cuotasList.some((c) => c.mes === mes && c.estado !== 'PENDIENTE')
+  )
 
   // Calculate totals per member
   const memberTotals = members.map((m) => {
     const memberCuotas = cuotasList.filter((c) => c.usuarioEmail === m.email)
     const pagadas = memberCuotas.filter((c) => c.estado === 'PAGADO').length
-    const parciales = memberCuotas.filter((c) => c.estado === 'PARCIAL').length
     const pendientes = memberCuotas.filter((c) => c.estado === 'PENDIENTE').length
-    return { ...m, pagadas, parciales, pendientes }
+    return { ...m, pagadas, pendientes }
   })
 
   return (
@@ -62,7 +62,7 @@ export default function MovementsPanel({ goalId, totalMonths, members }: Movemen
       <div className="border-b border-border bg-surface-raised px-5 py-3.5">
         <h3 className="text-sm font-semibold text-ink">Movimientos</h3>
         <p className="mt-0.5 text-xs text-ink-muted">
-          Historial de aportes por mes &middot; {totalMonths} {totalMonths === 1 ? 'mes' : 'meses'}
+          Historial de aportes por mes &middot; {months.length} {months.length === 1 ? 'mes con actividad' : 'meses con actividad'}
         </p>
       </div>
 
@@ -81,10 +81,6 @@ export default function MovementsPanel({ goalId, totalMonths, members }: Movemen
                 <span className="flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                   <span className="text-emerald-700 font-semibold">{m.pagadas}</span>
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                  <span className="text-accent font-semibold">{m.parciales}</span>
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-stone-400" />

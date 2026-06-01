@@ -17,8 +17,6 @@ function getHeatColor(estado: PaymentState): { bg: string; border: string; label
   switch (estado) {
     case 'PAGADO':
       return { bg: 'bg-success/15', border: 'border-success/40', label: 'Pagado', dot: 'bg-success' }
-    case 'PARCIAL':
-      return { bg: 'bg-accent-subtle', border: 'border-accent/30', label: 'Parcial', dot: 'bg-accent' }
     case 'PENDIENTE':
     default:
       return { bg: 'bg-ink/5', border: 'border-border', label: 'Pendiente', dot: 'bg-ink-muted' }
@@ -133,10 +131,6 @@ export default function SharedPaymentCalendar({
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-sm bg-emerald-500" />
             Pagado
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-accent" />
-            Parcial
           </div>
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-sm bg-stone-400" />

@@ -41,7 +41,7 @@ export interface ControlCuota {
   cuotaEsperada: number;
   fechaInicio: string;
   fechaFin: string;
-  estado: 'PENDIENTE' | 'PAGADO' | 'PARCIAL';
+  estado: 'PENDIENTE' | 'PAGADO';
 }
 
 export interface Hito {
@@ -543,14 +543,13 @@ export class GoalsService {
     await goalRef.update({ montoAcumulado: nuevoAcumulado });
     await miembroRef.update({ saldoAportado: nuevoSaldo });
 
-    // Mark control_cuotas as PAGADO/PARCIAL for this member
+    // Mark control_cuotas as PAGADO for this member
     const cuotasSnapshot = await goalRef
       .collection('control_cuotas')
       .where('usuarioEmail', '==', user.email)
       .where('estado', '==', 'PENDIENTE')
       .get();
 
-    // Sort in memory to avoid Firestore composite index requirement
     const cuotasOrdenadas = cuotasSnapshot.docs
       .map((doc) => ({ ref: doc.ref, data: doc.data() as ControlCuota }))
       .sort((a, b) => a.data.anio - b.data.anio || a.data.mes - b.data.mes);
@@ -560,41 +559,14 @@ export class GoalsService {
 
     for (const cuota of cuotasOrdenadas) {
       if (remaining <= 0) break;
+      if (remaining < cuota.data.cuotaEsperada) break;
 
-      if (remaining >= cuota.data.cuotaEsperada) {
-        batch.update(cuota.ref, { estado: 'PAGADO' });
-        remaining -= cuota.data.cuotaEsperada;
-      } else {
-        batch.update(cuota.ref, { estado: 'PARCIAL' });
-        remaining = 0;
-      }
+      batch.update(cuota.ref, { estado: 'PAGADO' });
+      remaining -= cuota.data.cuotaEsperada;
     }
 
     if (cuotasOrdenadas.length > 0) {
       await batch.commit();
-    }
-
-    // Also update any previously PARCIAL cuotas if remaining covers them
-    if (remaining > 0) {
-      const parcialSnapshot = await goalRef
-        .collection('control_cuotas')
-        .where('usuarioEmail', '==', user.email)
-        .where('estado', '==', 'PARCIAL')
-        .get();
-
-      const parcialesOrdenadas = parcialSnapshot.docs
-        .map((doc) => ({ ref: doc.ref, data: doc.data() as ControlCuota }))
-        .sort((a, b) => a.data.anio - b.data.anio || a.data.mes - b.data.mes);
-
-      const batch2 = db.batch();
-      for (const cuota of parcialesOrdenadas) {
-        if (remaining <= 0) break;
-        batch2.update(cuota.ref, { estado: 'PAGADO' });
-        remaining -= cuota.data.cuotaEsperada;
-      }
-      if (parcialesOrdenadas.length > 0) {
-        await batch2.commit();
-      }
     }
 
     const memberEmails = await this.getGoalMemberEmails(goalRef);
