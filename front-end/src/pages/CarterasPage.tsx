@@ -662,19 +662,11 @@ function CarteraMovimientosDrawer({ open, onClose, cartera }: { open: boolean; o
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
-        {/* Balance summary */}
+        {/* Balance */}
         <div className="border-b border-border bg-surface-raised px-5 py-3 flex-shrink-0">
-          <div className="grid grid-cols-2 gap-2">
-            <div className="rounded-xl border border-success/20 bg-success/5 px-3 py-2.5">
-              <span className="text-[9px] font-bold text-ink-muted uppercase tracking-wider block mb-0.5">Saldo Real</span>
-              <p className="text-base font-bold text-success font-mono">${cartera.saldo.toLocaleString()}</p>
-              <p className="text-[9px] text-ink-muted mt-0.5">Disponible en cuenta</p>
-            </div>
-            <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5">
-              <span className="text-[9px] font-bold text-ink-muted uppercase tracking-wider block mb-0.5">Saldo Estimado</span>
-              <p className="text-base font-bold text-primary-dark font-mono">${(cartera.saldo + totalEgresos).toLocaleString()}</p>
-              <p className="text-[9px] text-ink-muted mt-0.5">Real + egresos acumulados</p>
-            </div>
+          <div className="rounded-xl border border-success/20 bg-success/5 px-3 py-2.5">
+            <span className="text-[9px] font-bold text-ink-muted uppercase tracking-wider block mb-0.5">Saldo</span>
+            <p className="text-base font-bold text-success font-mono">${cartera.saldo.toLocaleString()}</p>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 border-b border-border bg-surface px-5 py-3 flex-shrink-0">
