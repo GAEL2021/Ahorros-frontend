@@ -25,6 +25,11 @@ export class CreateBancoDto {
 
   @IsOptional()
   @IsString()
+  @IsIn(['debito', 'credito'])
+  tipoCuenta?: 'debito' | 'credito';
+
+  @IsOptional()
+  @IsString()
   @IsIn(['personal', 'compartida'])
   tipo?: 'personal' | 'compartida';
 

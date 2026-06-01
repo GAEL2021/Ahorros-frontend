@@ -104,7 +104,7 @@ function CreateProgramacionModal({ open, onClose }: { open: boolean; onClose: ()
             <select value={carteraId} onChange={(e) => setCarteraId(e.target.value)} required className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20">
               <option value="" disabled>Seleccionar cartera</option>
               {bancos?.map((b) => (
-                <option key={b.id} value={b.id}>{b.nombre} (${b.saldo.toLocaleString()})</option>
+                <option key={b.id} value={b.id}>{b.tipo === 'compartida' ? `${b.nombre}-${b.creadoPorNombre}-${b.tipoCuenta === 'credito' ? 'C' : 'D'}` : b.nombre} (${b.saldo.toLocaleString()})</option>
               ))}
             </select>
           </div>

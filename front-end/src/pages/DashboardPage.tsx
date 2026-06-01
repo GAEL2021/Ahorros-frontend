@@ -270,6 +270,18 @@ export default function DashboardPage() {
                 <span className="text-[10px] font-bold text-zinc-500 mt-2">Agregar Nueva Meta</span>
               </div>
 
+              {(!carteras || carteras.length === 0) && (
+                <div
+                  onClick={() => navigate('/carteras')}
+                  className="rounded-[2rem] border-2 border-dashed border-green-400/40 dark:border-green-500/30 flex flex-col items-center justify-center p-6 min-h-[140px] hover:bg-green-50 dark:hover:bg-green-500/5 transition-colors cursor-pointer"
+                >
+                  <div className="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center font-extrabold text-lg shadow-sm text-white">
+                    +
+                  </div>
+                  <span className="text-[10px] font-bold text-green-600 dark:text-green-400 mt-2">Ir a agregar cartera</span>
+                </div>
+              )}
+
               {/* Purple card */}
               <Card variant="purple" className="flex flex-col justify-between min-h-[140px] border-none">
                 <span className="text-[10px] font-bold uppercase tracking-wider opacity-85 truncate">

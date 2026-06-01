@@ -22,7 +22,7 @@ export default function AdminLoginPage() {
     apiClient.get<{ esAdmin: boolean }>('/admin/verificar')
       .then(({ data }) => {
         if (data.esAdmin) {
-          navigate('/admin/bancos', { replace: true })
+          navigate('/', { replace: true })
         } else {
           logout().finally(() => setChecking(false))
         }
@@ -55,7 +55,7 @@ export default function AdminLoginPage() {
         await logout()
         return
       }
-      navigate('/admin/bancos', { replace: true })
+      navigate('/', { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión')
     } finally {

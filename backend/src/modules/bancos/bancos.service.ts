@@ -16,8 +16,10 @@ export interface BancoDocument {
   color: string;
   saldo: number;
   descripcion: string;
+  tipoCuenta: 'debito' | 'credito';
   tipo: 'personal' | 'compartida';
   creadoPor: string;
+  creadoPorNombre: string;
   creadoEn: string;
   codigoCompartir: string;
 }
@@ -102,6 +104,7 @@ export class BancosService {
         : [user.email];
     const emailsUnicos = [...new Set(todosLosEmails)];
 
+    const creadorNombre = user.email ? user.email.split('@')[0] : 'Usuario';
     const bancoData: BancoDocument = {
       uid: user.uid,
       catalogoBancoId: dto.catalogoBancoId,
@@ -109,8 +112,10 @@ export class BancosService {
       color,
       saldo: dto.saldoInicial ?? 0,
       descripcion: dto.descripcion ?? '',
+      tipoCuenta: dto.tipoCuenta ?? 'debito',
       tipo,
       creadoPor: user.uid,
+      creadoPorNombre: creadorNombre,
       creadoEn: now,
       codigoCompartir,
     };
@@ -331,6 +336,7 @@ export class BancosService {
 
     const updates: Record<string, string> = {};
     if (dto.descripcion !== undefined) updates.descripcion = dto.descripcion;
+    if (dto.tipoCuenta !== undefined) updates.tipoCuenta = dto.tipoCuenta;
 
     if (Object.keys(updates).length === 0) {
       throw new BadRequestException('No hay campos para actualizar');

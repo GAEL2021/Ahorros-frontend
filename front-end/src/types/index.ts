@@ -33,8 +33,10 @@ export interface Cartera {
   color: string
   saldo: number
   descripcion: string
+  tipoCuenta: 'debito' | 'credito'
   tipo: 'personal' | 'compartida'
   creadoPor: string
+  creadoPorNombre: string
   creadoEn: string
   codigoCompartir: string
   metasDistribucion?: Array<{
@@ -73,12 +75,14 @@ export interface CreateCarteraPayload {
   catalogoBancoId: string
   saldoInicial?: number
   descripcion?: string
+  tipoCuenta?: 'debito' | 'credito'
   tipo?: 'personal' | 'compartida'
   invitadosEmails?: string[]
 }
 
 export interface UpdateCarteraPayload {
   descripcion?: string
+  tipoCuenta?: 'debito' | 'credito'
 }
 
 // --- Catálogo de Bancos ---

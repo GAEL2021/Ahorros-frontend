@@ -33,6 +33,7 @@ function CreateCarteraModal({ open, onClose }: { open: boolean; onClose: () => v
   const createBanco = useCreateBanco()
   const { data: bancosDisponibles } = useBancosDisponibles()
   const [catalogoBancoId, setCatalogoBancoId] = useState('')
+  const [tipoCuenta, setTipoCuenta] = useState<'debito' | 'credito'>('debito')
   const [saldoInicial, setSaldoInicial] = useState(0)
   const [descripcion, setDescripcion] = useState('')
   const [tipo, setTipo] = useState<'personal' | 'compartida'>('personal')
@@ -55,6 +56,7 @@ function CreateCarteraModal({ open, onClose }: { open: boolean; onClose: () => v
     try {
       await createBanco.mutateAsync({
         catalogoBancoId,
+        tipoCuenta,
         saldoInicial: saldoInicial || undefined,
         descripcion: descripcion || undefined,
         tipo,
@@ -71,6 +73,7 @@ function CreateCarteraModal({ open, onClose }: { open: boolean; onClose: () => v
 
   const resetForm = () => {
     setCatalogoBancoId('')
+    setTipoCuenta('debito')
     setSaldoInicial(0)
     setDescripcion('')
     setTipo('personal')
@@ -98,6 +101,13 @@ function CreateCarteraModal({ open, onClose }: { open: boolean; onClose: () => v
                 <option key={c.id} value={c.id}>{c.nombre}</option>
               ))}
             </select>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Tipo de cuenta</label>
+            <div className="flex rounded-lg border border-border overflow-hidden">
+              <button type="button" onClick={() => setTipoCuenta('debito')} className={`flex-1 px-3 py-2 text-[11px] font-semibold transition-colors ${tipoCuenta === 'debito' ? 'bg-primary text-white' : 'bg-surface text-ink-muted hover:bg-surface-raised'}`}>Débito</button>
+              <button type="button" onClick={() => setTipoCuenta('credito')} className={`flex-1 px-3 py-2 text-[11px] font-semibold transition-colors ${tipoCuenta === 'credito' ? 'bg-primary text-white' : 'bg-surface text-ink-muted hover:bg-surface-raised'}`}>Crédito</button>
+            </div>
           </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Saldo inicial (opcional)</label>
@@ -253,13 +263,14 @@ function RetirarModal({ open, onClose, cartera }: { open: boolean; onClose: () =
 function EditCarteraModal({ open, onClose, cartera }: { open: boolean; onClose: () => void; cartera: Cartera }) {
   const updateBanco = useUpdateBanco()
   const [descripcion, setDescripcion] = useState(cartera.descripcion)
+  const [tipoCuenta, setTipoCuenta] = useState(cartera.tipoCuenta)
 
   if (!open) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await updateBanco.mutateAsync({ id: cartera.id, payload: { descripcion: descripcion.trim() } })
+      await updateBanco.mutateAsync({ id: cartera.id, payload: { descripcion: descripcion.trim(), tipoCuenta } })
       sileo.success(`Cartera "${cartera.nombre}" actualizada`)
       onClose()
     } catch (err) { sileo.error(err instanceof Error ? err.message : 'Error al actualizar') }
@@ -275,6 +286,13 @@ function EditCarteraModal({ open, onClose, cartera }: { open: boolean; onClose: 
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
+          <div>
+            <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Tipo de cuenta</label>
+            <div className="flex rounded-lg border border-border overflow-hidden">
+              <button type="button" onClick={() => setTipoCuenta('debito')} className={`flex-1 px-3 py-2 text-[11px] font-semibold transition-colors ${tipoCuenta === 'debito' ? 'bg-primary text-white' : 'bg-surface text-ink-muted hover:bg-surface-raised'}`}>Débito</button>
+              <button type="button" onClick={() => setTipoCuenta('credito')} className={`flex-1 px-3 py-2 text-[11px] font-semibold transition-colors ${tipoCuenta === 'credito' ? 'bg-primary text-white' : 'bg-surface text-ink-muted hover:bg-surface-raised'}`}>Crédito</button>
+            </div>
+          </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Descripción</label>
             <input type="text" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
@@ -449,22 +467,27 @@ export default function CarterasPage() {
                 <div key={banco.id} className="savesmart-card bg-surface overflow-hidden flex flex-col" style={{ borderLeft: `5px solid ${banco.color}` }}>
                   <div className="p-5 flex-1">
                     <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-md" style={{ backgroundColor: banco.color }}>
                           {banco.nombre.charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <h3 className="text-sm font-bold text-ink truncate">{banco.nombre}</h3>
+                            <h3 className="text-sm font-bold text-ink truncate">{banco.tipo === 'compartida' ? `${banco.nombre}-${banco.creadoPorNombre}-${banco.tipoCuenta === 'credito' ? 'C' : 'D'}` : banco.nombre}</h3>
                             {banco.tipo === 'compartida' && (
                               <span className="inline-flex items-center rounded-full bg-accent-subtle px-2 py-0.5 text-[9px] font-bold text-accent border border-accent/20">Compartida</span>
                             )}
                           </div>
-                          {banco.descripcion && <p className="text-[11px] text-ink-muted truncate max-w-[140px] mt-0.5">{banco.descripcion}</p>}
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            {banco.descripcion && <p className="text-[11px] text-ink-muted truncate max-w-[140px]">{banco.descripcion}</p>}
+                            <span className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] font-bold ${banco.tipoCuenta === 'credito' ? 'bg-amber-500/10 text-amber-600 border border-amber-500/20' : 'bg-blue-500/10 text-blue-600 border border-blue-500/20'}`}>
+                              {banco.tipoCuenta === 'credito' ? 'Crédito' : 'Débito'}
+                            </span>
+                          </div>
                         </div>
                       </div>
                       <div className="flex gap-0.5">
-                        {banco.tipo === 'compartida' && banco.codigoCompartir && (
+                        {banco.codigoCompartir && (
                           <button onClick={() => setShareTarget(banco)} className="rounded-xl p-1.5 text-ink-muted hover:bg-accent-subtle hover:text-accent transition-colors" title="Compartir">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
                           </button>
@@ -525,8 +548,13 @@ export default function CarterasPage() {
                               {banco.nombre.charAt(0).toUpperCase()}
                             </div>
                             <div className="min-w-0">
-                              <span className="font-semibold text-ink text-sm">{banco.nombre}</span>
-                              {banco.descripcion && <p className="text-[10px] text-ink-muted truncate">{banco.descripcion}</p>}
+                              <span className="font-semibold text-ink text-sm">{banco.tipo === 'compartida' ? `${banco.nombre}-${banco.creadoPorNombre}-${banco.tipoCuenta === 'credito' ? 'C' : 'D'}` : banco.nombre}</span>
+                              <div className="flex items-center gap-1 mt-0.5">
+                                {banco.descripcion && <p className="text-[10px] text-ink-muted truncate max-w-[120px]">{banco.descripcion}</p>}
+                                <span className={`inline-flex items-center rounded-full px-1 py-0.5 text-[7px] font-bold ${banco.tipoCuenta === 'credito' ? 'bg-amber-500/10 text-amber-600' : 'bg-blue-500/10 text-blue-600'}`}>
+                                  {banco.tipoCuenta === 'credito' ? 'Crédito' : 'Débito'}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </td>
@@ -538,7 +566,7 @@ export default function CarterasPage() {
                         <td className="px-4 py-3 text-right font-mono font-bold text-ink">${banco.saldo.toLocaleString()}</td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-1">
-                            {banco.tipo === 'compartida' && banco.codigoCompartir && (
+                            {banco.codigoCompartir && (
                               <button onClick={() => setShareTarget(banco)} className="rounded p-1.5 text-ink-muted hover:bg-accent-subtle hover:text-accent transition-colors" title="Compartir">
                                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
                               </button>
@@ -612,8 +640,8 @@ function CarteraMovimientosDrawer({ open, onClose, cartera }: { open: boolean; o
   if (!open) return null
 
   const transacciones = detail?.transacciones ?? []
-  const totalIngresos = transacciones.filter((t) => t.tipo === 'deposito').reduce((sum, t) => sum + t.monto, 0)
-  const totalEgresos = transacciones.filter((t) => t.tipo === 'retiro' || t.tipo === 'aporte_meta' || (t as any).esChecklist).reduce((sum, t) => sum + t.monto, 0)
+  const totalIngresos = transacciones.filter((t) => t.tipo === 'deposito' || t.tipo === 'aporte_meta').reduce((sum, t) => sum + t.monto, 0)
+  const totalEgresos = transacciones.filter((t) => t.tipo === 'retiro' || (t as any).esChecklist).reduce((sum, t) => sum + t.monto, 0)
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true">
@@ -677,22 +705,25 @@ function CarteraMovimientosDrawer({ open, onClose, cartera }: { open: boolean; o
             </div>
           ) : (
             transacciones.map((t) => {
-              const isIncome = t.tipo === 'deposito'
+              const isIncome = t.tipo === 'deposito' || t.tipo === 'aporte_meta'
               const isChecklist = (t as any).esChecklist === true || t.descripcion?.startsWith('Compra checklist:')
               const metaNombre = (t as any).metaNombre as string | undefined
+              const displayDesc = t.tipo === 'aporte_meta' ? 'Abono a meta' : t.descripcion
               return (
                 <div key={t.id} className={`rounded-xl border bg-surface p-3 hover:bg-surface-raised transition-colors animate-fade-in ${isChecklist ? 'border-danger/20' : 'border-border'}`}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-start gap-2.5 min-w-0">
                       <div className={`h-7 w-7 mt-0.5 rounded-full flex items-center justify-center flex-shrink-0 ${isIncome ? 'bg-success/10 text-success' : isChecklist ? 'bg-danger/10 text-danger' : 'bg-accent/10 text-accent'}`}>
-                        {isIncome ? (
-                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12" /></svg>
-                        ) : (
-                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M17 13l-5 5m0 0l-5-5m5-5v12" /></svg>
-                        )}
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          {isIncome ? (
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                          ) : (
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17 13l-5 5m0 0l-5-5m5-5v12" />
+                          )}
+                        </svg>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold text-ink leading-snug">{t.descripcion}</p>
+                        <p className="text-xs font-semibold text-ink leading-snug">{displayDesc}</p>
                         <div className="flex flex-wrap items-center gap-1 mt-1">
                           <span className="text-[10px] text-ink-muted">
                             {new Date(t.fecha).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
