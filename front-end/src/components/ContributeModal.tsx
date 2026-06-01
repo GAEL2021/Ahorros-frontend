@@ -159,7 +159,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
               <option value="" disabled>Seleccionar cartera</option>
               {bancosList.map((b) => (
                 <option key={b.id} value={b.id}>
-                  {b.nombre} (${b.saldo.toLocaleString()} de saldo)
+                  {b.nombre}-{b.creadoPorNombre}-{b.tipoCuenta === 'credito' ? 'C' : 'D'}
                 </option>
               ))}
             </select>
