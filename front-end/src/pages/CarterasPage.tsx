@@ -167,7 +167,7 @@ function DepositarModal({ open, onClose, cartera }: { open: boolean; onClose: ()
     if (monto < 1) return
     try {
       await depositar.mutateAsync({ id: cartera.id, payload: { monto } })
-      sileo.success(`Depositaste $${monto.toLocaleString()} en "${cartera.nombre}-${cartera.creadoPorNombre}-${cartera.tipoCuenta === 'credito' ? 'C' : 'D'}"`)
+      sileo.success(`Depositaste $${monto.toLocaleString()} en "${cartera.nombre}"`)
       setMonto(0)
       onClose()
     } catch (err) { sileo.error(err instanceof Error ? err.message : 'Error al depositar') }
@@ -179,7 +179,7 @@ function DepositarModal({ open, onClose, cartera }: { open: boolean; onClose: ()
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
       <div className="w-full max-w-sm rounded-lg border border-border bg-surface shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="text-base font-semibold text-ink">Depositar en {cartera.nombre}-{cartera.creadoPorNombre}-{cartera.tipoCuenta === 'credito' ? 'C' : 'D'}</h2>
+          <h2 className="text-base font-semibold text-ink">Depositar en {cartera.nombre}</h2>
           <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
@@ -219,7 +219,7 @@ function RetirarModal({ open, onClose, cartera }: { open: boolean; onClose: () =
     if (monto < 1) return
     try {
       await retirar.mutateAsync({ id: cartera.id, payload: { monto } })
-      sileo.success(`Retiraste $${monto.toLocaleString()} de "${cartera.nombre}-${cartera.creadoPorNombre}-${cartera.tipoCuenta === 'credito' ? 'C' : 'D'}"`)
+      sileo.success(`Retiraste $${monto.toLocaleString()} de "${cartera.nombre}"`)
       setMonto(0)
       onClose()
     } catch (err) { sileo.error(err instanceof Error ? err.message : 'Error al retirar') }
@@ -231,7 +231,7 @@ function RetirarModal({ open, onClose, cartera }: { open: boolean; onClose: () =
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
       <div className="w-full max-w-sm rounded-lg border border-border bg-surface shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="text-base font-semibold text-ink">Retirar de {cartera.nombre}-{cartera.creadoPorNombre}-{cartera.tipoCuenta === 'credito' ? 'C' : 'D'}</h2>
+          <h2 className="text-base font-semibold text-ink">Retirar de {cartera.nombre}</h2>
           <button type="button" onClick={handleClose} className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
@@ -271,7 +271,7 @@ function EditCarteraModal({ open, onClose, cartera }: { open: boolean; onClose: 
     e.preventDefault()
     try {
       await updateBanco.mutateAsync({ id: cartera.id, payload: { descripcion: descripcion.trim(), tipoCuenta } })
-      sileo.success(`Cartera "${cartera.nombre}-${cartera.creadoPorNombre}-${cartera.tipoCuenta === 'credito' ? 'C' : 'D'}" actualizada`)
+      sileo.success(`Cartera "${cartera.nombre}" actualizada`)
       onClose()
     } catch (err) { sileo.error(err instanceof Error ? err.message : 'Error al actualizar') }
   }
@@ -280,7 +280,7 @@ function EditCarteraModal({ open, onClose, cartera }: { open: boolean; onClose: 
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm animate-fade-in">
       <div className="w-full max-w-md rounded-lg border border-border bg-surface shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="text-base font-semibold text-ink">Editar {cartera.nombre}-{cartera.creadoPorNombre}-{cartera.tipoCuenta === 'credito' ? 'C' : 'D'}</h2>
+          <h2 className="text-base font-semibold text-ink">Editar {cartera.nombre}</h2>
           <button type="button" onClick={onClose} className="rounded-md p-1.5 text-ink-muted hover:bg-surface-raised hover:text-ink transition-colors">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
@@ -473,7 +473,7 @@ export default function CarterasPage() {
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <h3 className="text-sm font-bold text-ink truncate">{banco.nombre}-{banco.creadoPorNombre}-{banco.tipoCuenta === 'credito' ? 'C' : 'D'}</h3>
+                            <h3 className="text-sm font-bold text-ink truncate">{banco.nombre}</h3>
                             {banco.tipo === 'compartida' && (
                               <span className="inline-flex items-center rounded-full bg-accent-subtle px-2 py-0.5 text-[9px] font-bold text-accent border border-accent/20">Compartida</span>
                             )}
@@ -548,7 +548,7 @@ export default function CarterasPage() {
                               {banco.nombre.charAt(0).toUpperCase()}
                             </div>
                             <div className="min-w-0">
-                              <span className="font-semibold text-ink text-sm">{banco.nombre}-{banco.creadoPorNombre}-{banco.tipoCuenta === 'credito' ? 'C' : 'D'}</span>
+                              <span className="font-semibold text-ink text-sm">{banco.nombre}</span>
                               <div className="flex items-center gap-1 mt-0.5">
                                 {banco.descripcion && <p className="text-[10px] text-ink-muted truncate max-w-[120px]">{banco.descripcion}</p>}
                                 <span className={`inline-flex items-center rounded-full px-1 py-0.5 text-[7px] font-bold ${banco.tipoCuenta === 'credito' ? 'bg-amber-500/10 text-amber-600' : 'bg-blue-500/10 text-blue-600'}`}>
@@ -606,7 +606,7 @@ export default function CarterasPage() {
         <ConfirmModal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={async () => {
           try { await deleteBanco.mutateAsync(deleteTarget.id); sileo.success(`Cartera "${deleteTarget.nombre}" eliminada`) } catch (err) { sileo.error(err instanceof Error ? err.message : 'Error al eliminar') }
           setDeleteTarget(null)
-        }} title="Eliminar cartera" message={`¿Eliminar "${deleteTarget.nombre}-${deleteTarget.creadoPorNombre}-${deleteTarget.tipoCuenta === 'credito' ? 'C' : 'D'}"? Esta acción no se puede deshacer.`} danger />
+        }} title="Eliminar cartera" message={`¿Eliminar "${deleteTarget.nombre}"? Esta acción no se puede deshacer.`} danger />
       )}
       {shareTarget && <ShareCodeModal open={!!shareTarget} onClose={() => setShareTarget(null)} codigo={shareTarget.codigoCompartir} carteraNombre={shareTarget.nombre} />}
       {selectedCarteraParaMovimientos && (
@@ -654,7 +654,7 @@ function CarteraMovimientosDrawer({ open, onClose, cartera }: { open: boolean; o
               {cartera.nombre.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <h2 className="text-sm font-semibold text-ink truncate">{cartera.nombre}-{cartera.creadoPorNombre}-{cartera.tipoCuenta === 'credito' ? 'C' : 'D'}</h2>
+              <h2 className="text-sm font-semibold text-ink truncate">{cartera.nombre}</h2>
               <span className="text-[10px] text-ink-muted uppercase tracking-wider font-semibold">Movimientos</span>
             </div>
           </div>
