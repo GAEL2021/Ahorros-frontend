@@ -41,6 +41,12 @@ export interface TransaccionDocument {
   fecha: string;
 }
 
+function primerNombreDesdeEmail(email?: string): string {
+  if (!email) return 'Usuario';
+  const raw = email.split('@')[0].split(/[._]/)[0];
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
+
 function generarCodigoUnico(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code = '';
@@ -104,7 +110,7 @@ export class BancosService {
         : [user.email];
     const emailsUnicos = [...new Set(todosLosEmails)];
 
-    const creadorNombre = user.email ? user.email.split('@')[0] : 'Usuario';
+    const creadorNombre = primerNombreDesdeEmail(user.email);
     const bancoData: BancoDocument = {
       uid: user.uid,
       catalogoBancoId: dto.catalogoBancoId,
@@ -209,7 +215,7 @@ export class BancosService {
     for (const doc of propiosSnapshot.docs) {
       const data = doc.data() as BancoDocument;
       const metasDistribucion = await this.getMetasDistribucion(doc.ref);
-      bancos.push({ id: doc.id, ...data, creadoPorNombre: data.creadoPorNombre ?? user.email?.split('@')[0] ?? 'Usuario', metasDistribucion });
+      bancos.push({ id: doc.id, ...data, creadoPorNombre: data.creadoPorNombre ?? primerNombreDesdeEmail(user.email), metasDistribucion });
     }
 
     if (user.email) {
@@ -233,7 +239,7 @@ export class BancosService {
           let creadorNombre = data.creadoPorNombre;
           if (!creadorNombre) {
             if (!creadorMiembroSnap.empty) {
-              creadorNombre = (creadorMiembroSnap.docs[0].data() as BancoMember).email?.split('@')[0] ?? 'Usuario';
+              creadorNombre = primerNombreDesdeEmail((creadorMiembroSnap.docs[0].data() as BancoMember).email);
             } else {
               creadorNombre = 'Usuario';
             }
@@ -303,7 +309,7 @@ export class BancosService {
     });
 
     const creadorMiembro = miembros.find((m) => m.rol === 'creador');
-    const creadorNombreFallback = data.creadoPorNombre ?? (creadorMiembro ? creadorMiembro.email?.split('@')[0] : user.email?.split('@')[0]) ?? 'Usuario';
+    const creadorNombreFallback = data.creadoPorNombre ?? primerNombreDesdeEmail(creadorMiembro?.email || user.email);
     return { id: doc.id, ...data, creadoPorNombre: creadorNombreFallback, miembros, transacciones, metasDistribucion };
   }
 
