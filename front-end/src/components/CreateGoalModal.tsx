@@ -106,7 +106,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
                       <label className="mb-1 block text-xs font-semibold text-ink-muted">Cartera origen</label>
                       <select value={carteraId} onChange={(e) => setCarteraId(e.target.value)} required className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20">
                         <option value="" disabled>Seleccionar cartera</option>
-                        {bancos.map((b) => <option key={b.id} value={b.id}>{b.tipo === 'compartida' ? `${b.nombre}-${b.creadoPorNombre}-${b.tipoCuenta === 'credito' ? 'C' : 'D'}` : b.nombre} (${b.saldo.toLocaleString()})</option>)}
+                        {bancos.map((b) => <option key={b.id} value={b.id}>{b.nombre}-{b.creadoPorNombre}-{b.tipoCuenta === 'credito' ? 'C' : 'D'}</option>)}
                       </select>
                     </div>
                     <div className="flex rounded-xl border border-border overflow-hidden">

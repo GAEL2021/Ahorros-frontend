@@ -341,7 +341,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
             <label className="mb-1.5 block text-sm font-semibold text-ink">Cartera de destino</label>
             <select value={realCostCarteraId} onChange={(e) => setRealCostCarteraId(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
               <option value="" disabled>Seleccionar cartera</option>
-              {bancos?.map((b) => <option key={b.id} value={b.id}>{b.tipo === 'compartida' ? `${b.nombre}-${b.creadoPorNombre}-${b.tipoCuenta === 'credito' ? 'C' : 'D'}` : b.nombre} (${b.saldo.toLocaleString()})</option>)}
+              {bancos?.map((b) => <option key={b.id} value={b.id}>{b.nombre}-{b.creadoPorNombre}-{b.tipoCuenta === 'credito' ? 'C' : 'D'}</option>)}
             </select>
             {!realCostCarteraId && <p className="mt-1 text-xs text-ink-muted">El aporte se sumará a esta cartera</p>}
           </div>
