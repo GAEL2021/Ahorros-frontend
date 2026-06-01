@@ -13,9 +13,11 @@ import {
 import { BancosService } from './bancos.service';
 import { CreateBancoDto } from './dto/create-banco.dto';
 import { UpdateBancoDto } from './dto/update-banco.dto';
+import { AdminUpdateBancoDto } from './dto/admin-update-banco.dto';
 import { DepositarDto } from './dto/depositar.dto';
 import { RetirarDto } from './dto/retirar.dto';
 import { FirebaseAuthGuard, FirebaseUser } from '../../common/guards/firebase-auth.guard';
+import { AdminGuard } from '../../common/guards/admin.guard';
 import { Request } from 'express';
 
 @Controller('bancos')
@@ -62,6 +64,28 @@ export class BancosController {
   @Delete(':id')
   deleteBanco(@Param('id') id: string, @Req() req: Request) {
     return this.bancosService.deleteBanco(id, req.user as FirebaseUser);
+  }
+
+  @Get('admin/all')
+  @UseGuards(AdminGuard)
+  adminGetAll() {
+    return this.bancosService.getUserBancos({} as FirebaseUser);
+  }
+
+  @Patch('admin/:id')
+  @UseGuards(AdminGuard)
+  adminUpdateBanco(
+    @Param('id') id: string,
+    @Body() dto: AdminUpdateBancoDto,
+    @Req() req: Request,
+  ) {
+    return this.bancosService.adminUpdateBanco(id, dto, req.user as FirebaseUser);
+  }
+
+  @Delete('admin/:id')
+  @UseGuards(AdminGuard)
+  adminDeleteBanco(@Param('id') id: string, @Req() req: Request) {
+    return this.bancosService.adminDeleteBanco(id, req.user as FirebaseUser);
   }
 
   @Post(':id/depositar')

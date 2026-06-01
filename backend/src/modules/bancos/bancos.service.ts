@@ -1,14 +1,10 @@
-import {
-  Injectable,
-  BadRequestException,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FirebaseService } from '../../config/firebase/firebase.service';
 import { EmailService } from '../../common/email/email.service';
 import { CreateBancoDto } from './dto/create-banco.dto';
 import { UpdateBancoDto } from './dto/update-banco.dto';
+import { AdminUpdateBancoDto } from './dto/admin-update-banco.dto';
 import { DepositarDto } from './dto/depositar.dto';
 import { RetirarDto } from './dto/retirar.dto';
 import { FirebaseUser } from '../../common/guards/firebase-auth.guard';
@@ -369,6 +365,89 @@ export class BancosService {
     await docRef.delete();
 
     return { message: 'Cartera eliminada correctamente' };
+  }
+
+  async isBancoInUse(bancoId: string): Promise<{ inUse: boolean; references: string[] }> {
+    const db = this.firebaseService.firestore;
+    const references: string[] = [];
+
+    // Check transacciones subcollection
+    const transSnap = await db.collection('bancos').doc(bancoId).collection('transacciones').limit(1).get();
+    if (!transSnap.empty) references.push('transacciones');
+
+    // Check programaciones
+    const progSnap = await db.collection('programaciones').where('carteraId', '==', bancoId).limit(1).get();
+    if (!progSnap.empty) references.push('programaciones');
+
+    // Check presupuestos
+    const presSnap = await db.collection('presupuestos').where('carteraId', '==', bancoId).limit(1).get();
+    if (!presSnap.empty) references.push('presupuestos');
+
+    // Check metas checklist items
+    const metasSnap = await db.collection('metas').get();
+    for (const metaDoc of metasSnap.docs) {
+      const checklistSnap = await metaDoc.ref.collection('checklist').where('carteraId', '==', bancoId).limit(1).get();
+      if (!checklistSnap.empty) {
+        references.push(`metas/${metaDoc.id}/checklist`);
+        break;
+      }
+    }
+
+    return { inUse: references.length > 0, references };
+  }
+
+  async adminUpdateBanco(bancoId: string, dto: AdminUpdateBancoDto, user: FirebaseUser) {
+    const db = this.firebaseService.firestore;
+    const docRef = db.collection('bancos').doc(bancoId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      throw new NotFoundException('Cartera no encontrada');
+    }
+
+    const { inUse } = await this.isBancoInUse(bancoId);
+    if (inUse) {
+      throw new BadRequestException('No se puede modificar una cartera que está en uso');
+    }
+
+    const updates: Record<string, string> = {};
+    if (dto.nombre !== undefined) updates.nombre = dto.nombre;
+    if (dto.descripcion !== undefined) updates.descripcion = dto.descripcion;
+    if (dto.color !== undefined) updates.color = dto.color;
+
+    if (Object.keys(updates).length === 0) {
+      throw new BadRequestException('No hay campos para actualizar');
+    }
+
+    await docRef.update(updates);
+    return { id: bancoId, ...updates };
+  }
+
+  async adminDeleteBanco(bancoId: string, user: FirebaseUser) {
+    const db = this.firebaseService.firestore;
+    const docRef = db.collection('bancos').doc(bancoId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      throw new NotFoundException('Cartera no encontrada');
+    }
+
+    const data = doc.data() as BancoDocument;
+
+    if (data.saldo > 0) {
+      throw new BadRequestException('No puedes eliminar una cartera con saldo positivo. Retira el dinero primero.');
+    }
+
+    const { inUse, references } = await this.isBancoInUse(bancoId);
+    if (inUse) {
+      throw new BadRequestException(`No se puede eliminar la cartera porque está en uso: ${references.join(', ')}`);
+    }
+
+    await this.deleteSubcollection(docRef.collection('miembros'));
+    await this.deleteSubcollection(docRef.collection('transacciones'));
+    await docRef.delete();
+
+    return { message: 'Cartera eliminada correctamente por administrador' };
   }
 
   async deleteAllBancos() {

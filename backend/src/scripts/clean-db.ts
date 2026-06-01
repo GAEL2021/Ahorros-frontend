@@ -13,7 +13,7 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-const KEEP_COLLECTIONS = new Set(['bancos'])
+const KEEP_COLLECTIONS = new Set(['config'])
 
 async function deleteSubcollections(docRef: admin.firestore.DocumentReference): Promise<number> {
   const collections = await docRef.listCollections()
@@ -57,7 +57,7 @@ async function cleanCollection(collectionId: string): Promise<number> {
 }
 
 async function cleanDatabase() {
-  console.log('\n🧹 Limpiando base de datos (excepto bancos)...\n')
+  console.log('\n🧹 Limpiando base de datos (bancos incluidos, config protegida)...\n')
 
   const collections = await db.listCollections()
   const total: Record<string, number> = {}
