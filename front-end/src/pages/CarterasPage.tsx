@@ -191,9 +191,9 @@ function DepositarModal({ open, onClose, cartera }: { open: boolean; onClose: ()
           </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Monto a depositar</label>
-            <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-base font-medium text-ink-muted">$</span>
-              <input type="number" min={1} value={monto || ''} onChange={(e) => setMonto(Math.max(0, Number(e.target.value) || 0))} placeholder="0" className="w-full rounded-lg border border-border bg-surface py-3 pl-9 pr-4 text-lg font-semibold placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" style={{ fontFamily: "'JetBrains Mono', monospace" }} />
+            <div className="flex items-center rounded-lg border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden">
+              <span className="pl-3.5 pr-1 text-base font-medium text-ink-muted">$</span>
+              <input type="number" min={1} value={monto || ''} onChange={(e) => setMonto(Math.max(0, Number(e.target.value) || 0))} placeholder="0" className="flex-1 py-3 pr-4 text-lg font-semibold bg-transparent placeholder:text-ink-muted focus:outline-none" style={{ fontFamily: "'JetBrains Mono', monospace" }} />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-1">
@@ -243,9 +243,9 @@ function RetirarModal({ open, onClose, cartera }: { open: boolean; onClose: () =
           </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Monto a retirar</label>
-            <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-base font-medium text-ink-muted">$</span>
-              <input type="number" min={1} max={cartera.saldo} value={monto || ''} onChange={(e) => setMonto(Math.max(0, Math.min(cartera.saldo, Number(e.target.value) || 0)))} placeholder="0" className="w-full rounded-lg border border-border bg-surface py-3 pl-9 pr-4 text-lg font-semibold placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" style={{ fontFamily: "'JetBrains Mono', monospace" }} />
+            <div className="flex items-center rounded-lg border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden">
+              <span className="pl-3.5 pr-1 text-base font-medium text-ink-muted">$</span>
+              <input type="number" min={1} max={cartera.saldo} value={monto || ''} onChange={(e) => setMonto(Math.max(0, Math.min(cartera.saldo, Number(e.target.value) || 0)))} placeholder="0" className="flex-1 py-3 pr-4 text-lg font-semibold bg-transparent placeholder:text-ink-muted focus:outline-none" style={{ fontFamily: "'JetBrains Mono', monospace" }} />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-1">
