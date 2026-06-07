@@ -22,8 +22,8 @@ export function Button({
   
   const variants = {
     primary: 'bg-[#6336FF] hover:bg-[#5225e6] text-white py-3 px-6 shadow-md shadow-purple-500/10',
-    secondary: 'bg-white hover:bg-zinc-100 text-zinc-900 border border-zinc-200 py-3 px-6 shadow-xs',
-    ghost: 'bg-transparent hover:bg-zinc-100/50 dark:hover:bg-white/5 text-zinc-600 dark:text-zinc-300 py-2.5 px-4',
+    secondary: 'bg-surface hover:bg-surface-raised text-ink border border-border py-3 px-6 shadow-xs',
+    ghost: 'bg-transparent hover:bg-surface text-ink-muted hover:text-ink py-2.5 px-4',
     yellow: 'bg-[#FFC700] hover:bg-[#ebd056] text-black py-4 px-8 shadow-lg shadow-yellow-500/10',
   }
 
