@@ -34,8 +34,6 @@ export default function GoalDetailPanel({ open, onClose, meta }: GoalDetailPanel
 
   if (!open) return null
 
-  const progressPct = Math.min(100, Math.round((meta.montoAcumulado / meta.montoObjetivo) * 100))
-
   return (
     <div className="fixed inset-0 z-50 flex justify-end animate-fade-in">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { if (section) setSection(null); else onClose() }} />

@@ -119,7 +119,6 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
       sileo.error(err instanceof Error ? err.message : 'Error al guardar')
     }
   }
-  const openEdit = (item: ChecklistItem) => { setEditingItem(item); setEditText(item.texto); setEditMonto(item.monto ?? 0); setEditUrl(item.comprobante ?? ''); setEditUploadProgress(0) }
   const saveEdit = async (ignoreExcesoConfirm = false) => {
     if (!editingItem || !editText.trim() || updateItem.isPending) return;
     const currentItemMonto = editingItem.monto ?? 0;
