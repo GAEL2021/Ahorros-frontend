@@ -140,7 +140,7 @@ export default function DashboardPage() {
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary" />
         </div>
       ) : errorGoals ? (
-        <div className="glass rounded-2xl px-6 py-12 text-center animate-fade-in">
+        <div className="bg-surface rounded-2xl border border-border px-6 py-12 text-center animate-fade-in">
           <p className="text-sm text-danger">Error al cargar estadísticas</p>
         </div>
       ) : (
