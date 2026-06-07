@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { FirebaseService } from '../../config/firebase/firebase.service';
 import { BancosService } from '../bancos/bancos.service';
 import { ProgramacionesService } from '../programaciones/programaciones.service';
+import { PresupuestosService } from '../presupuestos/presupuestos.service';
 import { EmailService } from '../../common/email/email.service';
 import { CreateGoalDto } from './dto/create-goal.dto';
 import { UpdateGoalDto } from './dto/update-goal.dto';
@@ -69,6 +70,7 @@ export class GoalsService {
     private readonly firebaseService: FirebaseService,
     private readonly bancosService: BancosService,
     private readonly programacionesService: ProgramacionesService,
+    private readonly presupuestosService: PresupuestosService,
     private readonly emailService: EmailService,
     private readonly configService: ConfigService,
   ) {}
@@ -535,6 +537,33 @@ export class GoalsService {
         goalId,
         user,
       );
+
+      // Auto-register as "ahorro" in the active presupuesto for this cartera
+      try {
+        const db = this.firebaseService.firestore;
+        const presupSnap = await db
+          .collection('presupuestos')
+          .where('carteraId', '==', dto.carteraId)
+          .where('userId', '==', user.uid)
+          .get();
+
+        if (!presupSnap.empty) {
+          const presupDoc = presupSnap.docs[0];
+          await this.presupuestosService.addGasto(
+            presupDoc.id,
+            {
+              descripcion: `Ahorro: ${goalData.nombre}`,
+              monto: dto.monto,
+              montoEstimado: dto.monto,
+              categoria: 'ahorro',
+              estaConciliado: true,
+            },
+            user,
+          );
+        }
+      } catch (err) {
+        console.error('Error al registrar ahorro en presupuesto:', err);
+      }
     }
 
     const nuevoSaldo = miembroData.saldoAportado + dto.monto;
