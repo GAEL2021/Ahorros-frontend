@@ -14,19 +14,21 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
+    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+    let message: string | string[] = 'Error interno del servidor';
 
-    const message =
-      exception instanceof HttpException
-        ? exception.message
-        : 'Error interno del servidor';
-
-    if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
-      console.error('ERROR 500:', exception instanceof Error ? exception.stack || exception.message : exception);
+    if (exception instanceof HttpException) {
+      status = exception.getStatus();
+      const res = exception.getResponse();
+      if (typeof res === 'string') {
+        message = res;
+      } else if (typeof res === 'object') {
+        const obj = res as { message?: string | string[] };
+        message = obj.message ?? exception.message;
+      }
     }
+
+    console.error(`ERROR ${status}:`, exception instanceof Error ? exception.stack || exception.message : exception);
 
     response.status(status).json({
       statusCode: status,
