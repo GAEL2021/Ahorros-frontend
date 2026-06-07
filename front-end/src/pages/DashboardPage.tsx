@@ -164,16 +164,16 @@ export default function DashboardPage() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-xl font-extrabold text-white tracking-tight">Gestión de Presupuestos</h2>
-                  <p className="text-[10px] text-zinc-400">Tu panel financiero inteligente</p>
+                  <h2 className="text-xl font-extrabold text-ink tracking-tight">Gestión de Presupuestos</h2>
+                  <p className="text-[10px] text-ink-muted">Tu panel financiero inteligente</p>
                 </div>
               </div>
 
               <div className="my-5">
-                <h3 className="text-lg font-bold text-white leading-tight">
+                <h3 className="text-lg font-bold text-ink leading-tight">
                   ¡Hola, {user?.displayName || user?.email || 'Usuario'}!
                 </h3>
-                <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                <p className="text-xs text-ink-muted mt-1 leading-relaxed">
                   Gestiona tus presupuestos, carteras de ahorro y colabora con tu grupo de forma interactiva.
                 </p>
               </div>
@@ -189,9 +189,9 @@ export default function DashboardPage() {
 
             {/* SVG Concentric Progress Gauge */}
             <Card variant="dark" className="space-y-4">
-              <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                <h3 className="text-sm font-bold text-white">Salud Financiera</h3>
-                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Metas Activas</span>
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <h3 className="text-sm font-bold text-ink">Salud Financiera</h3>
+                <span className="text-[10px] text-ink-muted font-bold uppercase tracking-wider">Metas Activas</span>
               </div>
               <MultiRingProgress
                 data={ringProgressData}
@@ -206,8 +206,8 @@ export default function DashboardPage() {
             <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
               <Card variant="light" className="space-y-4 flex flex-col justify-between">
                 <div>
-                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Balance General</span>
-                  <h1 className="text-4xl font-extrabold text-zinc-950 dark:text-white mt-1 font-mono tracking-tight">
+                  <span className="text-[10px] font-bold text-ink-muted uppercase tracking-wider block">Balance General</span>
+                  <h1 className="text-4xl font-extrabold text-ink mt-1 font-mono tracking-tight">
                     $<AnimateNumbers value={totalBalance} decimals={2} />
                   </h1>
                 </div>
@@ -231,27 +231,27 @@ export default function DashboardPage() {
 
               {/* Activity Feed (Now Dynamic from Backend) */}
               <Card variant="light" className="space-y-4">
-                <div className="flex items-center justify-between border-b border-zinc-200/50 dark:border-white/5 pb-2">
-                  <h4 className="text-xs font-extrabold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">Actividad de Ahorro</h4>
+                <div className="flex items-center justify-between border-b border-border pb-2">
+                  <h4 className="text-xs font-extrabold text-ink-secondary uppercase tracking-wider">Actividad de Ahorro</h4>
                   <span className="text-[9px] bg-green-500/15 px-2.5 py-0.5 rounded-full font-bold text-green-600 dark:text-green-400">En Vivo</span>
                 </div>
                 <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
                   {dynamicActivityFeed.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between border-b border-zinc-100 dark:border-white/5 pb-2 last:border-0 last:pb-0">
+                    <div key={item.id} className="flex items-center justify-between border-b border-border pb-2 last:border-0 last:pb-0">
                       <div className="flex items-center gap-2.5 min-w-0">
                         <div className={`h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${item.bg}`}>
                           {item.initials}
                         </div>
                         <div className="min-w-0">
-                          <h5 className="text-[11px] font-bold text-zinc-800 dark:text-white leading-tight truncate">{item.name}</h5>
-                          <p className="text-[9px] text-zinc-400 truncate mt-0.5">{item.msg}</p>
+                          <h5 className="text-[11px] font-bold text-ink leading-tight truncate">{item.name}</h5>
+                          <p className="text-[9px] text-ink-muted truncate mt-0.5">{item.msg}</p>
                         </div>
                       </div>
                       <span className="text-xs font-bold text-green-600 font-mono flex-shrink-0">+${item.amount.toLocaleString()}</span>
                     </div>
                   ))}
                   {dynamicActivityFeed.length === 0 && (
-                    <p className="text-center text-[10px] text-zinc-400 py-6">Sin aportes recientes en la base de datos.</p>
+                    <p className="text-center text-[10px] text-ink-muted py-6">Sin aportes recientes.</p>
                   )}
                 </div>
               </Card>
@@ -262,23 +262,23 @@ export default function DashboardPage() {
               {/* Dashed Add Card */}
               <div 
                 onClick={() => navigate('/metas')}
-                className="rounded-[2rem] border-2 border-dashed border-zinc-300 dark:border-white/10 flex flex-col items-center justify-center p-6 min-h-[140px] hover:bg-zinc-100/50 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                className="rounded-[2rem] border-2 border-dashed border-border flex flex-col items-center justify-center p-6 min-h-[140px] hover:bg-surface transition-colors cursor-pointer"
               >
-                <div className="h-10 w-10 rounded-full bg-[#11141B] dark:bg-white dark:text-[#11141B] text-white flex items-center justify-center font-extrabold text-lg shadow-sm">
+                <div className="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center font-extrabold text-lg shadow-sm">
                   +
                 </div>
-                <span className="text-[10px] font-bold text-zinc-500 mt-2">Agregar Nueva Meta</span>
+                <span className="text-[10px] font-bold text-ink-muted mt-2">Agregar Nueva Meta</span>
               </div>
 
               {(!carteras || carteras.length === 0) && (
                 <div
                   onClick={() => navigate('/carteras')}
-                  className="rounded-[2rem] border-2 border-dashed border-green-400/40 dark:border-green-500/30 flex flex-col items-center justify-center p-6 min-h-[140px] hover:bg-green-50 dark:hover:bg-green-500/5 transition-colors cursor-pointer"
+                  className="rounded-[2rem] border-2 border-dashed border-success/30 flex flex-col items-center justify-center p-6 min-h-[140px] hover:bg-success-subtle transition-colors cursor-pointer"
                 >
-                  <div className="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center font-extrabold text-lg shadow-sm text-white">
+                  <div className="h-10 w-10 rounded-full bg-success flex items-center justify-center font-extrabold text-lg shadow-sm text-white">
                     +
                   </div>
-                  <span className="text-[10px] font-bold text-green-600 dark:text-green-400 mt-2">Ir a agregar cartera</span>
+                  <span className="text-[10px] font-bold text-success mt-2">Ir a agregar cartera</span>
                 </div>
               )}
 
@@ -323,13 +323,13 @@ export default function DashboardPage() {
               {/* Budget Progress Card */}
               <Card variant="light" className="flex flex-col justify-between min-h-[140px]">
                 <div>
-                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Avance de Objetivo</span>
-                  <span className="text-xl font-bold text-zinc-800 dark:text-white mt-1 block">
+                  <span className="text-[10px] font-bold text-ink-muted uppercase tracking-wider block">Avance de Objetivo</span>
+                  <span className="text-xl font-bold text-ink mt-1 block">
                     {firstGoal ? `${Math.round((firstGoal.montoAcumulado / firstGoal.montoObjetivo) * 100)}%` : '0%'}
                   </span>
                 </div>
                 {firstGoal && (
-                  <div className="w-full bg-zinc-100 dark:bg-white/5 h-2.5 rounded-full overflow-hidden mt-4">
+                  <div className="w-full bg-border h-2.5 rounded-full overflow-hidden mt-4">
                     <div 
                       className="bg-gradient-to-r from-[#6336FF] to-[#00D1FF] h-full rounded-full transition-all duration-1000"
                       style={{ width: `${Math.min(100, Math.round((firstGoal.montoAcumulado / firstGoal.montoObjetivo) * 100))}%` }}
@@ -341,27 +341,27 @@ export default function DashboardPage() {
 
             {/* Recent Transactions List */}
             <Card variant="light" className="space-y-4">
-              <div className="flex items-center justify-between border-b border-zinc-200/50 dark:border-white/5 pb-2">
-                <h4 className="text-xs font-extrabold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">Egresos Recientes</h4>
-                <span onClick={() => navigate('/carteras')} className="text-[10px] text-zinc-400 font-bold hover:underline cursor-pointer">Ver Todos</span>
+              <div className="flex items-center justify-between border-b border-border pb-2">
+                <h4 className="text-xs font-extrabold text-ink-secondary uppercase tracking-wider">Egresos Recientes</h4>
+                <span onClick={() => navigate('/carteras')} className="text-[10px] text-ink-muted font-bold hover:underline cursor-pointer">Ver Todos</span>
               </div>
               <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
                 {transactions?.filter(t => t.tipo === 'retiro').slice(0, 3).map((t) => (
-                  <div key={t.id} className="flex items-center justify-between p-3.5 bg-zinc-50/50 dark:bg-white/5 rounded-2xl border border-zinc-100 dark:border-white/5">
+                  <div key={t.id} className="flex items-center justify-between p-3.5 bg-surface rounded-2xl border border-border">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="h-8 w-8 rounded-full bg-zinc-100 dark:bg-white/10 text-zinc-700 dark:text-zinc-300 flex items-center justify-center text-xs flex-shrink-0">
+                      <div className="h-8 w-8 rounded-full bg-border text-ink-muted flex items-center justify-center text-xs flex-shrink-0">
                         {getTransactionEmoji(t.descripcion)}
                       </div>
                       <div className="min-w-0">
-                        <h5 className="text-[11px] font-bold text-zinc-800 dark:text-white leading-tight truncate">{t.descripcion}</h5>
-                        <p className="text-[9px] text-zinc-400 truncate">{t.bancoNombre}</p>
+                        <h5 className="text-[11px] font-bold text-ink leading-tight truncate">{t.descripcion}</h5>
+                        <p className="text-[9px] text-ink-muted truncate">{t.bancoNombre}</p>
                       </div>
                     </div>
-                    <span className="text-xs font-bold text-red-500 font-mono flex-shrink-0">-${t.monto.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                    <span className="text-xs font-bold text-danger font-mono flex-shrink-0">-${t.monto.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                   </div>
                 ))}
                 {transactions?.filter(t => t.tipo === 'retiro').length === 0 && (
-                  <p className="text-center text-[10px] text-zinc-400 py-4 col-span-3">Sin egresos recientes.</p>
+                  <p className="text-center text-[10px] text-ink-muted py-4 col-span-3">Sin egresos recientes.</p>
                 )}
               </div>
             </Card>

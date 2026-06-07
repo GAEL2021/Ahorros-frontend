@@ -33,8 +33,9 @@ export function MultiRingProgress({ data, centerLabel, centerValue }: MultiRingP
                   cy={center}
                   r={radius}
                   fill="none"
-                  stroke="rgba(255, 255, 255, 0.04)"
+                  stroke="var(--border)"
                   strokeWidth={strokeWidth}
+                  className="opacity-40"
                 />
                 {/* Active progress ring */}
                 <circle
@@ -56,20 +57,20 @@ export function MultiRingProgress({ data, centerLabel, centerValue }: MultiRingP
 
         {/* Center label */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className="text-[10px] text-zinc-400 uppercase tracking-widest leading-none">{centerLabel}</span>
-          <span className="text-base font-extrabold font-mono text-white mt-1">{centerValue}</span>
+          <span className="text-[10px] text-ink-muted uppercase tracking-widest leading-none">{centerLabel}</span>
+          <span className="text-base font-extrabold font-mono text-ink mt-1">{centerValue}</span>
         </div>
       </div>
 
       {/* Legend list */}
-      <div className="flex-1 space-y-2.5 text-xs text-zinc-400 font-bold min-w-[120px] w-full">
+      <div className="flex-1 space-y-2.5 text-xs text-ink-muted font-bold min-w-[120px] w-full">
         {data.map((ring) => (
-          <div key={ring.name} className="flex items-center gap-2 justify-between border-b border-white/5 pb-1">
-            <div className="flex items-center gap-1.5 text-white">
+          <div key={ring.name} className="flex items-center gap-2 justify-between border-b border-border pb-1">
+            <div className="flex items-center gap-1.5 text-ink">
               <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: ring.color }} />
               <span className="truncate max-w-[80px]">{ring.name}</span>
             </div>
-            <span className="font-mono">{ring.percentage}%</span>
+            <span className="font-mono text-ink">{ring.percentage}%</span>
           </div>
         ))}
       </div>
