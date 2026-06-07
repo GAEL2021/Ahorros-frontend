@@ -149,7 +149,7 @@ export default function DashboardPage() {
           {/* COLUMNA 1: Welcome & Radial Progress */}
           <div className="space-y-6">
             {/* Welcome Splash Card */}
-            <Card variant="dark" className="relative overflow-hidden flex flex-col justify-between min-h-[280px]">
+            <Card variant="dark" delay={0.1} className="relative overflow-hidden flex flex-col justify-between min-h-[280px]">
               <div className="absolute top-2 right-2 text-xl animate-pulse">✨</div>
               <div className="absolute bottom-4 left-2 text-xl animate-pulse delay-100">💰</div>
 
@@ -188,7 +188,7 @@ export default function DashboardPage() {
             </Card>
 
             {/* SVG Concentric Progress Gauge */}
-            <Card variant="dark" className="space-y-4">
+            <Card variant="dark" delay={0.2} className="space-y-4">
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <h3 className="text-sm font-bold text-ink">Salud Financiera</h3>
                 <span className="text-[10px] text-ink-muted font-bold uppercase tracking-wider">Metas Activas</span>
@@ -204,7 +204,7 @@ export default function DashboardPage() {
           {/* COLUMNA 2: Bento Grid Financials */}
           <div className="space-y-6 lg:col-span-2">
             <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
-              <Card variant="light" className="space-y-4 flex flex-col justify-between">
+              <Card variant="light" delay={0.3} className="space-y-4 flex flex-col justify-between">
                 <div>
                   <span className="text-[10px] font-bold text-ink-muted uppercase tracking-wider block">Balance General</span>
                   <h1 className="text-4xl font-extrabold text-ink mt-1 font-mono tracking-tight">
@@ -230,7 +230,7 @@ export default function DashboardPage() {
               </Card>
 
               {/* Activity Feed (Now Dynamic from Backend) */}
-              <Card variant="light" className="space-y-4">
+              <Card variant="light" delay={0.4} className="space-y-4">
                 <div className="flex items-center justify-between border-b border-border pb-2">
                   <h4 className="text-xs font-extrabold text-ink-secondary uppercase tracking-wider">Actividad de Ahorro</h4>
                   <span className="text-[9px] bg-green-500/15 px-2.5 py-0.5 rounded-full font-bold text-green-600 dark:text-green-400">En Vivo</span>
@@ -283,7 +283,7 @@ export default function DashboardPage() {
               )}
 
               {/* Purple card */}
-              <Card variant="purple" className="flex flex-col justify-between min-h-[140px] border-none">
+              <Card variant="purple" delay={0.5} className="flex flex-col justify-between min-h-[140px] border-none">
                 <span className="text-[10px] font-bold uppercase tracking-wider opacity-85 truncate">
                   {firstGoal ? firstGoal.nombre : 'Sin Metas'}
                 </span>
@@ -301,7 +301,7 @@ export default function DashboardPage() {
               </Card>
 
               {/* Cyan Card */}
-              <Card variant="cyan" className="flex flex-col justify-between min-h-[140px] border-none">
+              <Card variant="cyan" delay={0.6} className="flex flex-col justify-between min-h-[140px] border-none">
                 <span className="text-[10px] font-bold uppercase tracking-wider opacity-85 truncate text-black">
                   {secondGoal ? secondGoal.nombre : (carteras?.[0]?.nombre || 'Carteras')}
                 </span>
@@ -321,7 +321,7 @@ export default function DashboardPage() {
               </Card>
 
               {/* Budget Progress Card */}
-              <Card variant="light" className="flex flex-col justify-between min-h-[140px]">
+              <Card variant="light" delay={0.7} className="flex flex-col justify-between min-h-[140px]">
                 <div>
                   <span className="text-[10px] font-bold text-ink-muted uppercase tracking-wider block">Avance de Objetivo</span>
                   <span className="text-xl font-bold text-ink mt-1 block">
@@ -340,7 +340,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Recent Transactions List */}
-            <Card variant="light" className="space-y-4">
+            <Card variant="light" delay={0.8} className="space-y-4">
               <div className="flex items-center justify-between border-b border-border pb-2">
                 <h4 className="text-xs font-extrabold text-ink-secondary uppercase tracking-wider">Egresos Recientes</h4>
                 <span onClick={() => navigate('/carteras')} className="text-[10px] text-ink-muted font-bold hover:underline cursor-pointer">Ver Todos</span>

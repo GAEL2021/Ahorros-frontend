@@ -135,7 +135,7 @@ export default function AppLayout() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (user && !loading && window.location.pathname !== '/') {
+    if (user && !loading) {
       navigate('/', { replace: true })
     }
   }, [user, loading, navigate])
@@ -145,8 +145,8 @@ export default function AppLayout() {
 
   const esAdmin = adminData?.esAdmin ?? false
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-      isActive ? 'bg-primary/10 text-primary' : 'text-ink-muted hover:text-ink hover:bg-surface'
+    `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 active:scale-[0.98] hover:translate-x-1 ${
+      isActive ? 'bg-primary/10 text-primary font-semibold' : 'text-ink-muted hover:text-ink hover:bg-surface'
     }`
 
   return (
@@ -173,10 +173,10 @@ export default function AppLayout() {
           <div className="flex items-center gap-3">
             {user.photoURL ? <img src={user.photoURL} alt="" className="h-8 w-8 rounded-full object-cover ring-2 ring-border" /> : <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary">{(user.displayName ?? 'U').charAt(0).toUpperCase()}</div>}
             <div className="flex-1 min-w-0"><p className="text-xs font-medium text-ink truncate">{user.displayName}</p><p className="text-[10px] text-ink-muted truncate">{user.email}</p></div>
-            <button type="button" onClick={toggleTheme} className="rounded-lg p-1 text-ink-muted hover:bg-surface hover:text-ink transition-colors" title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}>
+            <button type="button" onClick={toggleTheme} className="rounded-lg p-1.5 text-ink-muted hover:bg-surface hover:text-ink transition-all duration-200 hover:scale-110 active:scale-90" title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}>
               {theme === 'dark' ? <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg> : <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>}
             </button>
-            <button type="button" onClick={logout} className="rounded-lg p-1 text-ink-muted hover:bg-surface hover:text-ink transition-colors" title="Cerrar sesión">
+            <button type="button" onClick={logout} className="rounded-lg p-1.5 text-ink-muted hover:bg-surface hover:text-ink transition-all duration-200 hover:scale-110 active:scale-90" title="Cerrar sesión">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
             </button>
           </div>

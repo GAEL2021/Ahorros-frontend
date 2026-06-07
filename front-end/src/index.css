@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
 @import "./lib/sileo.css";
 
 /* ── Light theme (default) ── */
@@ -26,6 +27,9 @@
   --danger-subtle: #FEE2E2;
   --glass-bg: rgba(255, 255, 255, 0.8);
   --glass-border: rgba(0, 0, 0, 0.05);
+  --shadow-premium: 0 10px 30px -10px rgba(139, 92, 246, 0.12), 0 1px 3px rgba(0, 0, 0, 0.02);
+  --shadow-premium-hover: 0 20px 40px -12px rgba(139, 92, 246, 0.22), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 /* ── Dark theme ── */
@@ -52,6 +56,8 @@
   --danger-subtle: #300c0c;
   --glass-bg: rgba(22, 25, 32, 0.75);
   --glass-border: rgba(255, 255, 255, 0.05);
+  --shadow-premium: 0 12px 35px -10px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(255, 255, 255, 0.02);
+  --shadow-premium-hover: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(139, 92, 246, 0.15);
 }
 
 @theme {
@@ -332,23 +338,24 @@ input::-webkit-inner-spin-button {
   border-radius: 2rem !important;
   font-family: 'Comfortaa', sans-serif;
   border: 1px solid var(--border);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  transition: var(--transition-smooth);
+  box-shadow: var(--shadow-premium);
+  background-color: var(--bg-surface);
 }
 
 .dark .savesmart-card {
   border: 1px solid var(--border-light);
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-premium);
   background-color: var(--bg-surface);
 }
 
 .savesmart-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+  transform: translateY(-4px) scale(1.005);
+  box-shadow: var(--shadow-premium-hover);
 }
 
 .dark .savesmart-card:hover {
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-premium-hover);
 }
 
 /* Unify progress bars */
