@@ -50,7 +50,7 @@ export default function ShareCodeModal({
   if (!open) return null
 
   const shareText = encodeURIComponent(
-    `¡Únete a mi meta de ahorro "${metaNombre}" en Ahorros Colaborativos! Usa el código: ${codigo}`
+    `¡Únete a mi meta "${metaNombre}" en Gestión de Presupuestos! Usa el código: ${codigo}`
   )
 
   const whatsappUrl = `https://wa.me/?text=${shareText}`

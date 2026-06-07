@@ -131,7 +131,7 @@ export default function DashboardPage() {
     <main className="flex-1 px-4 py-8 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full font-sans">
       {/* Header section */}
       <div className="mb-8 animate-fade-in">
-        <h1 className="text-3xl font-extrabold text-ink tracking-tight">Ahorros Colaborativos</h1>
+        <h1 className="text-3xl font-extrabold text-ink tracking-tight">Gestión de Presupuestos</h1>
         <p className="mt-1 text-sm text-ink-muted">Tu panel interactivo con visualización concéntrica y microinteracciones</p>
       </div>
 
@@ -164,7 +164,7 @@ export default function DashboardPage() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-xl font-extrabold text-white tracking-tight">Ahorros Colaborativos</h2>
+                  <h2 className="text-xl font-extrabold text-white tracking-tight">Gestión de Presupuestos</h2>
                   <p className="text-[10px] text-zinc-400">Tu panel financiero inteligente</p>
                 </div>
               </div>
