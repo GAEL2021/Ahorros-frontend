@@ -43,7 +43,7 @@ function BancoFormModal({ open, onClose, initial }: { open: boolean; onClose: ()
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in" onClick={handleClose}>
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[var(--bg-sidebar)] shadow-2xl animate-scale-in overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-md rounded-2xl border border-border bg-surface shadow-2xl animate-scale-in overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-white/5 px-6 py-4">
           <h2 className="text-base font-extrabold text-zinc-950 dark:text-white tracking-tight">{isEdit ? 'Editar banco' : 'Agregar banco'}</h2>
           <button type="button" onClick={handleClose} className="rounded-xl p-2 text-zinc-400 hover:bg-white/5 hover:text-zinc-200 transition-colors">

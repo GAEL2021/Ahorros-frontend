@@ -8,6 +8,7 @@ import { useRetirarBanco } from '@/hooks/useRetirarBanco'
 import { useJoinBanco } from '@/hooks/useJoinBanco'
 import { useBancosDisponibles } from '@/hooks/useBancosDisponibles'
 import { sileo } from '@/lib/sileo'
+import SearchableSelect from '@/components/ui/SearchableSelect'
 import { FilterBar } from '@/components/FilterBar'
 import type { Cartera } from '@/types'
 
@@ -95,12 +96,7 @@ function CreateCarteraModal({ open, onClose }: { open: boolean; onClose: () => v
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Banco</label>
-            <select value={catalogoBancoId} onChange={(e) => setCatalogoBancoId(e.target.value)} required className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
-              <option value="" disabled>Seleccionar banco</option>
-              {bancosDisponibles?.map((c) => (
-                <option key={c.id} value={c.id}>{c.nombre}</option>
-              ))}
-            </select>
+            <SearchableSelect options={(bancosDisponibles ?? []).map((c) => ({ value: c.id, label: c.nombre }))} value={catalogoBancoId} onChange={setCatalogoBancoId} placeholder="Seleccionar banco" required />
           </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Tipo de cuenta</label>
@@ -646,7 +642,7 @@ function CarteraMovimientosDrawer({ open, onClose, cartera }: { open: boolean; o
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true">
       <div className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity duration-300 animate-fade-in" onClick={onClose} />
-      <div className="relative z-50 flex h-full w-full flex-col border-l border-border bg-[var(--bg-sidebar)] shadow-2xl transition-transform duration-300 ease-in-out sm:w-[420px] animate-slide-in-right">
+      <div className="relative z-50 flex h-full w-full flex-col border-l border-border bg-surface shadow-2xl transition-transform duration-300 ease-in-out sm:w-[420px] animate-slide-in-right">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-5 py-4 flex-shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">

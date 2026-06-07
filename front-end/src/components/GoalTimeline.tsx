@@ -107,12 +107,11 @@ function ProgressRing({
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="text-xl sm:text-2xl font-black tabular-nums text-zinc-950 dark:text-white leading-none tracking-tight" 
-          style={{ fontFamily: "'Outfit', sans-serif" }}
+          className="text-xl sm:text-2xl font-black tabular-nums text-ink leading-none tracking-tight"
         >
           ${montoAcumulado.toLocaleString()}
         </motion.span>
-        <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Ahorrado Total</span>
+        <span className="text-[9px] font-bold text-ink-muted uppercase tracking-widest mt-1">Ahorrado Total</span>
         <div className="mt-2.5 rounded-full bg-[#10B981]/10 border border-[#10B981]/25 px-2.5 py-0.5 text-[8px] font-extrabold text-[#10B981] dark:text-[#6EE7B7] tabular-nums tracking-wide shadow-sm shadow-[#10B981]/5">
           {pct}% de Meta
         </div>
@@ -252,10 +251,10 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
   return (
     <div className="space-y-6">
       {/* Header Info */}
-      <div className="flex items-center justify-between border-b border-zinc-200/50 dark:border-white/5 pb-4">
+      <div className="flex items-center justify-between border-b border-border pb-4">
         <div>
-          <h3 className="text-base font-extrabold text-zinc-950 dark:text-white tracking-tight">{meta.nombre}</h3>
-          <p className="text-xs text-zinc-400 mt-0.5 font-medium">Progreso y Análisis de Meta</p>
+          <h3 className="text-base font-extrabold text-ink tracking-tight">{meta.nombre}</h3>
+          <p className="text-xs text-ink-muted mt-0.5 font-medium">Progreso y Análisis de Meta</p>
         </div>
         <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-extrabold tracking-wide uppercase ${paceConfig.badge}`}>
           <span className={`h-1.5 w-1.5 rounded-full ${paceConfig.dot}`} />
@@ -269,57 +268,57 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
         
         <div className="flex-1 w-full space-y-4">
           <div className="flex items-baseline justify-center sm:justify-start gap-1.5 text-center sm:text-left">
-            <span className="text-xs font-semibold text-zinc-400 font-mono">
+            <span className="text-xs font-semibold text-ink-muted">
               Ahorro
             </span>
-            <span className="text-3xl font-black tabular-nums text-zinc-950 dark:text-white font-mono tracking-tight">
+            <span className="text-3xl font-black tabular-nums text-ink tracking-tight">
               ${meta.montoAcumulado.toLocaleString()}
             </span>
-            <span className="text-xs font-semibold text-zinc-400 font-mono">
+            <span className="text-xs font-semibold text-ink-muted">
               de ${meta.montoObjetivo.toLocaleString()}
             </span>
           </div>
 
           {/* Premium Glass-Style Bento Rows */}
           <div className="space-y-2 pt-1">
-            {/* Ahorrado Total - Siempre verde */}
-            <div className="flex items-center justify-between rounded-2xl border border-zinc-200/50 dark:border-white/5 bg-zinc-50/50 dark:bg-white/5 px-4 py-3 hover:translate-x-1 transition-all duration-300">
+            {/* Ahorrado Total */}
+            <div className="flex items-center justify-between rounded-2xl border border-border bg-surface/50 px-4 py-3 hover:translate-x-1 transition-all duration-300">
               <div className="flex items-center gap-3">
                 <span className="h-3 w-3 rounded-full bg-[#10B981] shadow-[0_0_8px_#10B981]" />
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Ahorrado Total</span>
-                  <span className="text-[9px] text-zinc-400">Total abonado a la meta</span>
+                  <span className="text-xs font-bold text-ink-secondary">Ahorrado Total</span>
+                  <span className="text-[9px] text-ink-muted">Total abonado a la meta</span>
                 </div>
               </div>
-              <span className="rounded-xl bg-[#10B981]/10 px-3 py-1 text-xs font-black text-[#10B981] dark:text-[#6EE7B7] font-mono border border-[#10B981]/25">
+              <span className="rounded-xl bg-[#10B981]/10 px-3 py-1 text-xs font-black text-[#10B981] dark:text-[#6EE7B7] border border-[#10B981]/25">
                 ${meta.montoAcumulado.toLocaleString()}
               </span>
             </div>
 
             {/* Gastado (Checklist) */}
-            <div className="flex items-center justify-between rounded-2xl border border-zinc-200/50 dark:border-white/5 bg-zinc-50/50 dark:bg-white/5 px-4 py-3 hover:translate-x-1 transition-all duration-300">
+            <div className="flex items-center justify-between rounded-2xl border border-border bg-surface/50 px-4 py-3 hover:translate-x-1 transition-all duration-300">
               <div className="flex items-center gap-3">
                 <span className="h-3 w-3 rounded-full bg-[#EC4899] shadow-[0_0_8px_#EC4899]" />
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Gastado (Checklist)</span>
-                  <span className="text-[9px] text-zinc-400">Total en compras finalizadas</span>
+                  <span className="text-xs font-bold text-ink-secondary">Gastado (Checklist)</span>
+                  <span className="text-[9px] text-ink-muted">Total en compras finalizadas</span>
                 </div>
               </div>
-              <span className="rounded-xl bg-[#EC4899]/10 px-3 py-1 text-xs font-black text-[#EC4899] font-mono border border-[#EC4899]/15">
+              <span className="rounded-xl bg-[#EC4899]/10 px-3 py-1 text-xs font-black text-[#EC4899] border border-[#EC4899]/15">
                 ${totalReal.toLocaleString()}
               </span>
             </div>
 
-            {/* Disponible - Amarillo */}
-            <div className="flex items-center justify-between rounded-2xl border border-zinc-200/50 dark:border-white/5 bg-zinc-50/50 dark:bg-white/5 px-4 py-3 hover:translate-x-1 transition-all duration-300">
+            {/* Disponible */}
+            <div className="flex items-center justify-between rounded-2xl border border-border bg-surface/50 px-4 py-3 hover:translate-x-1 transition-all duration-300">
               <div className="flex items-center gap-3">
                 <span className="h-3 w-3 rounded-full bg-[#FFC700] shadow-[0_0_8px_#FFC700]" />
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Disponible</span>
-                  <span className="text-[9px] text-zinc-400">Saldo disponible después de gastos</span>
+                  <span className="text-xs font-bold text-ink-secondary">Disponible</span>
+                  <span className="text-[9px] text-ink-muted">Saldo disponible después de gastos</span>
                 </div>
               </div>
-              <span className="rounded-xl bg-[#FFC700]/10 px-3 py-1 text-xs font-black text-[#B8860B] dark:text-[#FFC700] font-mono border border-[#FFC700]/25">
+              <span className="rounded-xl bg-[#FFC700]/10 px-3 py-1 text-xs font-black text-[#B8860B] dark:text-[#FFC700] border border-[#FFC700]/25">
                 ${sobranteFinal.toLocaleString()}
               </span>
             </div>
@@ -328,28 +327,28 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
       </div>
 
       {/* Ruedas explicadas */}
-      <div className="rounded-2xl border border-zinc-200/50 dark:border-white/5 bg-zinc-50/50 dark:bg-[#161920]/40 p-4 space-y-2.5">
-        <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400 block">Explicación de los 3 Anillos</span>
+      <div className="rounded-2xl border border-border bg-surface/50 p-4 space-y-2.5">
+        <span className="text-[10px] font-black uppercase tracking-wider text-ink-muted block">Explicación de los 3 Anillos</span>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
           <div className="flex items-start gap-2.5">
             <span className="h-4 w-4 rounded-full bg-gradient-to-r from-[#10B981] to-[#34D399] flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-extrabold text-zinc-800 dark:text-white">Anillo 1 · Ahorrado Total (Verde)</p>
-              <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">Muestra el progreso de tus abonos hacia la meta. Representa el porcentaje acumulado (`${meta.montoAcumulado.toLocaleString()}`) sobre el objetivo total (`${meta.montoObjetivo.toLocaleString()}`).</p>
+              <p className="font-extrabold text-ink">Anillo 1 · Ahorrado Total (Verde)</p>
+              <p className="text-[11px] text-ink-muted mt-0.5 leading-relaxed">Muestra el progreso de tus abonos hacia la meta. Representa el porcentaje acumulado (`${meta.montoAcumulado.toLocaleString()}`) sobre el objetivo total (`${meta.montoObjetivo.toLocaleString()}`).</p>
             </div>
           </div>
           <div className="flex items-start gap-2.5">
             <span className="h-4 w-4 rounded-full bg-gradient-to-r from-[#EC4899] to-[#FF9F43] flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-extrabold text-zinc-800 dark:text-white">Anillo 2 · Gastado (Rosa)</p>
-              <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">Muestra qué porción del total abonado se ha consumido en compras del checklist (`${totalReal.toLocaleString()}`).</p>
+              <p className="font-extrabold text-ink">Anillo 2 · Gastado (Rosa)</p>
+              <p className="text-[11px] text-ink-muted mt-0.5 leading-relaxed">Muestra qué porción del total abonado se ha consumido en compras del checklist (`${totalReal.toLocaleString()}`).</p>
             </div>
           </div>
           <div className="flex items-start gap-2.5">
             <span className="h-4 w-4 rounded-full bg-gradient-to-r from-[#FFC700] to-[#FBBF24] flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-extrabold text-zinc-800 dark:text-white">Anillo 3 · Disponible (Amarillo)</p>
-              <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">Representa el saldo disponible después de gastos. Es lo que queda (`${sobranteFinal.toLocaleString()}`) = ahorrado total − gastado.</p>
+              <p className="font-extrabold text-ink">Anillo 3 · Disponible (Amarillo)</p>
+              <p className="text-[11px] text-ink-muted mt-0.5 leading-relaxed">Representa el saldo disponible después de gastos. Es lo que queda (`${sobranteFinal.toLocaleString()}`) = ahorrado total − gastado.</p>
             </div>
           </div>
         </div>
@@ -363,9 +362,9 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
               <span className="text-lg">⚠️</span>
               <div>
                 <p className="font-extrabold uppercase tracking-wide">Alerta de Sobregiro en Compras</p>
-                <p className="mt-1 leading-relaxed text-zinc-600 dark:text-zinc-300">
-                  Se ha gastado **${sobregiroChecklist.toLocaleString()}** más de lo estimado en las tareas cerradas. 
-                  (Estimado original: `${totalEstCompletados.toLocaleString()}` · Costo Real: `${totalRealCompletados.toLocaleString()}`).
+                <p className="mt-1 leading-relaxed text-ink-secondary">
+                  Se ha gastado <strong>${sobregiroChecklist.toLocaleString()}</strong> más de lo estimado en las tareas cerradas. 
+                  (Estimado original: <strong>${totalEstCompletados.toLocaleString()}</strong> · Costo Real: <strong>${totalRealCompletados.toLocaleString()}</strong>).
                 </p>
               </div>
             </div>
@@ -376,8 +375,8 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
               <span className="text-lg">🚨</span>
               <div>
                 <p className="font-extrabold uppercase tracking-wide">Fondo en Déficit</p>
-                <p className="mt-1 leading-relaxed text-zinc-600 dark:text-zinc-300">
-                  ¡Atención! El dinero gastado de tu checklist (**${totalReal.toLocaleString()}**) supera la cantidad total ahorrada (**${meta.montoAcumulado.toLocaleString()}**) por un déficit de **${deficitFondos.toLocaleString()}**. 
+                <p className="mt-1 leading-relaxed text-ink-secondary">
+                  ¡Atención! El dinero gastado de tu checklist (<strong>${totalReal.toLocaleString()}</strong>) supera la cantidad total ahorrada (<strong>${meta.montoAcumulado.toLocaleString()}</strong>) por un déficit de <strong>${deficitFondos.toLocaleString()}</strong>. 
                   Debes agregar aportes a tu meta para cubrir esta diferencia.
                 </p>
               </div>
@@ -387,9 +386,9 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
       )}
 
       {/* Crecimiento vs Consumo Line Chart */}
-      <div className="rounded-3xl bg-zinc-50 dark:bg-[#161920] border border-zinc-200/60 dark:border-white/5 p-5 space-y-4 shadow-sm">
+      <div className="rounded-3xl bg-surface border border-border p-5 space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Crecimiento vs Consumo</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-ink-muted">Crecimiento vs Consumo</span>
           <div className="flex items-center gap-3.5 text-[9px] font-extrabold tracking-wider">
             <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#10B981]" /> AHORRADO</span>
             <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#FFC700]" /> DISPONIBLE</span>
@@ -397,9 +396,9 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
         </div>
 
         {chartPoints.length < 2 ? (
-          <div className="h-[130px] flex flex-col items-center justify-center border-2 border-dashed border-zinc-200 dark:border-white/5 rounded-2xl">
+          <div className="h-[130px] flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl">
             <span className="text-xl">📈</span>
-            <p className="text-[10px] font-bold text-zinc-400 mt-2 uppercase tracking-wide">Esperando datos de aportes...</p>
+            <p className="text-[10px] font-bold text-ink-muted mt-2 uppercase tracking-wide">Esperando datos de aportes...</p>
           </div>
         ) : (
           <div className="relative">
@@ -472,12 +471,12 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
               <motion.div
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="absolute bg-zinc-950/95 dark:bg-black/95 text-[11px] text-white font-extrabold px-3 py-2 rounded-xl shadow-xl border border-white/10 pointer-events-none space-y-1 z-10"
+                className="absolute bg-surface-raised text-ink text-[11px] font-extrabold px-3 py-2 rounded-xl shadow-xl border border-border pointer-events-none space-y-1 z-10"
                 style={{ left: `${(hoveredPoint.x / 500) * 100}%`, top: `${(hoveredPoint.y / 150) * 100}%`, transform: 'translate(-50%, -100%)' }}
               >
-                <div className="text-zinc-400 font-bold border-b border-white/5 pb-1 text-[10px] uppercase tracking-wider">{hoveredPoint.label}</div>
-                <div className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#10B981]" /> Ahorrado: <span className="font-mono text-zinc-100">${hoveredPoint.ahorrado.toLocaleString()}</span></div>
-                <div className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#FFC700]" /> Disponible: <span className="font-mono text-zinc-100">${hoveredPoint.disponible.toLocaleString()}</span></div>
+                <div className="text-ink-muted font-bold border-b border-border pb-1 text-[10px] uppercase tracking-wider">{hoveredPoint.label}</div>
+                <div className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#10B981]" /> Ahorrado: <span className="text-ink">${hoveredPoint.ahorrado.toLocaleString()}</span></div>
+                <div className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#FFC700]" /> Disponible: <span className="text-ink">${hoveredPoint.disponible.toLocaleString()}</span></div>
               </motion.div>
             )}
           </div>
@@ -486,8 +485,8 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
 
       {/* Costo Estimado vs Real Double Bars */}
       {checklist.length > 0 && (
-        <div className="rounded-3xl bg-zinc-50 dark:bg-[#161920] border border-zinc-200/60 dark:border-white/5 p-5 space-y-4 shadow-sm">
-          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Costo Estimado vs Real</span>
+        <div className="rounded-3xl bg-surface border border-border p-5 space-y-4">
+          <span className="text-[10px] font-black uppercase tracking-widest text-ink-muted">Costo Estimado vs Real</span>
           
           <div className="space-y-4.5">
             {checklist.slice(0, 4).map((item) => {
@@ -500,25 +499,24 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
 
               return (
                 <div key={item.id} className="space-y-1.5 group select-none">
-                  <div className="flex justify-between text-xs font-extrabold text-zinc-800 dark:text-zinc-100 truncate">
+                  <div className="flex justify-between text-xs font-extrabold text-ink truncate">
                     <span>{item.texto}</span>
-                    <span className="text-[10px] text-zinc-400 font-bold font-mono">
+                    <span className="text-[10px] text-ink-muted">
                       Est: ${est.toLocaleString()} {isCompleted && real > 0 && `· Real: $${real.toLocaleString()}`}
                     </span>
                   </div>
                   
-                  {/* Glassmorphic progress track */}
-                  <div className="space-y-2 bg-white/60 dark:bg-[#11141B]/40 p-3 rounded-2xl border border-zinc-200/50 dark:border-white/5">
+                  <div className="space-y-2 bg-surface/50 p-3 rounded-2xl border border-border">
                     <div className="flex items-center gap-3">
-                      <span className="text-[9px] font-black w-7 text-zinc-400 tracking-wider">EST.</span>
-                      <div className="flex-1 h-2.5 rounded-full bg-zinc-200 dark:bg-zinc-850 overflow-hidden relative">
+                      <span className="text-[9px] font-black w-7 text-ink-muted tracking-wider">EST.</span>
+                      <div className="flex-1 h-2.5 rounded-full bg-border overflow-hidden relative">
                         <div className="h-full bg-gradient-to-r from-[#6336FF] to-[#00D1FF] rounded-full" style={{ width: `${estPct}%` }} />
                       </div>
                     </div>
                     {isCompleted && real > 0 && (
                       <div className="flex items-center gap-3">
-                        <span className="text-[9px] font-black w-7 text-zinc-400 tracking-wider">REAL</span>
-                        <div className="flex-1 h-2.5 rounded-full bg-zinc-200 dark:bg-zinc-850 overflow-hidden relative">
+                        <span className="text-[9px] font-black w-7 text-ink-muted tracking-wider">REAL</span>
+                        <div className="flex-1 h-2.5 rounded-full bg-border overflow-hidden relative">
                           <div className={`h-full rounded-full bg-gradient-to-r ${real > est ? 'from-red-500 to-[#EC4899]' : 'from-[#10B981] to-[#00D1FF]'}`} style={{ width: `${realPct}%` }} />
                         </div>
                       </div>
@@ -528,7 +526,7 @@ export default function GoalTimeline({ meta }: GoalTimelineProps) {
               )
             })}
             {checklist.length > 4 && (
-              <p className="text-[10px] font-bold text-zinc-400 text-center uppercase tracking-wider">Mostrando los primeros 4 elementos.</p>
+              <p className="text-[10px] font-bold text-ink-muted text-center uppercase tracking-wider">Mostrando los primeros 4 elementos.</p>
             )}
           </div>
         </div>

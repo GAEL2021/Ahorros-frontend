@@ -24,6 +24,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.message
         : 'Error interno del servidor';
 
+    if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
+      console.error('ERROR 500:', exception instanceof Error ? exception.stack || exception.message : exception);
+    }
+
     response.status(status).json({
       statusCode: status,
       message,

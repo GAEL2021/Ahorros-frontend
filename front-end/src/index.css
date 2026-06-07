@@ -1,25 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "./lib/sileo.css";
 
 /* ── Light theme (default) ── */
 :root {
-  --bg: #f5f5f7;
+  --bg: #F8F6FB;
   --bg-surface: #ffffff;
   --bg-raised: #ffffff;
-  --bg-sidebar: #faf8f5;
+  --bg-sidebar: #FAF8FC;
   --bg-input: #ffffff;
-  --border: #e5e5ea;
-  --border-light: #f2f2f7;
-  --border-emphasis: #c7c7cc;
-  --text: #11141b;
-  --text-secondary: #48484a;
-  --text-muted: #8e8e93;
-  --gold: #FFC700;
-  --gold-light: #FFD215;
-  --gold-subtle: #fffdeb;
-  --copper: #6336FF;
-  --copper-subtle: #f0edff;
+  --border: #E8E0F0;
+  --border-light: #F2EEF7;
+  --border-emphasis: #C8B8D8;
+  --text: #1A1423;
+  --text-secondary: #4A3F5C;
+  --text-muted: #8A7E9E;
+  --lilac: #8B5CF6;
+  --lilac-light: #A78BFA;
+  --lilac-subtle: #EDE9FE;
+  --purple: #6D28D9;
+  --purple-subtle: #F5F3FF;
   --success: #10B981;
   --success-subtle: #e6f7f0;
   --danger: #ff453a;
@@ -41,11 +41,11 @@
   --text: #ffffff;
   --text-secondary: #a0a5b5;
   --text-muted: #6b7080;
-  --gold: #FFC700;
-  --gold-light: #FFD215;
-  --gold-subtle: #242008;
-  --copper: #7043F6;
-  --copper-subtle: #1c1533;
+  --lilac: #A78BFA;
+  --lilac-light: #C4B5FD;
+  --lilac-subtle: #1E1B4B;
+  --purple: #8B5CF6;
+  --purple-subtle: #1c1533;
   --success: #10B981;
   --success-subtle: #0d281a;
   --danger: #ef4444;
@@ -62,20 +62,20 @@
   --color-surface-raised: var(--bg-raised);
   --color-border: var(--border);
   --color-border-light: var(--border-light);
-  --color-primary: var(--gold);
-  --color-primary-light: var(--gold-light);
-  --color-primary-subtle: var(--gold-subtle);
-  --color-primary-dark: var(--gold);
-  --color-accent: var(--copper);
-  --color-accent-light: #c9885a;
-  --color-accent-subtle: var(--copper-subtle);
+  --color-primary: var(--lilac);
+  --color-primary-light: var(--lilac-light);
+  --color-primary-subtle: var(--lilac-subtle);
+  --color-primary-dark: var(--purple);
+  --color-accent: var(--purple);
+  --color-accent-light: var(--lilac-light);
+  --color-accent-subtle: var(--purple-subtle);
   --color-success: var(--success);
   --color-success-subtle: var(--success-subtle);
   --color-warning: #e67e22;
   --color-warning-subtle: #2a2014;
   --color-danger: var(--danger);
   --color-danger-subtle: var(--danger-subtle);
-  --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Comfortaa', ui-sans-serif, system-ui, sans-serif;
   --font-serif: 'Lora', ui-serif, Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
   --animate-fade-in: fade-in 0.5s ease-out;
@@ -154,7 +154,7 @@
 body {
   background-color: var(--bg);
   color: var(--text);
-  font-family: 'Questrial', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Comfortaa', ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -162,14 +162,14 @@ body {
 .dark { color-scheme: dark; }
 :root body {
   background-image:
-    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(160, 120, 10, 0.04), transparent),
-    radial-gradient(ellipse 30% 25% at 80% 90%, rgba(160, 90, 36, 0.03), transparent);
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(139, 92, 246, 0.04), transparent),
+    radial-gradient(ellipse 30% 25% at 80% 90%, rgba(109, 40, 217, 0.03), transparent);
   background-attachment: fixed;
 }
 .dark body {
   background-image:
-    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(201, 168, 76, 0.04), transparent),
-    radial-gradient(ellipse 40% 30% at 80% 100%, rgba(184, 115, 51, 0.03), transparent);
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(167, 139, 250, 0.04), transparent),
+    radial-gradient(ellipse 40% 30% at 80% 100%, rgba(109, 40, 217, 0.03), transparent);
   background-attachment: fixed;
 }
 
@@ -197,7 +197,7 @@ body {
 }
 
 .text-shimmer {
-  background: linear-gradient(90deg, #b8940c 0%, #e8c547 50%, #b8940c 100%);
+  background: linear-gradient(90deg, #7C3AED 0%, #A78BFA 50%, #7C3AED 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -205,7 +205,7 @@ body {
   animation: shine 3s ease-in-out infinite;
 }
 .dark .text-shimmer {
-  background: linear-gradient(90deg, #c9a84c 0%, #f0d78c 50%, #c9a84c 100%);
+  background: linear-gradient(90deg, #8B5CF6 0%, #C4B5FD 50%, #8B5CF6 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -219,8 +219,8 @@ body {
 }
 
 .progress-gold {
-  background: linear-gradient(90deg, #b8940c, #c9a84c, #d4b86a);
-  box-shadow: 0 0 10px rgba(201, 168, 76, 0.3);
+  background: linear-gradient(90deg, #7C3AED, #8B5CF6, #A78BFA);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
 }
 
 .stagger > * { opacity: 0; }
@@ -242,7 +242,7 @@ body {
   transform: translateY(-2px);
 }
 .dark .card-hover:hover {
-  box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 0 1px rgba(201, 168, 76, 0.15);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 0 1px rgba(139, 92, 246, 0.15);
 }
 .card-hover:hover {
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -264,7 +264,7 @@ textarea {
   border-radius: 0.75rem;
   padding: 0.625rem 0.875rem;
   font-size: 16px;
-  font-family: 'Questrial', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Comfortaa', ui-sans-serif, system-ui, sans-serif;
   transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
   width: 100%;
@@ -276,8 +276,8 @@ textarea {
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+  border-color: var(--lilac);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
 }
 input::placeholder,
 textarea::placeholder,
@@ -308,7 +308,7 @@ select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%235c5f65' stroke-width='2'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
 }
 input[type="range"] {
-  accent-color: var(--gold);
+  accent-color: var(--lilac);
   height: 6px;
   padding: 0;
   border: none;
@@ -330,7 +330,7 @@ input::-webkit-inner-spin-button {
 /* ── SaveSmart Aesthetic Unification ── */
 .savesmart-card {
   border-radius: 2rem !important;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Comfortaa', sans-serif;
   border: 1px solid var(--border);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
@@ -363,7 +363,7 @@ input::-webkit-inner-spin-button {
   overflow: hidden;
   border: 1px solid var(--border);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Comfortaa', sans-serif;
 }
 
 .dark .savesmart-table-container {
@@ -372,7 +372,7 @@ input::-webkit-inner-spin-button {
 }
 
 .savesmart-table th {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Comfortaa', sans-serif;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;

@@ -287,6 +287,9 @@ export interface Gasto {
   id: string
   descripcion: string
   monto: number
+  montoEstimado: number
+  montoFinal: number
+  estaConciliado: boolean
   categoria: 'fijos' | 'ocio' | 'ahorro'
   quincena?: 'Q1' | 'Q2'
   creadoEn: string
@@ -308,6 +311,16 @@ export interface CreatePresupuestoPayload {
 export interface CreateGastoPayload {
   descripcion: string
   monto: number
+  montoEstimado?: number
   categoria: 'fijos' | 'ocio' | 'ahorro'
   quincena?: 'Q1' | 'Q2'
+}
+
+export interface UpdateGastoPayload {
+  monto?: number
+  montoEstimado?: number
+  montoFinal?: number
+  estaConciliado?: boolean
+  descripcion?: string
+  categoria?: 'fijos' | 'ocio' | 'ahorro'
 }

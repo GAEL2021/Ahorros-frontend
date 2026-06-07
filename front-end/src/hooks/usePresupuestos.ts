@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import apiClient from '@/lib/axios'
-import type { Presupuesto, CreatePresupuestoPayload, CreateGastoPayload } from '@/types'
+import type { Presupuesto, CreatePresupuestoPayload, CreateGastoPayload, UpdateGastoPayload } from '@/types'
 
 async function fetchPresupuestos(): Promise<Presupuesto[]> {
   const { data } = await apiClient.get<Presupuesto[]>('/presupuestos')
@@ -48,5 +48,19 @@ export function useDeleteGasto(presupuestoId: string) {
   return useMutation<void, Error, string>({
     mutationFn: async (gastoId) => { await apiClient.delete(`/presupuestos/${presupuestoId}/gastos/${gastoId}`) },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['presupuesto', presupuestoId] }); qc.invalidateQueries({ queryKey: ['presupuestos'] }); qc.invalidateQueries({ queryKey: ['bancos'] }) },
+  })
+}
+
+export function useUpdateGasto(presupuestoId: string) {
+  const qc = useQueryClient()
+  return useMutation<unknown, Error, { gastoId: string; data: UpdateGastoPayload }>({
+    mutationFn: async ({ gastoId, data }) => {
+      const res = await apiClient.patch(`/presupuestos/${presupuestoId}/gastos/${gastoId}`, data)
+      return res.data
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['presupuesto', presupuestoId] })
+      qc.invalidateQueries({ queryKey: ['presupuestos'] })
+    },
   })
 }

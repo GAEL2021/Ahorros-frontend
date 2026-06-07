@@ -7,6 +7,7 @@ import { useFetchBancos } from '@/hooks/useFetchBancos'
 import { useFetchGoals } from '@/hooks/useFetchGoals'
 import { FilterBar } from '@/components/FilterBar'
 import { sileo } from '@/lib/sileo'
+import SearchableSelect from '@/components/ui/SearchableSelect'
 import type { CreateProgramacionPayload } from '@/types'
 
 function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
@@ -101,21 +102,11 @@ function CreateProgramacionModal({ open, onClose }: { open: boolean; onClose: ()
           )}
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Cartera origen</label>
-            <select value={carteraId} onChange={(e) => setCarteraId(e.target.value)} required className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20">
-              <option value="" disabled>Seleccionar cartera</option>
-              {bancos?.map((b) => (
-                <option key={b.id} value={b.id}>{b.nombre}-{b.creadoPorNombre}-{b.tipoCuenta === 'credito' ? 'C' : 'D'}</option>
-              ))}
-            </select>
+            <SearchableSelect options={(bancos ?? []).map((b) => ({ value: b.id, label: `${b.nombre}-${b.creadoPorNombre}-${b.tipoCuenta === 'credito' ? 'C' : 'D'}` }))} value={carteraId} onChange={setCarteraId} placeholder="Seleccionar cartera" required />
           </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Meta destino</label>
-            <select value={metaId} onChange={(e) => setMetaId(e.target.value)} required className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20">
-              <option value="" disabled>Seleccionar meta activa</option>
-              {activeGoals.map((g) => (
-                <option key={g.id} value={g.id}>{g.nombre}</option>
-              ))}
-            </select>
+            <SearchableSelect options={activeGoals.map((g) => ({ value: g.id, label: g.nombre }))} value={metaId} onChange={setMetaId} placeholder="Seleccionar meta activa" required />
           </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Tipo de aporte</label>
@@ -144,11 +135,7 @@ function CreateProgramacionModal({ open, onClose }: { open: boolean; onClose: ()
           )}
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Dia del mes</label>
-            <select value={diaDelMes} onChange={(e) => setDiaDelMes(Number(e.target.value))} className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20">
-              {days.map((d) => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
+            <SearchableSelect options={days.map((d) => ({ value: String(d), label: `${d}` }))} value={String(diaDelMes)} onChange={(v) => setDiaDelMes(Number(v))} placeholder="Día del mes" />
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={handleClose} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-raised transition-colors">Cancelar</button>

@@ -5,6 +5,7 @@ import { useGoalDetail } from '@/hooks/useGoalDetail'
 import { useAddContribution } from '@/hooks/useAddContribution'
 import { useFetchBancos } from '@/hooks/useFetchBancos'
 import RangeSlider from '@/components/RangeSlider'
+import SearchableSelect from '@/components/ui/SearchableSelect'
 import type { Meta } from '@/types'
 
 interface ContributeModalProps {
@@ -148,21 +149,7 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
           {/* Wallet selector */}
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold text-ink-secondary">Cartera de origen (Obligatoria donde se sumará el dinero)</label>
-            <select
-              value={carteraId}
-              required
-              onChange={(e) => {
-                setCarteraId(e.target.value)
-              }}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            >
-              <option value="" disabled>Seleccionar cartera</option>
-              {bancosList.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.nombre}-{b.creadoPorNombre}-{b.tipoCuenta === 'credito' ? 'C' : 'D'}
-                </option>
-              ))}
-            </select>
+            <SearchableSelect options={(bancosList ?? []).map((b) => ({ value: b.id, label: `${b.nombre}-${b.creadoPorNombre}-${b.tipoCuenta === 'credito' ? 'C' : 'D'}` }))} value={carteraId} onChange={setCarteraId} placeholder="Seleccionar cartera" required />
             {selectedBanco ? (
               <p className="text-xs text-ink-muted">
                 Saldo actual: <span className="font-semibold text-primary">${selectedBanco.saldo.toLocaleString()}</span>

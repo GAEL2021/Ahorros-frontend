@@ -1,4 +1,5 @@
 node_modules/
+matri/
 dist/
 .env
 .env.local

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { FirebaseService } from '../../config/firebase/firebase.service';
 import { CreatePresupuestoDto } from './dto/create-presupuesto.dto';
-import { CreateGastoDto } from './dto/create-gasto.dto';
+import { CreateGastoDto, UpdateGastoDto } from './dto/create-gasto.dto';
 import { FirebaseUser } from '../../common/guards/firebase-auth.guard';
 
 export interface PresupuestoDocument {
@@ -14,6 +14,8 @@ export interface PresupuestoDocument {
 
 export interface GastoDocument {
   descripcion: string; monto: number;
+  montoEstimado: number; montoFinal: number;
+  estaConciliado: boolean;
   categoria: 'fijos' | 'ocio' | 'ahorro';
   quincena?: 'Q1' | 'Q2'; creadoEn: string;
 }
@@ -68,12 +70,37 @@ export class PresupuestosService {
       });
     }
 
-    const gasto: GastoDocument = {
-      descripcion: dto.descripcion, monto: dto.monto, categoria: dto.categoria,
-      quincena: dto.quincena, creadoEn: new Date().toISOString(),
+    const gasto: Omit<GastoDocument, 'quincena'> & { quincena?: string } = {
+      descripcion: dto.descripcion, monto: dto.monto,
+      montoEstimado: dto.montoEstimado ?? dto.monto,
+      montoFinal: dto.montoFinal ?? 0,
+      estaConciliado: dto.estaConciliado ?? false,
+      categoria: dto.categoria,
+      creadoEn: new Date().toISOString(),
     };
+    if (dto.quincena) gasto.quincena = dto.quincena;
     const ref = await pRef.collection('gastos').add(gasto);
     return { id: ref.id, ...gasto };
+  }
+
+  async updateGasto(presupuestoId: string, gastoId: string, dto: UpdateGastoDto) {
+    const ref = this.firebaseService.firestore.collection('presupuestos').doc(presupuestoId).collection('gastos').doc(gastoId);
+    const doc = await ref.get();
+    if (!doc.exists) throw new NotFoundException('Gasto no encontrado');
+
+    const updateData: Record<string, unknown> = {};
+    if (dto.descripcion !== undefined) updateData.descripcion = dto.descripcion;
+    if (dto.monto !== undefined) updateData.monto = dto.monto;
+    if (dto.montoEstimado !== undefined) updateData.montoEstimado = dto.montoEstimado;
+    if (dto.montoFinal !== undefined) updateData.montoFinal = dto.montoFinal;
+    if (dto.estaConciliado !== undefined) updateData.estaConciliado = dto.estaConciliado;
+    if (dto.categoria !== undefined) updateData.categoria = dto.categoria;
+
+    if (Object.keys(updateData).length > 0) {
+      await ref.update(updateData);
+    }
+    const updated = await ref.get();
+    return { id: updated.id, ...updated.data() };
   }
 
   async deleteGasto(presupuestoId: string, gastoId: string) {

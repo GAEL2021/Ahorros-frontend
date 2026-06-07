@@ -4,6 +4,7 @@ import type { ChecklistItem } from '@/types'
 import { useGoalChecklist, useAddChecklistItem, useToggleChecklistItem, useDeleteChecklistItem, useUpdateChecklistItem } from '@/hooks/useGoalChecklist'
 import { useFetchBancos } from '@/hooks/useFetchBancos'
 import { sileo } from '@/lib/sileo'
+import SearchableSelect from '@/components/ui/SearchableSelect'
 
 interface ChecklistPanelProps { goalId: string; metaMontoObjetivo: number; metaMontoAcumulado: number }
 
@@ -11,7 +12,7 @@ function FullModal({ open, onClose, title, children }: { open: boolean; onClose:
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in" onClick={onClose}>
-      <div className="bg-[var(--bg-sidebar)] rounded-2xl border border-border shadow-2xl w-full sm:w-[80%] max-h-[90vh] flex flex-col animate-scale-in overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-surface rounded-2xl border border-border shadow-2xl w-full sm:w-[80%] max-h-[90vh] flex flex-col animate-scale-in overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-border px-5 py-4 flex-shrink-0">
           <h3 className="text-base font-semibold text-ink">{title}</h3>
           <button type="button" onClick={onClose} className="rounded-xl p-2 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
@@ -49,6 +50,10 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
   const [editUploading, setEditUploading] = useState(false)
   const [editUploadProgress, setEditUploadProgress] = useState(0)
   const editFileRef = useRef<HTMLInputElement>(null)
+  const [inlineEditDescId, setInlineEditDescId] = useState<string | null>(null)
+  const [inlineEditDescVal, setInlineEditDescVal] = useState('')
+  const [inlineEditRealId, setInlineEditRealId] = useState<string | null>(null)
+  const [inlineEditRealVal, setInlineEditRealVal] = useState(0)
   const [showConfirmExcessModal, setShowConfirmExcessModal] = useState<{ type: 'add' | 'edit'; action: () => void } | null>(null)
 
   const itemsList = items ?? []
@@ -298,39 +303,95 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
         </div>
       )}
 
+      <div className="px-4 pt-3 pb-1">
+        <button type="button" onClick={() => { setNewText(''); setNewMonto(0); setShowAddModal(true) }} className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-[var(--bg)] hover:bg-primary-light transition-colors">
+          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>Agregar ítem
+        </button>
+      </div>
+
       {total > 0 && (
-        <div className="overflow-x-auto">
-          <div className="grid grid-cols-[auto_1fr_90px_90px_80px] gap-2 items-center px-4 py-2 border-b border-border bg-surface-raised/50 text-[10px] font-semibold uppercase tracking-wider text-ink-muted min-w-[500px]">
-            <span className="w-5" /><span>Descripción</span><span className="text-right">Estimado</span><span className="text-right">Real</span><span />
-          </div>
-          <ul className="divide-y divide-border min-w-[500px]">
-            {itemsList.map((item) => (
-              <li key={item.id} className="grid grid-cols-[auto_1fr_90px_90px_80px] gap-2 items-center px-4 py-2 hover:bg-surface-raised/50 transition-colors">
-                <button type="button" onClick={() => handleToggle(item)} disabled={toggleItem.isPending} className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${item.completado ? 'bg-primary border-primary text-white' : 'border-border hover:border-primary/50'}`}>
-                  {item.completado && <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                </button>
-                <span className={`text-xs leading-tight truncate ${item.completado ? 'text-ink-muted line-through' : 'text-ink'}`}>{item.texto}</span>
-                <span className="text-[11px] text-ink-muted text-right font-mono">${(item.monto ?? 0).toLocaleString()}</span>
-                <span className="text-[11px] text-right font-mono">{item.completado && item.montoReal != null ? <span className={item.montoReal > (item.monto ?? 0) ? 'text-danger font-semibold' : item.montoReal < (item.monto ?? 0) ? 'text-success font-semibold' : 'text-ink-muted'}>${item.montoReal.toLocaleString()}</span> : <span className="text-ink-muted/30">—</span>}</span>
-                <div className="flex items-center justify-end gap-0.5">
-                  {item.comprobante && <button type="button" onClick={(ev) => { ev.stopPropagation(); setPreviewUrl(item.comprobante ?? null) }} className="rounded p-1 text-primary hover:bg-primary/10" title="Ver comprobante"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg></button>}
-                  {confirmDeleteId === item.id ? (<><button type="button" onClick={() => { deleteItem.mutate(item.id, { onError: (err) => sileo.error(err instanceof Error ? err.message : 'Error al eliminar') }); setConfirmDeleteId(null) }} className="rounded px-2 py-1 text-[10px] font-semibold text-white bg-danger hover:bg-red-600">Eliminar</button><button type="button" onClick={() => setConfirmDeleteId(null)} className="rounded p-1 text-ink-muted hover:bg-surface"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></>) : (<><button type="button" onClick={() => openEdit(item)} className="rounded p-1 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button type="button" onClick={() => setConfirmDeleteId(item.id)} className="rounded p-1 text-ink-muted hover:bg-danger/10 hover:text-danger"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></>)}
+        <div className="space-y-2 px-4 pb-3">
+          {itemsList.map((item) => {
+            const realEditOpen = inlineEditRealId === item.id
+            const descEditOpen = inlineEditDescId === item.id
+
+            const commitDesc = async () => {
+              setInlineEditDescId(null)
+              if (inlineEditDescVal.trim() && inlineEditDescVal !== item.texto) {
+                try {
+                  await updateItem.mutateAsync({ itemId: item.id, payload: { texto: inlineEditDescVal.trim() } })
+                } catch { sileo.error('Error') }
+              }
+            }
+
+            const commitReal = async () => {
+              setInlineEditRealId(null)
+              const num = Number(inlineEditRealVal)
+              if (isNaN(num) || num < 0) return
+              try {
+                await updateItem.mutateAsync({ itemId: item.id, payload: { montoReal: num } })
+              } catch { sileo.error('Error') }
+            }
+
+            const isOver = item.montoReal != null && item.montoReal > (item.monto ?? 0)
+            const isUnder = item.montoReal != null && item.montoReal < (item.monto ?? 0)
+
+            return (
+              <div key={item.id} className={`rounded-xl border p-3 bg-surface space-y-2 ${item.completado ? 'border-success/30 opacity-70' : 'border-border'}`}>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <button type="button" onClick={() => handleToggle(item)} disabled={toggleItem.isPending} className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all ${item.completado ? 'border-success bg-success text-white' : 'border-border hover:border-primary'}`}>
+                      {item.completado && <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                    </button>
+                    {descEditOpen ? (
+                      <input type="text" value={inlineEditDescVal} onChange={(e) => setInlineEditDescVal(e.target.value)} onBlur={commitDesc} onKeyDown={(e) => { if (e.key === 'Enter') commitDesc(); if (e.key === 'Escape') { setInlineEditDescId(null); setInlineEditDescVal(item.texto) } }} className="flex-1 rounded border border-primary/40 bg-surface px-1.5 py-0.5 text-xs text-ink focus:outline-none" autoFocus />
+                    ) : (
+                      <button type="button" onClick={() => { setInlineEditDescId(item.id); setInlineEditDescVal(item.texto) }} className={`text-xs text-left truncate ${item.completado ? 'text-ink-muted line-through' : 'text-ink'} hover:text-primary transition-colors flex-1`}>{item.texto}</button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {item.comprobante && (
+                      <button type="button" onClick={() => setPreviewUrl(item.comprobante ?? null)} className="text-primary hover:bg-primary/10 p-1 rounded transition-colors" title="Ver comprobante">
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                      </button>
+                    )}
+                    {confirmDeleteId === item.id ? (
+                      <>
+                        <button type="button" onClick={() => { deleteItem.mutate(item.id, { onError: (err) => sileo.error(err instanceof Error ? err.message : 'Error al eliminar') }); setConfirmDeleteId(null) }} className="rounded px-2 py-1 text-[10px] font-semibold text-white bg-danger hover:bg-red-600">Eliminar</button>
+                        <button type="button" onClick={() => setConfirmDeleteId(null)} className="rounded p-1 text-ink-muted hover:bg-surface"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                      </>
+                    ) : (
+                      <button type="button" onClick={() => setConfirmDeleteId(item.id)} className="text-ink-muted hover:text-danger transition-colors p-1 rounded hover:bg-danger/10" title="Eliminar">
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </li>
-            ))}
-          </ul>
+                <div className="flex items-center justify-between gap-2 text-xs">
+                  <div className="flex items-center gap-3">
+                    <span className="text-ink-muted line-through">${(item.monto ?? 0).toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {realEditOpen ? (
+                      <input type="number" min={0} value={inlineEditRealVal || ''} autoFocus onChange={(e) => setInlineEditRealVal(Number(e.target.value))} onBlur={commitReal} onKeyDown={(e) => { if (e.key === 'Enter') commitReal(); if (e.key === 'Escape') { setInlineEditRealId(null); setInlineEditRealVal(item.montoReal ?? 0) } }} className="w-20 rounded border border-primary/40 bg-surface px-1.5 py-0.5 text-xs text-ink text-right focus:outline-none" />
+                    ) : (
+                      <button type="button" onClick={() => { setInlineEditRealId(item.id); setInlineEditRealVal(item.montoReal ?? 0) }} className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2 py-1 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors">
+                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        {item.completado && item.montoReal != null ? (
+                          <span className={isOver ? 'text-danger' : isUnder ? 'text-success' : ''}>${item.montoReal.toLocaleString()}</span>
+                        ) : <span className="text-ink-muted">$0</span>}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
 
       {!isLoading && total === 0 && <div className="px-4 py-8 text-center"><p className="text-xs text-ink-muted">Sin ítems aún. Agregá tareas con su costo estimado.</p></div>}
       {isLoading && <div className="flex items-center justify-center py-8"><div className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-primary" /></div>}
-
-      <div className="border-t border-border px-4 py-3 bg-surface-raised/50">
-        <button type="button" onClick={() => { setNewText(''); setNewMonto(0); setShowAddModal(true) }} className="w-full rounded-xl border-2 border-dashed border-border px-4 py-3 text-sm text-ink-muted hover:border-primary/50 hover:text-primary transition-colors text-center">
-          <svg className="h-5 w-5 inline mr-1.5 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-          Agregar ítem
-        </button>
-      </div>
 
       {/* Full-screen modals */}
       {createPortal(<FullModal open={!!realCostItemId} onClose={() => setRealCostItemId(null)} title="Costo real">
@@ -339,10 +400,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
           <div><label className="mb-1.5 block text-sm font-semibold text-ink">Monto real</label><div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden"><span className="pl-4 pr-1 text-base text-ink-muted">$</span><input type="number" min={0} value={realCostValue || ''} onChange={(e) => setRealCostValue(Number(e.target.value))} autoFocus className="flex-1 py-3 pr-4 text-base font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div></div>
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-ink">Cartera de destino</label>
-            <select value={realCostCarteraId} onChange={(e) => setRealCostCarteraId(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
-              <option value="" disabled>Seleccionar cartera</option>
-              {bancos?.map((b) => <option key={b.id} value={b.id}>{b.nombre}-{b.creadoPorNombre}-{b.tipoCuenta === 'credito' ? 'C' : 'D'}</option>)}
-            </select>
+            <SearchableSelect options={(bancos ?? []).map((b) => ({ value: b.id, label: `${b.nombre}-${b.creadoPorNombre}-${b.tipoCuenta === 'credito' ? 'C' : 'D'}` }))} value={realCostCarteraId} onChange={setRealCostCarteraId} placeholder="Seleccionar cartera" />
             {!realCostCarteraId && <p className="mt-1 text-xs text-ink-muted">El aporte se sumará a esta cartera</p>}
           </div>
           <div><label className="mb-1.5 block text-sm font-semibold text-ink">Fecha de pago</label><input type="date" value={realCostDate} onChange={(e) => setRealCostDate(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" /></div>
@@ -435,7 +493,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
       {/* Preview modal */}
       {previewUrl && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-fade-in" onClick={() => setPreviewUrl(null)}>
-          <div className="bg-[var(--bg-sidebar)] rounded-2xl w-full sm:w-[80%] max-h-[90vh] flex flex-col animate-scale-in overflow-hidden" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-surface rounded-2xl w-full sm:w-[80%] max-h-[90vh] flex flex-col animate-scale-in overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-border px-5 py-3 flex-shrink-0">
               <span className="text-sm font-semibold text-ink">Comprobante</span>
               <div className="flex items-center gap-2">
@@ -451,7 +509,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
 
       {showConfirmExcessModal && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in" onClick={() => setShowConfirmExcessModal(null)}>
-          <div className="bg-[var(--bg-sidebar)] rounded-2xl border border-border shadow-2xl w-full max-w-sm overflow-hidden animate-scale-in" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-surface rounded-2xl border border-border shadow-2xl w-full max-w-sm overflow-hidden animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
               <h3 className="text-base font-semibold text-ink flex items-center gap-2">
                 <svg className="h-5 w-5 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>

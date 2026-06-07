@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useCreateGoal } from '@/hooks/useCreateGoal'
 import { useFetchBancos } from '@/hooks/useFetchBancos'
 import { sileo } from '@/lib/sileo'
+import SearchableSelect from '@/components/ui/SearchableSelect'
 import type { CreateGoalPayload } from '@/types'
 
 interface CreateGoalModalProps { open: boolean; onClose: () => void }
@@ -39,7 +40,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
   const handleClose = () => { onClose(); if (!createGoal.isPending) resetForm() }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[var(--bg-sidebar)] flex flex-col animate-fade-in">
+    <div className="fixed inset-0 z-50 bg-surface flex flex-col animate-fade-in">
       <div className="flex items-center justify-between border-b border-border px-5 py-4 flex-shrink-0">
         <h2 className="text-lg font-semibold text-ink">Nueva Meta</h2>
         <button type="button" onClick={handleClose} className="rounded-xl p-2 text-ink-muted hover:bg-surface hover:text-ink transition-colors">
@@ -104,10 +105,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
                   <div className="space-y-3 pt-1">
                     <div>
                       <label className="mb-1 block text-xs font-semibold text-ink-muted">Cartera origen</label>
-                      <select value={carteraId} onChange={(e) => setCarteraId(e.target.value)} required className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20">
-                        <option value="" disabled>Seleccionar cartera</option>
-                        {bancos.map((b) => <option key={b.id} value={b.id}>{b.nombre}-{b.creadoPorNombre}-{b.tipoCuenta === 'credito' ? 'C' : 'D'}</option>)}
-                      </select>
+                      <SearchableSelect options={(bancos ?? []).map((b) => ({ value: b.id, label: `${b.nombre}-${b.creadoPorNombre}-${b.tipoCuenta === 'credito' ? 'C' : 'D'}` }))} value={carteraId} onChange={setCarteraId} placeholder="Seleccionar cartera" required />
                     </div>
                     <div className="flex rounded-xl border border-border overflow-hidden">
                       <button type="button" onClick={() => setProgTipo('fijo')} className={`flex-1 py-2.5 text-xs font-semibold ${progTipo === 'fijo' ? 'bg-primary/10 text-primary' : 'text-ink-muted'}`}>Monto fijo</button>
@@ -120,9 +118,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
                     )}
                     <div>
                       <label className="mb-1 block text-xs font-semibold text-ink-muted">Día del mes</label>
-                      <select value={progDia} onChange={(e) => setProgDia(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20">
-                        {days.map((d) => <option key={d} value={d}>{d}</option>)}
-                      </select>
+                      <SearchableSelect options={days.map((d) => ({ value: String(d), label: `${d}` }))} value={String(progDia)} onChange={(v) => setProgDia(Number(v))} placeholder="Día del mes" />
                     </div>
                   </div>
                 )

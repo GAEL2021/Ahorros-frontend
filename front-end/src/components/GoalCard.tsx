@@ -63,7 +63,7 @@ export default function GoalCard({ meta }: GoalCardProps) {
   const handleDelete = async () => { try { await deleteGoal.mutateAsync(meta.id); sileo.info(`Meta "${meta.nombre}" eliminada`); setConfirmDelete(false) } catch { sileo.error('Error al eliminar la meta') } }
 
   return (
-    <article className={`relative savesmart-card bg-surface overflow-hidden flex flex-col justify-between p-5 ${celebrating ? 'vault-glow' : ''}`} style={{ borderLeft: `5px solid ${isComplete ? 'var(--success)' : isShared ? 'var(--copper)' : 'var(--gold)'}` }}>
+    <article className={`relative savesmart-card bg-surface overflow-hidden flex flex-col justify-between p-5 ${celebrating ? 'vault-glow' : ''}`} style={{ borderLeft: `5px solid ${isComplete ? 'var(--success)' : isShared ? 'var(--purple)' : 'var(--lilac)'}` }}>
       <GoldSparkles show={celebrating && isComplete} />
 
       <div>
