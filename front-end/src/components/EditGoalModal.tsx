@@ -77,7 +77,6 @@ export default function EditGoalModal({ open, onClose, meta }: EditGoalModalProp
                 inputMode="decimal"
                 required
                 min={1}
-                inputMode="decimal"
                 value={montoObjetivo || ''}
                 onChange={(e) => setMontoObjetivo(Number(e.target.value))}
                 className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"

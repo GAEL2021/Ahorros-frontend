@@ -167,7 +167,6 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
               inputMode="decimal"
               min={1}
               max={maxContribution}
-              inputMode="decimal"
               value={monto || ''}
               onChange={(e) => setMonto(Math.max(0, Math.min(maxContribution, Number(e.target.value) || 0)))}
               onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault() }}
