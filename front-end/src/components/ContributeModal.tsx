@@ -164,8 +164,10 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
             <span className="pl-3.5 pr-1 text-base font-medium text-ink-muted">$</span>
             <input
               type="number"
+              inputMode="decimal"
               min={1}
               max={maxContribution}
+              inputMode="decimal"
               value={monto || ''}
               onChange={(e) => setMonto(Math.max(0, Math.min(maxContribution, Number(e.target.value) || 0)))}
               onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault() }}

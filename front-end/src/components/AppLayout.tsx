@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useVerificarAdmin } from '@/hooks/useVerificarAdmin'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -23,16 +23,44 @@ function LoginScreen() {
           <div className="max-w-lg mx-auto lg:mx-0 animate-slide-up">
             <div className="flex items-center gap-3 mb-8">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary border border-primary/20 shadow-lg shadow-primary/20" style={{ animation: 'float 3s ease-in-out infinite' }}>
-                <span className="text-lg font-bold text-white">MA</span>
+                <span className="text-lg font-bold text-white">EQ</span>
               </div>
-              <h1 className="text-2xl lg:text-3xl font-semibold text-ink tracking-tight">Gestión de<br />Presupuestos</h1>
+              <h1 className="text-2xl lg:text-3xl font-semibold text-ink tracking-tight">Equilibra</h1>
             </div>
             <h2 className="text-3xl lg:text-4xl font-bold text-ink leading-tight mb-4">Tu app para <span className="text-shimmer">gestionar tus finanzas</span></h2>
             <p className="text-base text-ink-muted mb-10 leading-relaxed">Controlá tus gastos, creá presupuestos, ahorrá en metas y mantené tus cuentas al día.</p>
             <div className="space-y-4 mb-10">
-              {[{ icon: '📊', title: 'Presupuestos', desc: 'Controlá tus gastos por quincena con tabs y tabla de conciliación.' }, { icon: '🎯', title: 'Metas de ahorro', desc: 'Creá metas colaborativas con amigos y automatizá aportes.' }, { icon: '🏦', title: 'Carteras', desc: 'Vinculá tus cuentas y gestioná tus ingresos y egresos.' }].map((f, i) => (
+              {[
+                {
+                  icon: (
+                    <svg className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  ),
+                  title: 'Presupuestos',
+                  desc: 'Controlá tus gastos por quincena con tabs y tabla de conciliación.'
+                },
+                {
+                  icon: (
+                    <svg className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    </svg>
+                  ),
+                  title: 'Metas de ahorro',
+                  desc: 'Creá metas colaborativas con amigos y automatizá aportes.'
+                },
+                {
+                  icon: (
+                    <svg className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                  ),
+                  title: 'Carteras',
+                  desc: 'Vinculá tus cuentas y gestioná tus ingresos y egresos.'
+                }
+              ].map((f, i) => (
                 <div key={i} className="flex gap-4 items-start animate-reveal" style={{ animationDelay: `${0.2 + i * 0.15}s` }}>
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-surface border border-border text-xl">{f.icon}</div>
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-surface border border-border">{f.icon}</div>
                   <div><h3 className="text-sm font-semibold text-ink">{f.title}</h3><p className="text-xs text-ink-muted mt-0.5">{f.desc}</p></div>
                 </div>
               ))}
@@ -45,9 +73,9 @@ function LoginScreen() {
             {/* Logo Mobile */}
             <div className="flex items-center gap-3 lg:hidden justify-center">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20">
-                <span className="text-sm font-bold text-white">MA</span>
+                <span className="text-sm font-bold text-white">EQ</span>
               </div>
-              <h1 className="text-xl font-extrabold text-ink tracking-tight">Gestión de Presupuestos</h1>
+              <h1 className="text-xl font-extrabold text-ink tracking-tight">Equilibra</h1>
             </div>
 
             <div className="rounded-2xl p-6 sm:p-8 bg-surface border border-border shadow-xl">
@@ -132,13 +160,8 @@ export default function AppLayout() {
   const { data: adminData } = useVerificarAdmin()
   const { theme, toggle: toggleTheme } = useTheme()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const navigate = useNavigate()
 
-  useEffect(() => {
-    if (user && !loading) {
-      navigate('/', { replace: true })
-    }
-  }, [user, loading, navigate])
+
 
   if (loading) return <LoadingScreen />
   if (!user) return <LoginScreen />
@@ -155,9 +178,9 @@ export default function AppLayout() {
       <aside className={`fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-border bg-[var(--bg-sidebar)] transition-transform duration-300 lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center gap-3 border-b border-border px-5 py-4">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary flex-shrink-0 shadow-lg shadow-primary/20 transition-all duration-500 hover:shadow-[0_0_16px_rgba(139,92,246,0.3)]">
-            <span className="text-sm font-bold text-white">MA</span>
+            <span className="text-sm font-bold text-white">EQ</span>
           </div>
-          <span className="text-sm font-semibold text-ink leading-tight">Gestión de<br />Presupuestos</span>
+          <span className="text-sm font-semibold text-ink leading-tight">Equilibra</span>
         </div>
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
           <NavLink to="/" end className={navLinkClass} onClick={() => setSidebarOpen(false)}><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>Dashboard</NavLink>
@@ -173,22 +196,26 @@ export default function AppLayout() {
           <div className="flex items-center gap-3">
             {user.photoURL ? <img src={user.photoURL} alt="" className="h-8 w-8 rounded-full object-cover ring-2 ring-border" /> : <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary">{(user.displayName ?? 'U').charAt(0).toUpperCase()}</div>}
             <div className="flex-1 min-w-0"><p className="text-xs font-medium text-ink truncate">{user.displayName}</p><p className="text-[10px] text-ink-muted truncate">{user.email}</p></div>
-            <button type="button" onClick={toggleTheme} className="rounded-lg p-1.5 text-ink-muted hover:bg-surface hover:text-ink transition-all duration-200 hover:scale-110 active:scale-90" title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}>
+            <button type="button" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'} className="rounded-lg p-1.5 text-ink-muted hover:bg-surface hover:text-ink transition-all duration-200 hover:scale-110 active:scale-90" title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}>
               {theme === 'dark' ? <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg> : <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>}
             </button>
-            <button type="button" onClick={logout} className="rounded-lg p-1.5 text-ink-muted hover:bg-surface hover:text-ink transition-all duration-200 hover:scale-110 active:scale-90" title="Cerrar sesión">
+            <button type="button" onClick={logout} aria-label="Cerrar sesión" className="rounded-lg p-1.5 text-ink-muted hover:bg-surface hover:text-ink transition-all duration-200 hover:scale-110 active:scale-90" title="Cerrar sesión">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
             </button>
           </div>
         </div>
       </aside>
       <div className="flex flex-1 flex-col min-w-0">
-        <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-[var(--bg-sidebar)]/95 backdrop-blur-md px-4 py-3 lg:hidden">
-          <button type="button" onClick={() => setSidebarOpen(true)} className="rounded-xl p-1.5 text-ink-muted hover:bg-surface hover:text-ink transition-colors"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg></button>
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary flex-shrink-0 shadow-lg shadow-primary/20"><span className="text-xs font-bold text-white">MA</span></div>
-          <span className="text-sm font-semibold text-ink">Gestión de Presupuestos</span>
+        <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-[var(--bg-sidebar)]/85 backdrop-blur-md -webkit-backdrop-blur-md px-4 py-3 lg:hidden">
+          <button type="button" onClick={() => setSidebarOpen(true)} aria-label="Abrir menú de navegación" className="flex h-11 w-11 items-center justify-center rounded-xl text-ink-muted hover:bg-surface hover:text-ink transition-all duration-150 active:scale-95">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary flex-shrink-0 shadow-lg shadow-primary/20"><span className="text-xs font-bold text-white">EQ</span></div>
+          <span className="text-sm font-bold text-ink tracking-tight">Equilibra</span>
           <div className="flex-1" />
-          <button type="button" onClick={toggleTheme} className="rounded-xl p-1.5 text-ink-muted hover:bg-surface hover:text-ink transition-colors">
+          <button type="button" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'} className="flex h-11 w-11 items-center justify-center rounded-xl text-ink-muted hover:bg-surface hover:text-ink transition-all duration-150 active:scale-95">
             {theme === 'dark' ? <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg> : <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>}
           </button>
         </header>

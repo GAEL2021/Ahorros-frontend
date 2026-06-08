@@ -59,7 +59,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
               <label className="mb-1.5 block text-sm font-semibold text-ink">Monto objetivo</label>
               <div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden">
                 <span className="pl-3.5 pr-1 text-base text-ink-muted">$</span>
-                <input type="number" required min={1} value={montoObjetivo || ''} onChange={(e) => setMontoObjetivo(Number(e.target.value))} placeholder="1,000,000" className="flex-1 py-3 pr-4 text-base font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" />
+                <input type="number" required min={1} inputMode="decimal" value={montoObjetivo || ''} onChange={(e) => setMontoObjetivo(Number(e.target.value))} placeholder="1,000,000" className="flex-1 py-3 pr-4 text-base font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" />
               </div>
             </div>
             <div>
@@ -112,7 +112,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
                       <button type="button" onClick={() => setProgTipo('porcentaje')} className={`flex-1 py-2.5 text-xs font-semibold ${progTipo === 'porcentaje' ? 'bg-primary/10 text-primary' : 'text-ink-muted'}`}>Porcentaje</button>
                     </div>
                     {progTipo === 'fijo' ? (
-                      <div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 overflow-hidden"><span className="pl-3.5 pr-1 text-sm text-ink-muted">$</span><input type="number" min={1} value={progMonto || ''} onChange={(e) => setProgMonto(Number(e.target.value))} placeholder="50,000" className="flex-1 py-3 pr-4 text-sm font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div>
+                      <div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 overflow-hidden"><span className="pl-3.5 pr-1 text-sm text-ink-muted">$</span><input type="number" min={1} inputMode="decimal" value={progMonto || ''} onChange={(e) => setProgMonto(Number(e.target.value))} placeholder="50,000" className="flex-1 py-3 pr-4 text-sm font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div>
                     ) : (
                       <div className="flex items-center gap-3"><input type="range" min={1} max={100} value={progPorcentaje} onChange={(e) => setProgPorcentaje(Number(e.target.value))} className="flex-1 accent-primary" /><span className="text-sm font-bold text-ink w-10 text-right">{progPorcentaje}%</span></div>
                     )}

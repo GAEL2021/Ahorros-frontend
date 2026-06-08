@@ -18,7 +18,7 @@ export function MultiRingProgress({ data, centerLabel, centerValue }: MultiRingP
     <div className="flex flex-col sm:flex-row items-center gap-6 justify-center w-full">
       {/* SVG rings */}
       <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
-        <svg className="w-full h-full transform -rotate-90" viewBox={`0 0 ${size} ${size}`}>
+        <svg className="w-full h-full" viewBox={`0 0 ${size} ${size}`} style={{ transform: 'rotate(-90deg)', transformOrigin: 'center', WebkitTransform: 'rotate(-90deg)' }}>
           {data.map((ring, index) => {
             const radius = 76 - index * 12 // concentric radius
             const strokeWidth = 8

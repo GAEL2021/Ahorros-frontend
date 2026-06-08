@@ -272,7 +272,7 @@ export default function MetasPage() {
               ))}
             </div>
           ) : (
-            <div className="savesmart-table-container bg-surface animate-fade-in">
+            <div className="savesmart-table-container bg-surface animate-fade-in max-w-6xl mx-auto w-full">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left savesmart-table">
                   <thead>

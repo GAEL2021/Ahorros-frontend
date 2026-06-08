@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 
 interface CardProps {
@@ -9,7 +10,13 @@ interface CardProps {
 }
 
 export function Card({ children, className = '', variant = 'light', delay = 0 }: CardProps) {
-  const baseStyles = 'rounded-[2rem] p-6 border select-none transition-colors duration-300'
+  const [isHoverable, setIsHoverable] = useState(false)
+
+  useEffect(() => {
+    setIsHoverable(window.matchMedia('(hover: hover)').matches)
+  }, [])
+
+  const baseStyles = 'rounded-[2rem] p-4 sm:p-6 border select-none transition-colors duration-300'
   
   const variants = {
     light: 'bg-surface text-ink border-border shadow-sm',
@@ -21,20 +28,23 @@ export function Card({ children, className = '', variant = 'light', delay = 0 }:
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 15 }}
+      initial={{ opacity: 0, y: isHoverable ? 15 : 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay, ease: [0.25, 0.8, 0.25, 1] }}
-      whileHover={{ 
+      transition={{ duration: isHoverable ? 0.4 : 0.25, delay, ease: [0.25, 0.8, 0.25, 1] }}
+      whileHover={isHoverable ? { 
         y: -4, 
         scale: 1.005,
         boxShadow: 'var(--shadow-premium-hover)',
-      }}
+      } : {}}
+      whileTap={{ scale: 0.98 }}
       className={`${baseStyles} ${variants[variant]} ${className}`}
       style={{
-        boxShadow: 'var(--shadow-premium)'
+        boxShadow: 'var(--shadow-premium)',
+        willChange: 'transform, opacity, box-shadow'
       }}
     >
       {children}
     </motion.div>
   )
 }
+
