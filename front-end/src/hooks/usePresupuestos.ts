@@ -23,7 +23,7 @@ export function useCreatePresupuesto() {
   const qc = useQueryClient()
   return useMutation<Presupuesto, Error, CreatePresupuestoPayload>({
     mutationFn: async (p) => { const { data } = await apiClient.post<Presupuesto>('/presupuestos', p); return data },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['presupuestos'] }) },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['presupuestos'] }); qc.invalidateQueries({ queryKey: ['controles'] }) },
   })
 }
 
