@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { useFetchControles, useCreatePresupuesto, useDeletePresupuesto, usePresupuestoDetail, useAddGasto, useDeleteGasto, useUpdateGasto, useCerrarMes } from '@/hooks/usePresupuestos'
+import { useFetchControles, useCreatePresupuesto, useDeletePresupuesto, usePresupuestoDetail, useAddGasto, useDeleteGasto, useUpdateGasto, useCerrarMes, useCarryToNewYear } from '@/hooks/usePresupuestos'
 import { sileo } from '@/lib/sileo'
 import type { Presupuesto, CreatePresupuestoPayload, Gasto } from '@/types'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
@@ -184,6 +184,8 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
   const [sobrante, setSobrante] = useState(0)
   const [efectivo, setEfectivo] = useState(0)
   const [salario, setSalario] = useState(0)
+  const [mesDesde, setMesDesde] = useState(1)
+  const [modoAnual, setModoAnual] = useState(true)
   const [gastosFijos, setGastosFijos] = useState<{ desc: string; monto: number; cat: 'fijos' | 'ocio' | 'ahorro'; quincena: string; cuotas: number; fechaPago: string }[]>([])
 
   const addGastoFijo = () => setGastosFijos([...gastosFijos, { desc: '', monto: 0, cat: 'fijos', quincena: '', cuotas: 0, fechaPago: '' }])
@@ -195,7 +197,7 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
   if (!open) return null
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); try {
-      const payload: any = { tipo, year, sobranteAnterior: sobrante, efectivoExtra: efectivo }
+      const payload: any = { tipo, year, sobranteAnterior: sobrante, efectivoExtra: efectivo, mesDesde: modoAnual ? undefined : mesDesde }
       if (tipo === 'mensual') payload.salarioMensual = salario
       else { payload.salarioQ1 = salario / 2; payload.salarioQ2 = salario / 2 }
       const fijos = gastosFijos.filter(g => g.desc.trim() && g.monto > 0).map(g => ({
@@ -220,6 +222,14 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
             <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Año</label><input type="number" min={2020} max={2100} value={year} onChange={(e) => setYear(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div>
             <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Salario total</label><input type="number" min={0} inputMode="decimal" step="0.01" value={salario || ''} onChange={(e) => setSalario(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div>
           </div>
+
+          <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Inicio</label><div className="flex rounded-xl border border-border overflow-hidden"><button type="button" onClick={() => setModoAnual(true)} className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${modoAnual ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Enero - Diciembre</button><button type="button" onClick={() => setModoAnual(false)} className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${!modoAnual ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Desde mes específico</button></div></div>
+          {!modoAnual && (
+            <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Mes de inicio</label>
+              <select value={mesDesde} onChange={(e) => setMesDesde(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none">
+                {MESES.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+              </select></div>
+          )}
           {salario > 0 && tipo === 'quincenal' && <p className="text-[10px] text-ink-muted -mt-2">Se divide automáticamente: Q1 ${(salario / 2).toLocaleString()} · Q2 ${(salario / 2).toLocaleString()}</p>}
 
           <div className="grid grid-cols-2 gap-3"><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Sobrante anterior</label><input type="number" min={0} inputMode="decimal" step="0.01" value={sobrante || ''} onChange={(e) => setSobrante(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Efectivo extra</label><input type="number" min={0} inputMode="decimal" step="0.01" value={efectivo || ''} onChange={(e) => setEfectivo(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div></div>
@@ -562,6 +572,15 @@ function ControlCard({ control }: { control: any }) {
   const gastosAnuales = presupuestos.reduce((s: number, p: any) => {
     const gs = p.gastos ?? []; return s + gs.reduce((ss: number, g: any) => ss + g.monto, 0)
   }, 0)
+  const carry = useCarryToNewYear()
+
+  const handleCarry = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    try {
+      const res: any = await carry.mutateAsync(control.controlId)
+      sileo.success(`Nuevo control ${res.year} creado con sobrante $${res.sobranteInicial.toLocaleString()}`)
+    } catch { sileo.error('Error al llevar saldo') }
+  }
 
   return (
     <>
@@ -582,6 +601,12 @@ function ControlCard({ control }: { control: any }) {
           <span>Gastos: <strong className="text-ink">{fmt(gastosAnuales)}</strong></span>
           <span>Balance: <strong className={ingresosAnuales - gastosAnuales >= 0 ? 'text-success' : 'text-danger'}>{fmt(ingresosAnuales - gastosAnuales)}</strong></span>
         </div>
+        {control.cerrados === control.totalPresupuestos && (
+          <button type="button" onClick={handleCarry} disabled={carry.isPending} className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors disabled:opacity-50">
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+            Llevar saldo a {control.year + 1}
+          </button>
+        )}
       </div>
       {open && <ControlDetail control={control} onClose={() => setOpen(false)} />}
     </>

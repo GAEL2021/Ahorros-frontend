@@ -16,6 +16,7 @@ export class CreatePresupuestoDto {
   @IsOptional() @IsString() fecha?: string;
   @IsOptional() @IsNumber() @Min(2020) @Max(2100) year?: number;
   @IsOptional() @IsNumber() @Min(1) @Max(12) mes?: number;
+  @IsOptional() @IsNumber() @Min(1) @Max(12) mesDesde?: number;
   @IsOptional() @IsString() controlId?: string;
   @IsOptional() @ValidateNested({ each: true }) @Type(() => CreateGastoDto) gastosFijos?: CreateGastoDto[];
 }

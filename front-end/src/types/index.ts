@@ -319,6 +319,7 @@ export interface CreatePresupuestoPayload {
   metaAhorro?: number
   fecha?: string
   year?: number
+  mesDesde?: number
   gastosFijos?: Array<{
     descripcion: string
     monto: number

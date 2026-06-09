@@ -68,7 +68,8 @@ export class PresupuestosService {
       const controlId = db.collection('presupuestos').doc().id;
       const batch = db.batch();
       const refs: string[] = [];
-      for (let mes = 1; mes <= 12; mes++) {
+      const desde = dto.mesDesde ?? 1;
+      for (let mes = desde; mes <= 12; mes++) {
         const doc = this.docFromDto(dto, user, mes, controlId);
         const ref = db.collection('presupuestos').doc();
         batch.set(ref, doc);
@@ -99,7 +100,7 @@ export class PresupuestosService {
         await batch2.commit();
       }
 
-      return { controlId, year: dto.year, tipo: dto.tipo, meses: refs.length };
+      return { controlId, year: dto.year, tipo: dto.tipo, meses: refs.length, desde };
     }
 
     const doc = this.docFromDto(dto, user, 0, '');
@@ -154,6 +155,47 @@ export class PresupuestosService {
     });
     controles.sort((a, b) => b.year - a.year);
     return controles;
+  }
+
+  async carryToNewYear(controlId: string, user: FirebaseUser) {
+    const db = this.firebaseService.firestore;
+    const snapshot = await db.collection('presupuestos')
+      .where('controlId', '==', controlId).where('userId', '==', user.uid).get();
+    if (snapshot.empty) throw new NotFoundException('Control no encontrado');
+
+    const presupuestos = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as any));
+    const todosCerrados = presupuestos.every((p) => p.cerrado);
+    if (!todosCerrados) throw new Error('No todos los meses están cerrados');
+
+    const diciembre = presupuestos.find((p) => p.mes === 12);
+    if (!diciembre) throw new Error('Diciembre no encontrado');
+
+    const gastosSnap = await db.collection('presupuestos').doc(diciembre.id).collection('gastos').get();
+    const totalGastos = gastosSnap.docs.reduce((s, d) => s + ((d.data() as any).montoFinal ?? 0), 0);
+    const ingresosDiciembre = (diciembre.tipo === 'mensual' ? diciembre.salarioMensual : diciembre.salarioQ1 + diciembre.salarioQ2) + diciembre.sobranteAnterior + diciembre.efectivoExtra;
+    const remainder = ingresosDiciembre - totalGastos;
+
+    const first = presupuestos[0];
+    const nextYear = first.year + 1;
+    const newControlId = db.collection('presupuestos').doc().id;
+    const batch = db.batch();
+    for (let mes = 1; mes <= 12; mes++) {
+      const doc: PresupuestoDocument = {
+        carteraId: first.carteraId ?? '',
+        tipo: first.tipo,
+        salarioMensual: first.salarioMensual, salarioQ1: first.salarioQ1, salarioQ2: first.salarioQ2,
+        sobranteAnterior: mes === 1 ? remainder : 0,
+        efectivoExtra: 0,
+        metaFijos: first.metaFijos, metaOcio: first.metaOcio, metaAhorro: first.metaAhorro,
+        fecha: '', year: nextYear, mes, controlId: newControlId,
+        cerrado: false, cerradoEn: null,
+        userId: user.uid, creadoEn: new Date().toISOString(),
+      };
+      batch.set(db.collection('presupuestos').doc(), doc);
+    }
+    await batch.commit();
+
+    return { controlId: newControlId, year: nextYear, sobranteInicial: remainder };
   }
 
   async findOne(id: string) {

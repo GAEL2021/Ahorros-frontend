@@ -81,6 +81,14 @@ export function useFetchControles() {
   })
 }
 
+export function useCarryToNewYear() {
+  const qc = useQueryClient()
+  return useMutation<unknown, Error, string>({
+    mutationFn: async (controlId) => { const { data } = await apiClient.post(`/presupuestos/${controlId}/carry-to-new-year`); return data },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['controles'] }); qc.invalidateQueries({ queryKey: ['presupuestos'] }) },
+  })
+}
+
 export function useCerrarMes() {
   const qc = useQueryClient()
   return useMutation<unknown, Error, string>({

@@ -16,6 +16,7 @@ export class PresupuestosController {
   @Get(':id') async findOne(@Param('id') id: string) { const p = await this.service.findOne(id); if (!p) throw new NotFoundException('No encontrado'); return p; }
   @Post(':id/gastos') addGasto(@Param('id') id: string, @Body() dto: CreateGastoDto, @Req() req: Request) { return this.service.addGasto(id, dto, req.user as FirebaseUser); }
   @Post(':id/cerrar-mes') async cerrarMes(@Param('id') id: string) { try { return await this.service.cerrarMes(id); } catch (e: any) { throw new BadRequestException(e.message); } }
+  @Post(':id/carry-to-new-year') async carryToNewYear(@Param('id') id: string, @Req() req: Request) { try { return await this.service.carryToNewYear(id, req.user as FirebaseUser); } catch (e: any) { throw new BadRequestException(e.message); } }
   @Patch(':id/gastos/:gastoId') updateGasto(@Param('id') id: string, @Param('gastoId') gastoId: string, @Body() dto: UpdateGastoDto) { return this.service.updateGasto(id, gastoId, dto); }
   @Delete(':id/gastos/:gastoId') deleteGasto(@Param('id') id: string, @Param('gastoId') gastoId: string) { return this.service.deleteGasto(id, gastoId); }
   @Delete(':id') delete(@Param('id') id: string) { return this.service.delete(id); }
