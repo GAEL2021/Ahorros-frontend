@@ -180,18 +180,18 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
   const [metaOcio, setMetaOcio] = useState(0)
   const [metaAhorro, setMetaAhorro] = useState(0)
   if (!open) return null
-  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault(); if (!carteraId) return; try { const payload: CreatePresupuestoPayload = { carteraId, tipo, sobranteAnterior: sobrante, efectivoExtra: efectivo, metaFijos, metaOcio, metaAhorro }; if (tipo === 'mensual') payload.salarioMensual = salario; else { payload.salarioQ1 = salarioQ1; payload.salarioQ2 = salarioQ2 } await create.mutateAsync(payload); sileo.success('Presupuesto creado'); onClose() } catch { sileo.error('Error') } }
+  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault(); if (!carteraId) return; try { const payload: CreatePresupuestoPayload = { carteraId, tipo, sobranteAnterior: sobrante, efectivoExtra: efectivo, metaFijos, metaOcio, metaAhorro }; if (tipo === 'mensual') payload.salarioMensual = salario; else { payload.salarioQ1 = salarioQ1; payload.salarioQ2 = salarioQ2 } await create.mutateAsync(payload); sileo.success('Control creado'); onClose() } catch { sileo.error('Error') } }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in" onClick={onClose}>
       <div className="glass rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-scale-in" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between border-b border-border px-6 py-4"><h2 className="text-base font-semibold text-ink">Nuevo Presupuesto</h2><button type="button" onClick={onClose} className="rounded-xl p-1.5 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
+        <div className="flex items-center justify-between border-b border-border px-6 py-4"><h2 className="text-base font-semibold text-ink">Nuevo Control</h2><button type="button" onClick={onClose} className="rounded-xl p-1.5 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
           <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Cartera</label><SearchableSelect options={(bancos ?? []).map((b) => ({ value: b.id, label: `${b.nombre}-${b.creadoPorNombre}-${b.tipoCuenta === 'credito' ? 'C' : 'D'}` }))} value={carteraId} onChange={setCarteraId} placeholder="Seleccionar cartera" required /></div>
           <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Frecuencia</label><div className="flex rounded-xl border border-border overflow-hidden"><button type="button" onClick={() => setTipo('mensual')} className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${tipo === 'mensual' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Mensual</button><button type="button" onClick={() => setTipo('quincenal')} className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${tipo === 'quincenal' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Quincenal</button></div></div>
           <div className="grid grid-cols-2 gap-3"><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Sobrante anterior</label><input type="number" min={0} inputMode="decimal" step="0.01" value={sobrante || ''} onChange={(e) => setSobrante(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Efectivo extra</label><input type="number" min={0} inputMode="decimal" step="0.01" value={efectivo || ''} onChange={(e) => setEfectivo(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div></div>
           {tipo === 'mensual' ? <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Salario mensual</label><input type="number" min={0} inputMode="decimal" step="0.01" value={salario || ''} onChange={(e) => setSalario(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div> : <div className="grid grid-cols-2 gap-3"><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Salario Q1</label><input type="number" min={0} inputMode="decimal" step="0.01" value={salarioQ1 || ''} onChange={(e) => setSalarioQ1(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Salario Q2</label><input type="number" min={0} inputMode="decimal" step="0.01" value={salarioQ2 || ''} onChange={(e) => setSalarioQ2(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div></div>}
-          <div className="border-t border-border pt-4"><span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">Metas del presupuesto</span><div className="grid grid-cols-3 gap-2 mt-2"><div><label className="mb-1 block text-[10px] text-ink-muted">Gastos Fijos</label><input type="number" min={0} inputMode="decimal" step="0.01" value={metaFijos || ''} onChange={(e) => setMetaFijos(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div><div><label className="mb-1 block text-[10px] text-ink-muted">Ocio</label><input type="number" min={0} inputMode="decimal" step="0.01" value={metaOcio || ''} onChange={(e) => setMetaOcio(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-accent/50 focus:outline-none" /></div><div><label className="mb-1 block text-[10px] text-ink-muted">Ahorro</label><input type="number" min={0} inputMode="decimal" step="0.01" value={metaAhorro || ''} onChange={(e) => setMetaAhorro(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-success/50 focus:outline-none" /></div></div></div>
-          <div className="flex justify-end gap-3 pt-2"><button type="button" onClick={onClose} className="rounded-xl border border-border px-4 py-2.5 text-sm text-ink-muted hover:bg-surface">Cancelar</button><button type="submit" disabled={create.isPending || !carteraId} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-[var(--bg)] hover:bg-primary-light disabled:opacity-50">{create.isPending ? 'Creando...' : 'Crear presupuesto'}</button></div>
+          <div className="border-t border-border pt-4"><span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">Metas del control</span><div className="grid grid-cols-3 gap-2 mt-2"><div><label className="mb-1 block text-[10px] text-ink-muted">Gastos Fijos</label><input type="number" min={0} inputMode="decimal" step="0.01" value={metaFijos || ''} onChange={(e) => setMetaFijos(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div><div><label className="mb-1 block text-[10px] text-ink-muted">Ocio</label><input type="number" min={0} inputMode="decimal" step="0.01" value={metaOcio || ''} onChange={(e) => setMetaOcio(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-accent/50 focus:outline-none" /></div><div><label className="mb-1 block text-[10px] text-ink-muted">Ahorro</label><input type="number" min={0} inputMode="decimal" step="0.01" value={metaAhorro || ''} onChange={(e) => setMetaAhorro(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-success/50 focus:outline-none" /></div></div></div>
+          <div className="flex justify-end gap-3 pt-2"><button type="button" onClick={onClose} className="rounded-xl border border-border px-4 py-2.5 text-sm text-ink-muted hover:bg-surface">Cancelar</button><button type="submit" disabled={create.isPending || !carteraId} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-[var(--bg)] hover:bg-primary-light disabled:opacity-50">{create.isPending ? 'Creando...' : 'Crear control'}</button></div>
         </form>
       </div>
     </div>
@@ -312,7 +312,7 @@ function PresupuestoDetail({ presupuestoId, onClose }: { presupuestoId: string; 
       <div className="relative w-full max-w-2xl bg-surface border-l border-border shadow-2xl flex flex-col h-full animate-slide-up">
         <div className="flex items-center justify-between border-b border-border px-5 py-4 flex-shrink-0">
           <div>
-            <h2 className="text-base font-semibold text-ink">Presupuesto {p.tipo === 'mensual' ? 'Mensual' : 'Quincenal'}</h2>
+            <h2 className="text-base font-semibold text-ink">Control {p.tipo === 'mensual' ? 'Mensual' : 'Quincenal'}</h2>
             <p className="text-xs text-ink-muted mt-0.5">{p.tipo === 'mensual' ? `Salario: ${fmt(p.salarioMensual)}` : `Q1: ${fmt(p.salarioQ1)} | Q2: ${fmt(p.salarioQ2)}`}</p>
           </div>
           <div className="flex items-center gap-2">
@@ -397,11 +397,11 @@ export default function PresupuestosPage() {
     <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between animate-fade-in">
         <div>
-          <h1 className="text-2xl font-semibold text-ink tracking-tight">Presupuestos</h1>
+          <h1 className="text-2xl font-semibold text-ink tracking-tight">Control de Finanzas</h1>
           <p className="mt-1 text-sm text-ink-muted">Controlá tus gastos basado en tu frecuencia de salario</p>
         </div>
         <button type="button" onClick={() => setShowCreate(true)} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-[var(--bg)] shadow-lg shadow-primary/20 transition-all hover:bg-primary-light active:scale-[0.97]">
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>Nuevo presupuesto
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>Nuevo control
         </button>
       </div>
       {isLoading && <div className="space-y-3">{Array.from({ length: 2 }).map((_, i) => <div key={i} className="glass rounded-2xl p-5 space-y-3"><div className="skeleton h-4 w-48" /><div className="skeleton h-8 w-full rounded-xl" /></div>)}</div>}
@@ -410,10 +410,10 @@ export default function PresupuestosPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20" style={{ animation: 'float 3s ease-in-out infinite' }}>
             <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
           </div>
-          <h3 className="text-lg font-semibold text-ink">Sin presupuestos</h3>
-          <p className="mt-1.5 text-sm text-ink-muted">Creá tu primer presupuesto vinculado a una cartera.</p>
+          <h3 className="text-lg font-semibold text-ink">Sin controles</h3>
+          <p className="mt-1.5 text-sm text-ink-muted">Creá tu primer control financiero vinculado a una cartera.</p>
           <button type="button" onClick={() => setShowCreate(true)} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-[var(--bg)] shadow-lg shadow-primary/20 transition-all hover:bg-primary-light active:scale-[0.97]">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>Crear presupuesto
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>Crear control
           </button>
         </div>
       )}
@@ -428,10 +428,10 @@ export default function PresupuestosPage() {
               <div key={p.id} className="glass rounded-2xl border-l-4 border-l-primary card-hover p-5 cursor-pointer" onClick={() => setDetailId(p.id)}>
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <h3 className="text-sm font-semibold text-ink">Presupuesto {p.tipo === 'mensual' ? 'Mensual' : 'Quincenal'}</h3>
+                    <h3 className="text-sm font-semibold text-ink">Control {p.tipo === 'mensual' ? 'Mensual' : 'Quincenal'}</h3>
                     <p className="text-[11px] text-ink-muted mt-0.5">{p.tipo === 'mensual' ? `Salario: ${fmt(p.salarioMensual)}` : `Q1: ${fmt(p.salarioQ1)} | Q2: ${fmt(p.salarioQ2)}`} · {gastos.length} gastos</p>
                   </div>
-                  <button type="button" onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(p.id) }} className="text-ink-muted hover:text-danger transition-colors p-1" title="Eliminar presupuesto">
+                  <button type="button" onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(p.id) }} className="text-ink-muted hover:text-danger transition-colors p-1" title="Eliminar control">
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                   </button>
                 </div>
@@ -461,14 +461,14 @@ export default function PresupuestosPage() {
           onConfirm={async () => {
             try {
               await deleteP.mutateAsync(confirmDeleteId)
-              sileo.info('Presupuesto eliminado')
+              sileo.info('Control eliminado')
               setConfirmDeleteId(null)
             } catch {
               sileo.error('Error al eliminar')
             }
           }}
-          title="Eliminar Presupuesto"
-          message="¿Estás seguro de que deseas eliminar este presupuesto? Se perderán todos los gastos asociados de forma permanente."
+          title="Eliminar Control"
+          message="¿Estás seguro de que deseas eliminar este control? Se perderán todos los gastos asociados de forma permanente."
           confirmLabel="Eliminar"
           danger
           loading={deleteP.isPending}

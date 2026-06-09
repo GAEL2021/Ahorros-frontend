@@ -185,7 +185,7 @@ export default function DashboardPage() {
                     ¡Hola, {user?.displayName || user?.email || 'Usuario'}!
                   </h3>
                   <p className="text-xs text-ink-muted mt-1 leading-relaxed">
-                    Gestiona tus presupuestos, carteras de ahorro y colabora con tu grupo de forma interactiva.
+                    Gestiona tus finanzas, carteras de ahorro y colabora con tu grupo de forma interactiva.
                   </p>
                 </div>
 
@@ -332,7 +332,7 @@ export default function DashboardPage() {
                 <Card variant="light" delay={0.7} className="space-y-4 h-full flex flex-col justify-between">
                   <div className="flex items-center justify-between border-b border-border pb-3">
                     <h3 className="text-sm font-bold text-ink flex items-center gap-2">
-                      <span>📊</span> Presupuestos vs Metas
+                      <span>📊</span> Control vs Metas
                     </h3>
                     <span className="text-[9px] bg-primary/10 px-2 py-0.5 rounded-full font-bold text-primary">Análisis</span>
                   </div>
@@ -348,7 +348,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between text-[11px] font-semibold text-ink-muted">
-                        <span>Presupuesto Libre</span>
+                        <span>Disponible</span>
                         <span className="text-ink font-bold">${Math.max(0, totalBalance - (goals?.reduce((sum, g) => sum + (g.estado === 'activo' ? g.montoAcumulado : 0), 0) ?? 0)).toLocaleString()}</span>
                       </div>
                       <div className="w-full bg-border h-1.5 rounded-full overflow-hidden">
