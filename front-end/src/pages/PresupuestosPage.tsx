@@ -2,11 +2,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useFetchPresupuestos, useCreatePresupuesto, useDeletePresupuesto, usePresupuestoDetail, useAddGasto, useDeleteGasto, useUpdateGasto } from '@/hooks/usePresupuestos'
-import { useFetchBancos } from '@/hooks/useFetchBancos'
 import { sileo } from '@/lib/sileo'
 import type { Presupuesto, CreatePresupuestoPayload, Gasto } from '@/types'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
-import SearchableSelect from '@/components/ui/SearchableSelect'
 import ConfirmModal from '@/components/ConfirmModal'
 
 const CAT_LABELS: Record<string, string> = { fijos: 'Gastos Fijos', ocio: 'Ocio', ahorro: 'Ahorro' }
@@ -140,28 +138,33 @@ function GastoCard({ g, presupuestoId }: { g: Gasto; presupuestoId: string }) {
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
         </button>
       </div>
-      <div className="flex items-center justify-between gap-2 text-xs">
-        <div className="flex items-center gap-2">
-          <select value={g.categoria} onChange={(e) => changeCategoria(e.target.value)} className={`rounded-lg border-0 px-1.5 py-0.5 text-[10px] font-semibold ${catBg} focus:outline-none cursor-pointer`}>
-            <option value="fijos">Fijos</option><option value="ocio">Ocio</option><option value="ahorro">Ahorro</option>
-          </select>
-          {g.esFijo && g.cuotasOriginales > 0 && (
-            <span className="text-[10px] text-ink-muted font-medium">Cuota {g.cuotasRestantes}/{g.cuotasOriginales}</span>
-          )}
-          <span className="text-ink-muted">P: {fmt(g.montoEstimado || g.monto)}</span>
+      <div className="flex flex-col gap-1.5 text-xs">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <select value={g.categoria} onChange={(e) => changeCategoria(e.target.value)} className={`rounded-lg border-0 px-1.5 py-0.5 text-[10px] font-semibold ${catBg} focus:outline-none cursor-pointer`}>
+              <option value="fijos">Fijos</option><option value="ocio">Ocio</option><option value="ahorro">Ahorro</option>
+            </select>
+            {g.esFijo && g.cuotasOriginales > 0 && (
+              <span className="text-[10px] text-ink-muted font-medium">Cuota {g.cuotasRestantes}/{g.cuotasOriginales}</span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 text-ink-muted">
+            <span>Presup: <strong className="text-ink">{fmt(g.montoEstimado || g.monto)}</strong></span>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between gap-2">
           {hasFinal && diff !== 0 && (
-            <span className={`font-semibold ${diff > 0 ? 'text-success' : 'text-danger'}`}>
-              {diff > 0 ? '+' : ''}{fmt(diff)}
+            <span className={`text-xs font-semibold ${diff > 0 ? 'text-success' : 'text-danger'}`}>
+              {diff > 0 ? 'Ahorro +' : 'Perdida '}{fmt(Math.abs(diff))}
             </span>
           )}
+          {!hasFinal && <span />}
           {actualEdit ? (
-            <input type="number" inputMode="decimal" min={0} step="0.01" value={actualVal || ''} autoFocus onChange={(e) => setActualVal(Number(e.target.value))} onBlur={commitActual} onKeyDown={(e) => { if (e.key === 'Enter') commitActual(); if (e.key === 'Escape') { setActualEdit(false); setActualVal(g.montoFinal || g.monto) } }} className="w-16 rounded border border-primary/40 bg-surface px-1 py-0.5 text-xs text-ink text-right focus:outline-none" />
+            <input type="number" inputMode="decimal" min={0} step="0.01" value={actualVal || ''} autoFocus onChange={(e) => setActualVal(Number(e.target.value))} onBlur={commitActual} onKeyDown={(e) => { if (e.key === 'Enter') commitActual(); if (e.key === 'Escape') { setActualEdit(false); setActualVal(g.montoFinal || g.monto) } }} className="w-24 rounded-lg border border-primary/40 bg-surface px-2 py-1 text-xs text-ink text-right focus:outline-none" />
           ) : (
-            <button type="button" onClick={() => setActualEdit(true)} className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2 py-1 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors">
+            <button type="button" onClick={() => setActualEdit(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors">
               <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-              R: {fmt(g.montoFinal || 0)}
+              Real: <strong>{fmt(g.montoFinal || 0)}</strong>
             </button>
           )}
         </div>
@@ -171,16 +174,11 @@ function GastoCard({ g, presupuestoId }: { g: Gasto; presupuestoId: string }) {
 }
 
 function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { data: bancos } = useFetchBancos()
   const create = useCreatePresupuesto()
   const [tipo, setTipo] = useState<'mensual' | 'quincenal'>('mensual')
-  const [carteraId, setCarteraId] = useState('')
   const [sobrante, setSobrante] = useState(0)
   const [efectivo, setEfectivo] = useState(0)
   const [salario, setSalario] = useState(0)
-  const [metaFijos, setMetaFijos] = useState(0)
-  const [metaOcio, setMetaOcio] = useState(0)
-  const [metaAhorro, setMetaAhorro] = useState(0)
   const [gastosFijos, setGastosFijos] = useState<{ desc: string; monto: number; cat: 'fijos' | 'ocio' | 'ahorro'; quincena: string; cuotas: number }[]>([])
 
   const addGastoFijo = () => setGastosFijos([...gastosFijos, { desc: '', monto: 0, cat: 'fijos', quincena: '', cuotas: 0 }])
@@ -191,11 +189,10 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
 
   if (!open) return null
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); if (!carteraId) return; try {
-      const base = { carteraId, tipo, sobranteAnterior: sobrante, efectivoExtra: efectivo, metaFijos, metaOcio, metaAhorro }
-      const payload: any = tipo === 'mensual'
-        ? { ...base, salarioMensual: salario }
-        : { ...base, salarioQ1: salario / 2, salarioQ2: salario / 2 }
+    e.preventDefault(); try {
+      const payload: any = { tipo, sobranteAnterior: sobrante, efectivoExtra: efectivo }
+      if (tipo === 'mensual') payload.salarioMensual = salario
+      else { payload.salarioQ1 = salario / 2; payload.salarioQ2 = salario / 2 }
       const fijos = gastosFijos.filter(g => g.desc.trim() && g.monto > 0).map(g => ({
         descripcion: g.desc.trim(), monto: g.monto,
         categoria: g.cat, esFijo: true,
@@ -211,7 +208,6 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
       <div className="glass rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-scale-in" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-border px-6 py-4"><h2 className="text-base font-semibold text-ink">Nuevo Control</h2><button type="button" onClick={onClose} className="rounded-xl p-1.5 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
-          <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Cartera</label><SearchableSelect options={(bancos ?? []).map((b) => ({ value: b.id, label: `${b.nombre}-${b.creadoPorNombre}-${b.tipoCuenta === 'credito' ? 'C' : 'D'}` }))} value={carteraId} onChange={setCarteraId} placeholder="Seleccionar cartera" required /></div>
           <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Frecuencia</label><div className="flex rounded-xl border border-border overflow-hidden"><button type="button" onClick={() => setTipo('mensual')} className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${tipo === 'mensual' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Mensual</button><button type="button" onClick={() => setTipo('quincenal')} className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${tipo === 'quincenal' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Quincenal</button></div></div>
 
           <div>
@@ -221,28 +217,44 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
           </div>
 
           <div className="grid grid-cols-2 gap-3"><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Sobrante anterior</label><input type="number" min={0} inputMode="decimal" step="0.01" value={sobrante || ''} onChange={(e) => setSobrante(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Efectivo extra</label><input type="number" min={0} inputMode="decimal" step="0.01" value={efectivo || ''} onChange={(e) => setEfectivo(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div></div>
-          <div className="border-t border-border pt-4"><span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">Metas del control</span><div className="grid grid-cols-3 gap-2 mt-2"><div><label className="mb-1 block text-[10px] text-ink-muted">Gastos Fijos</label><input type="number" min={0} inputMode="decimal" step="0.01" value={metaFijos || ''} onChange={(e) => setMetaFijos(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div><div><label className="mb-1 block text-[10px] text-ink-muted">Ocio</label><input type="number" min={0} inputMode="decimal" step="0.01" value={metaOcio || ''} onChange={(e) => setMetaOcio(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-accent/50 focus:outline-none" /></div><div><label className="mb-1 block text-[10px] text-ink-muted">Ahorro</label><input type="number" min={0} inputMode="decimal" step="0.01" value={metaAhorro || ''} onChange={(e) => setMetaAhorro(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-success/50 focus:outline-none" /></div></div></div>
 
           <div className="border-t border-border pt-4">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">Gastos Fijos Recurrentes</span>
             <p className="text-[10px] text-ink-muted mt-1 mb-2">Se crearán automáticamente cada mes. Si tienen cuotas, se desactivarán al terminar.</p>
             {gastosFijos.map((g, i) => (
-              <div key={i} className="rounded-xl border border-border bg-surface p-3 mb-2 space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <input type="text" value={g.desc} onChange={(e) => updateGastoFijo(i, 'desc', e.target.value)} placeholder="Descripción" className="flex-1 rounded border border-border bg-surface px-2 py-1.5 text-xs text-ink focus:outline-none focus:border-primary/50" />
-                  <button type="button" onClick={() => removeGastoFijo(i)} className="text-ink-muted hover:text-danger transition-colors p-1"><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+              <div key={i} className="rounded-xl border border-border bg-surface p-3 mb-2 relative">
+                <button type="button" onClick={() => removeGastoFijo(i)} className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-surface text-ink-muted hover:bg-danger hover:text-white hover:border-danger transition-all shadow-sm z-10">
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+                <div className="mb-2">
+                  <label className="mb-0.5 block text-[9px] font-semibold uppercase tracking-wider text-ink-muted">Descripción</label>
+                  <input type="text" value={g.desc} onChange={(e) => updateGastoFijo(i, 'desc', e.target.value)} placeholder="Ej: Netflix, Renta, Gym..." className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-muted/40 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1"><input type="number" min={0} step="0.01" value={g.monto || ''} onChange={(e) => updateGastoFijo(i, 'monto', Number(e.target.value))} placeholder="$" className="w-full rounded border border-border bg-surface px-2 py-1.5 text-xs text-ink focus:outline-none focus:border-primary/50" /></div>
-                  <select value={g.cat} onChange={(e) => updateGastoFijo(i, 'cat', e.target.value)} className="rounded border border-border bg-surface px-2 py-1.5 text-xs text-ink focus:outline-none">
-                    <option value="fijos">Fijos</option><option value="ocio">Ocio</option><option value="ahorro">Ahorro</option>
-                  </select>
-                  {tipo === 'quincenal' && (
-                    <select value={g.quincena} onChange={(e) => updateGastoFijo(i, 'quincena', e.target.value)} className="rounded border border-border bg-surface px-2 py-1.5 text-xs text-ink focus:outline-none">
-                      <option value="">Ambas</option><option value="Q1">Q1</option><option value="Q2">Q2</option>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="mb-0.5 block text-[9px] font-semibold uppercase tracking-wider text-ink-muted">Monto</label>
+                    <input type="number" min={0} step="0.01" value={g.monto || ''} onChange={(e) => updateGastoFijo(i, 'monto', Number(e.target.value))} placeholder="$ 0.00" className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-muted/40 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="mb-0.5 block text-[9px] font-semibold uppercase tracking-wider text-ink-muted">Categoría</label>
+                    <select value={g.cat} onChange={(e) => updateGastoFijo(i, 'cat', e.target.value)} className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all appearance-none cursor-pointer">
+                      <option value="fijos">Fijos</option><option value="ocio">Ocio</option><option value="ahorro">Ahorro</option>
                     </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {tipo === 'quincenal' && (
+                    <div>
+                      <label className="mb-0.5 block text-[9px] font-semibold uppercase tracking-wider text-ink-muted">Quincena</label>
+                      <select value={g.quincena} onChange={(e) => updateGastoFijo(i, 'quincena', e.target.value)} className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all appearance-none cursor-pointer">
+                        <option value="">Ambas</option><option value="Q1">Q1</option><option value="Q2">Q2</option>
+                      </select>
+                    </div>
                   )}
-                  <div className="w-20"><input type="number" min={0} step={1} value={g.cuotas || ''} onChange={(e) => updateGastoFijo(i, 'cuotas', Number(e.target.value))} placeholder="Cuotas" className="w-full rounded border border-border bg-surface px-2 py-1.5 text-xs text-ink focus:outline-none focus:border-primary/50" /></div>
+                  <div className={tipo === 'quincenal' ? '' : 'col-span-2'}>
+                    <label className="mb-0.5 block text-[9px] font-semibold uppercase tracking-wider text-ink-muted">Cuotas (0 = ilimitado)</label>
+                    <input type="number" min={0} step={1} value={g.cuotas || ''} onChange={(e) => updateGastoFijo(i, 'cuotas', Number(e.target.value))} placeholder="0" className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-muted/40 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all" />
+                  </div>
                 </div>
               </div>
             ))}
@@ -251,7 +263,7 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
             </button>
           </div>
 
-          <div className="flex justify-end gap-3 pt-2"><button type="button" onClick={onClose} className="rounded-xl border border-border px-4 py-2.5 text-sm text-ink-muted hover:bg-surface">Cancelar</button><button type="submit" disabled={create.isPending || !carteraId} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-[var(--bg)] hover:bg-primary-light disabled:opacity-50">{create.isPending ? 'Creando...' : 'Crear control'}</button></div>
+          <div className="flex justify-end gap-3 pt-2"><button type="button" onClick={onClose} className="rounded-xl border border-border px-4 py-2.5 text-sm text-ink-muted hover:bg-surface">Cancelar</button><button type="submit" disabled={create.isPending} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-[var(--bg)] hover:bg-primary-light disabled:opacity-50">{create.isPending ? 'Creando...' : 'Crear control'}</button></div>
         </form>
       </div>
     </div>

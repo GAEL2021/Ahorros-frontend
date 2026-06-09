@@ -3,15 +3,15 @@ import { Type } from 'class-transformer';
 import { CreateGastoDto } from './create-gasto.dto';
 
 export class CreatePresupuestoDto {
-  @IsString() carteraId!: string;
+  @IsOptional() @IsString() carteraId?: string;
   @IsString() @IsIn(['mensual', 'quincenal']) tipo!: 'mensual' | 'quincenal';
   @IsOptional() @IsNumber() @Min(0) salarioMensual?: number;
   @IsOptional() @IsNumber() @Min(0) salarioQ1?: number;
   @IsOptional() @IsNumber() @Min(0) salarioQ2?: number;
   @IsNumber() @Min(0) sobranteAnterior!: number;
   @IsNumber() @Min(0) efectivoExtra!: number;
-  @IsNumber() @Min(0) metaFijos!: number;
-  @IsNumber() @Min(0) metaOcio!: number;
-  @IsNumber() @Min(0) metaAhorro!: number;
+  @IsOptional() @IsNumber() @Min(0) metaFijos?: number;
+  @IsOptional() @IsNumber() @Min(0) metaOcio?: number;
+  @IsOptional() @IsNumber() @Min(0) metaAhorro?: number;
   @IsOptional() @ValidateNested({ each: true }) @Type(() => CreateGastoDto) gastosFijos?: CreateGastoDto[];
 }

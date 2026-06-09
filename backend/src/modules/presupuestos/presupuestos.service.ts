@@ -30,13 +30,15 @@ export class PresupuestosService {
 
   async create(dto: CreatePresupuestoDto, user: FirebaseUser) {
     const db = this.firebaseService.firestore;
-    const carteraDoc = await db.collection('bancos').doc(dto.carteraId).get();
-    if (!carteraDoc.exists) throw new NotFoundException('Cartera no encontrada');
+    if (dto.carteraId) {
+      const carteraDoc = await db.collection('bancos').doc(dto.carteraId).get();
+      if (!carteraDoc.exists) throw new NotFoundException('Cartera no encontrada');
+    }
     const doc: PresupuestoDocument = {
-      carteraId: dto.carteraId, tipo: dto.tipo,
+      carteraId: dto.carteraId ?? '', tipo: dto.tipo,
       salarioMensual: dto.salarioMensual ?? 0, salarioQ1: dto.salarioQ1 ?? 0, salarioQ2: dto.salarioQ2 ?? 0,
       sobranteAnterior: dto.sobranteAnterior, efectivoExtra: dto.efectivoExtra,
-      metaFijos: dto.metaFijos, metaOcio: dto.metaOcio, metaAhorro: dto.metaAhorro,
+      metaFijos: dto.metaFijos ?? 0, metaOcio: dto.metaOcio ?? 0, metaAhorro: dto.metaAhorro ?? 0,
       userId: user.uid, creadoEn: new Date().toISOString(),
     };
     const ref = await db.collection('presupuestos').add(doc);
