@@ -440,73 +440,145 @@ function PresupuestoDetail({ presupuestoId, onClose }: { presupuestoId: string; 
   )
 }
 
-function ControlCard({ control }: { control: any }) {
-  const [expanded, setExpanded] = useState(false)
-  const [detailId, setDetailId] = useState<string | null>(null)
-  const deleteP = useDeletePresupuesto()
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+function ControlDetail({ control, onClose }: { control: any; onClose: () => void }) {
+  const presupuestos = (control.presupuestos ?? []).sort((a: any, b: any) => a.mes - b.mes)
+  const [mesActivo, setMesActivo] = useState(presupuestos[0]?.mes ?? 1)
+  const p = presupuestos.find((x: any) => x.mes === mesActivo)
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [tabQuincena, setTabQuincena] = useState<'Q1' | 'Q2' | 'todas'>('todas')
+  const cerrarMes = useCerrarMes()
+  const { data: detalle } = usePresupuestoDetail(p?.id ?? '')
 
+  const mesData = detalle ?? p
+  if (!p) return null
+
+  const gastos: Gasto[] = mesData.gastos ?? []
+  const mostrarQ = control.tipo === 'quincenal'
+  const gastosFiltrados = mostrarQ && tabQuincena !== 'todas' ? gastos.filter((g) => g.quincena === tabQuincena) : gastos
+  const totalesPorCat: Record<string, { estimado: number; actual: number }> = { fijos: { estimado: 0, actual: 0 }, ocio: { estimado: 0, actual: 0 }, ahorro: { estimado: 0, actual: 0 } }
+  gastosFiltrados.forEach((g) => { totalesPorCat[g.categoria].estimado += g.montoEstimado || g.monto; totalesPorCat[g.categoria].actual += g.estaConciliado ? (g.montoFinal || g.monto) : 0 })
+  const totalEstimado = Object.values(totalesPorCat).reduce((s, t) => s + t.estimado, 0)
+  const totalActual = Object.values(totalesPorCat).reduce((s, t) => s + t.actual, 0)
+  const inc = ingresos(mesData)
+  const totalGastado = gastos.reduce((s: number, g) => s + g.monto, 0)
+
+  const handleCerrarMes = async () => {
+    try { const res = await cerrarMes.mutateAsync(p.id); sileo.success(`Mes cerrado. Remanente: ${fmt(res.remainder)}`) }
+    catch { sileo.error('Error al cerrar mes') }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end animate-fade-in">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-2xl bg-surface border-l border-border shadow-2xl flex flex-col h-full animate-slide-up">
+        <div className="flex items-center justify-between border-b border-border px-5 py-4 flex-shrink-0">
+          <h2 className="text-base font-semibold text-ink">Control {control.year}</h2>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-ink-muted">{control.cerrados}/{control.totalPresupuestos} cerrados</span>
+            <button type="button" onClick={onClose} className="rounded-xl p-1.5 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+          </div>
+        </div>
+        <div className="border-b border-border px-5 py-2.5 flex gap-1 overflow-x-auto flex-shrink-0">
+          {presupuestos.map((m: any) => (
+            <button key={m.mes} type="button" onClick={() => { setMesActivo(m.mes); setTabQuincena('todas') }}
+              className={`flex-shrink-0 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${mesActivo === m.mes ? 'bg-primary/15 text-primary shadow-sm' : 'text-ink-muted hover:bg-surface hover:text-ink'} ${m.cerrado ? 'ring-1 ring-success/30' : ''}`}>
+              {MESES[m.mes - 1]}
+            </button>
+          ))}
+        </div>
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-ink">{MESES[mesActivo - 1]} {control.year}</h3>
+              {mesData.cerrado && <span className="rounded bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">Cerrado</span>}
+            </div>
+            {!mesData.cerrado && (
+              <button type="button" onClick={handleCerrarMes} disabled={cerrarMes.isPending} className="inline-flex items-center gap-1.5 rounded-lg bg-success/15 px-3 py-1.5 text-xs font-semibold text-success hover:bg-success/25 transition-colors disabled:opacity-50">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Cerrar Mes
+              </button>
+            )}
+          </div>
+          <CalcSummary p={mesData} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <DonutCard p={mesData} />
+            <div className="rounded-xl bg-surface border border-border p-4 space-y-2">
+              <div className="flex items-center justify-between text-xs"><span className="text-ink-muted">Presupuestado</span><span className="font-semibold text-ink">{fmt(totalEstimado)}</span></div>
+              <div className="flex items-center justify-between text-xs"><span className="text-ink-muted">Conciliado</span><span className="font-semibold text-success">{fmt(totalActual)}</span></div>
+              <div className="border-t border-border pt-2"><div className="flex items-center justify-between text-xs"><span className="text-ink-muted">Total disponible</span><span className="font-semibold text-ink">{fmt(inc)}</span></div></div>
+            </div>
+          </div>
+          {mostrarQ && (
+            <>
+              <div className="flex rounded-xl border border-border overflow-hidden">
+                <button type="button" onClick={() => setTabQuincena('todas')} className={`flex-1 py-2 text-xs font-semibold transition-colors ${tabQuincena === 'todas' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Todas</button>
+                <button type="button" onClick={() => setTabQuincena('Q1')} className={`flex-1 py-2 text-xs font-semibold transition-colors ${tabQuincena === 'Q1' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Q1</button>
+                <button type="button" onClick={() => setTabQuincena('Q2')} className={`flex-1 py-2 text-xs font-semibold transition-colors ${tabQuincena === 'Q2' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Q2</button>
+              </div>
+              <div className="rounded-xl bg-surface border border-border p-3 space-y-1.5 text-xs">
+                <div className="flex items-center justify-between"><span className="text-ink-muted">Q1 · Saldo inicial</span><span className="font-semibold text-ink">{fmt(mesData.sobranteAnterior)}</span></div>
+                <div className="flex items-center justify-between"><span className="text-ink-muted">Q1 · Salario</span><span className="font-semibold text-ink">+{fmt(mesData.salarioQ1)}</span></div>
+                {(() => { const q1g = gastos.filter(g => g.quincena === 'Q1'); const t = q1g.reduce((s, g) => s + (g.estaConciliado ? (g.montoFinal || g.monto) : g.monto), 0); return <div className="flex items-center justify-between"><span className="text-ink-muted">Q1 · Gastos</span><span className="font-semibold text-danger">-{fmt(t)}</span></div> })()}
+                {(() => { const q1g = gastos.filter(g => g.quincena === 'Q1'); const t = q1g.reduce((s, g) => s + (g.estaConciliado ? (g.montoFinal || g.monto) : g.monto), 0); const r = mesData.sobranteAnterior + mesData.salarioQ1 - t; return <div className="flex items-center justify-between border-t border-border pt-1"><span className="text-ink-muted">Q1 · Pasa a Q2</span><span className={`font-semibold ${r >= 0 ? 'text-success' : 'text-danger'}`}>{fmt(r)}</span></div> })()}
+                <div className="flex items-center justify-between"><span className="text-ink-muted">Q2 · Salario</span><span className="font-semibold text-ink">+{fmt(mesData.salarioQ2)}</span></div>
+                {(() => { const q2g = gastos.filter(g => g.quincena === 'Q2'); const t = q2g.reduce((s, g) => s + (g.estaConciliado ? (g.montoFinal || g.monto) : g.monto), 0); return <div className="flex items-center justify-between"><span className="text-ink-muted">Q2 · Gastos</span><span className="font-semibold text-danger">-{fmt(t)}</span></div> })()}
+                {(() => { const q1g = gastos.filter(g => g.quincena === 'Q1'); const q2g = gastos.filter(g => g.quincena === 'Q2'); const q1t = q1g.reduce((s, g) => s + (g.estaConciliado ? (g.montoFinal || g.monto) : g.monto), 0); const q2t = q2g.reduce((s, g) => s + (g.estaConciliado ? (g.montoFinal || g.monto) : g.monto), 0); const r = mesData.sobranteAnterior + mesData.salarioQ1 - q1t + mesData.salarioQ2 - q2t; return <div className="flex items-center justify-between border-t border-border pt-1"><span className="text-ink-muted">Q2 · Final del mes</span><span className={`font-semibold ${r >= 0 ? 'text-success' : 'text-danger'}`}>{fmt(r)}</span></div> })()}
+              </div>
+            </>
+          )}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-muted">Gastos</h3>
+                {mesData.cerrado && <span className="text-[10px] text-ink-muted">· Remanente: {fmt(inc - totalGastado)}</span>}
+              </div>
+              <div className="flex items-center gap-3 text-[10px] text-ink-muted">
+                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-border" /> Presupuesto</span>
+                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-success" /> Actual</span>
+              </div>
+            </div>
+            <div className="mb-3">
+              <button type="button" onClick={() => setShowAddModal(true)} disabled={mesData.cerrado} className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-[var(--bg)] hover:bg-primary-light transition-colors disabled:opacity-50">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>Agregar Gasto
+              </button>
+            </div>
+            {gastosFiltrados.length === 0 ? <p className="text-xs text-ink-muted text-center py-8">Sin gastos registrados aún.</p>
+              : <div className="space-y-2">{gastosFiltrados.map((g) => <GastoCard key={g.id} g={g} presupuestoId={p.id} />)}</div>}
+          </div>
+        </div>
+        <AddGastoModal open={showAddModal} onClose={() => setShowAddModal(false)} presupuestoId={p.id} mostrarQ={mostrarQ} />
+      </div>
+    </div>
+  )
+}
+
+function ControlCard({ control }: { control: any }) {
+  const [open, setOpen] = useState(false)
   const presupuestos = (control.presupuestos ?? []).sort((a: any, b: any) => a.mes - b.mes)
   const ingresosAnuales = presupuestos.reduce((s: number, p: any) => s + ingresos(p), 0)
   const gastosAnuales = presupuestos.reduce((s: number, p: any) => {
-    const gs = p.gastos ?? []
-    return s + gs.reduce((ss: number, g: any) => ss + g.monto, 0)
+    const gs = p.gastos ?? []; return s + gs.reduce((ss: number, g: any) => ss + g.monto, 0)
   }, 0)
 
   return (
     <>
-      <div className={`glass rounded-2xl border-l-4 transition-all ${expanded ? 'border-l-primary' : 'border-l-primary/40 card-hover'}`}>
-        <div className="p-5 cursor-pointer" onClick={() => setExpanded(!expanded)}>
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <h3 className="text-base font-semibold text-ink">Control {control.year}</h3>
-              <span className="rounded-lg bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">{control.tipo === 'mensual' ? 'Mensual' : 'Quincenal'}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-ink-muted">{control.cerrados}/{control.totalPresupuestos} meses cerrados</span>
-              <svg className={`h-4 w-4 text-ink-muted transition-transform ${expanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-            </div>
+      <div className="glass rounded-2xl border-l-4 border-l-primary/40 card-hover p-5 cursor-pointer" onClick={() => setOpen(true)}>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <h3 className="text-base font-semibold text-ink">Control {control.year}</h3>
+            <span className="rounded-lg bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">{control.tipo === 'mensual' ? 'Mensual' : 'Quincenal'}</span>
           </div>
-          <div className="h-1.5 w-full rounded-full bg-border">
-            <div className="h-full rounded-full bg-success transition-all" style={{ width: `${(control.cerrados / control.totalPresupuestos) * 100}%` }} />
-          </div>
-          <div className="mt-2 flex items-center gap-4 text-xs text-ink-muted">
-            <span>Ingresos: <strong className="text-ink">{fmt(ingresosAnuales)}</strong></span>
-            <span>Gastos: <strong className="text-ink">{fmt(gastosAnuales)}</strong></span>
-            <span>Balance: <strong className={ingresosAnuales - gastosAnuales >= 0 ? 'text-success' : 'text-danger'}>{fmt(ingresosAnuales - gastosAnuales)}</strong></span>
-          </div>
+          <span className="text-xs text-ink-muted">{control.cerrados}/{control.totalPresupuestos} meses cerrados</span>
         </div>
-        {expanded && (
-          <div className="border-t border-border px-5 py-4 space-y-2 stagger">
-            {presupuestos.map((p: any) => {
-              const gastos = p.gastos ?? []
-              const gastado = gastos.reduce((s: number, g: any) => s + g.monto, 0)
-              const inc = ingresos(p)
-              const queda = inc - gastado
-              return (
-                <div key={p.id} className="rounded-xl border border-border bg-surface p-3 hover:border-primary/30 transition-colors cursor-pointer" onClick={() => setDetailId(p.id)}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <h4 className="text-sm font-semibold text-ink">{MESES[p.mes - 1]}</h4>
-                      <span className="text-[10px] text-ink-muted">{gastos.length} gastos</span>
-                      {p.cerrado && <span className="rounded bg-success/10 px-1.5 py-0.5 text-[9px] font-semibold text-success">Cerrado</span>}
-                    </div>
-                    <div className="flex items-center gap-3 text-xs">
-                      <span className="text-ink-muted">Disponible: <strong className={queda >= 0 ? 'text-success' : 'text-danger'}>{fmt(inc)}</strong></span>
-                      <svg className="h-3.5 w-3.5 text-ink-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
+        <div className="h-1.5 w-full rounded-full bg-border">
+          <div className="h-full rounded-full bg-success transition-all" style={{ width: `${(control.cerrados / control.totalPresupuestos) * 100}%` }} />
+        </div>
+        <div className="mt-2 flex items-center gap-4 text-xs text-ink-muted">
+          <span>Ingresos: <strong className="text-ink">{fmt(ingresosAnuales)}</strong></span>
+          <span>Gastos: <strong className="text-ink">{fmt(gastosAnuales)}</strong></span>
+          <span>Balance: <strong className={ingresosAnuales - gastosAnuales >= 0 ? 'text-success' : 'text-danger'}>{fmt(ingresosAnuales - gastosAnuales)}</strong></span>
+        </div>
       </div>
-      {detailId && <PresupuestoDetail presupuestoId={detailId} onClose={() => setDetailId(null)} />}
-      {confirmDeleteId && createPortal(
-        <ConfirmModal open={!!confirmDeleteId} onClose={() => setConfirmDeleteId(null)} onConfirm={async () => { try { await deleteP.mutateAsync(confirmDeleteId); sileo.info('Eliminado'); setConfirmDeleteId(null) } catch { sileo.error('Error') } }} title="Eliminar Mes" message="¿Estás seguro?" confirmLabel="Eliminar" danger loading={deleteP.isPending} />,
-        document.body
-      )}
+      {open && <ControlDetail control={control} onClose={() => setOpen(false)} />}
     </>
   )
 }
