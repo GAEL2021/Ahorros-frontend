@@ -74,18 +74,18 @@ export default function MovementsPanel({ goalId, totalMonths, members }: Movemen
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-semibold text-ink">{m.email.split('@')[0]}</span>
                 <span className="text-[11px] font-medium text-ink-muted">
-                  ${m.saldoAportado.toLocaleString()} / ${(m.cuotaMensual * totalMonths).toLocaleString()}
+                  Aportado: ${m.saldoAportado.toLocaleString()} / Esperado: ${(m.cuotaMensual * totalMonths).toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center gap-3 text-[11px]">
-                <span className="flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  <span className="text-emerald-700 font-semibold">{m.pagadas}</span>
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-stone-400" />
-                  <span className="text-stone-500 font-semibold">{m.pendientes}</span>
-                </span>
+                    <span className="flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      <span className="text-emerald-700 font-semibold">{m.pagadas} pagadas</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-stone-400" />
+                      <span className="text-stone-500 font-semibold">{m.pendientes} pendientes</span>
+                    </span>
               </div>
             </div>
           ))}
@@ -126,7 +126,7 @@ export default function MovementsPanel({ goalId, totalMonths, members }: Movemen
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-xs tabular-nums text-ink-muted" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                            ${c.cuotaEsperada.toLocaleString()}
+                            Cuota: ${c.cuotaEsperada.toLocaleString()}
                           </span>
                           <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${st.bg} ${st.text}`}>
                             {st.label}

@@ -281,7 +281,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
       <div className="flex items-center justify-between gap-2 border-b border-border bg-surface-raised px-4 py-3">
         <div><h3 className="text-sm font-semibold text-ink">Checklist</h3>{total > 0 && <p className="mt-0.5 text-xs text-ink-muted">{completados}/{total} completado{total !== 1 ? 's' : ''}</p>}</div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-ink-muted">${totalEstimado.toLocaleString()} / ${metaMontoObjetivo.toLocaleString()}</span>
+          <span className="text-xs text-ink-muted">Est: ${totalEstimado.toLocaleString()} / Meta: ${metaMontoObjetivo.toLocaleString()}</span>
           {totalReal > 0 && <span className="text-[11px] font-semibold text-success">Real ${totalReal.toLocaleString()}</span>}
           {total > 0 && <div className="h-1.5 w-16 rounded-full bg-border overflow-hidden"><div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${(completados / total) * 100}%` }} /></div>}
         </div>
