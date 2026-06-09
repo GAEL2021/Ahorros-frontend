@@ -368,17 +368,17 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
                 </div>
                 <div className="flex items-center justify-between gap-2 text-xs">
                   <div className="flex items-center gap-3">
-                    <span className="text-ink-muted line-through">${(item.monto ?? 0).toLocaleString()}</span>
+                    <span className="text-ink-muted line-through">Est: ${(item.monto ?? 0).toLocaleString()}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     {realEditOpen ? (
-                      <input type="number" inputMode="decimal" min={0} value={inlineEditRealVal || ''} autoFocus onChange={(e) => setInlineEditRealVal(Number(e.target.value))} onBlur={commitReal} onKeyDown={(e) => { if (e.key === 'Enter') commitReal(); if (e.key === 'Escape') { setInlineEditRealId(null); setInlineEditRealVal(item.montoReal ?? 0) } }} className="w-20 rounded border border-primary/40 bg-surface px-1.5 py-0.5 text-xs text-ink text-right focus:outline-none" />
+                      <input type="number" inputMode="decimal" min={0} step="0.01" value={inlineEditRealVal || ''} autoFocus onChange={(e) => setInlineEditRealVal(Number(e.target.value))} onBlur={commitReal} onKeyDown={(e) => { if (e.key === 'Enter') commitReal(); if (e.key === 'Escape') { setInlineEditRealId(null); setInlineEditRealVal(item.montoReal ?? 0) } }} className="w-20 rounded border border-primary/40 bg-surface px-1.5 py-0.5 text-xs text-ink text-right focus:outline-none" />
                     ) : (
                       <button type="button" onClick={() => { setInlineEditRealId(item.id); setInlineEditRealVal(item.montoReal ?? 0) }} className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2 py-1 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors">
                         <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                         {item.completado && item.montoReal != null ? (
-                          <span className={isOver ? 'text-danger' : isUnder ? 'text-success' : ''}>${item.montoReal.toLocaleString()}</span>
-                        ) : <span className="text-ink-muted">$0</span>}
+                          <span className={isOver ? 'text-danger' : isUnder ? 'text-success' : ''}>Real: ${item.montoReal.toLocaleString()}</span>
+                        ) : <span className="text-ink-muted">Real: $0</span>}
                       </button>
                     )}
                   </div>
@@ -396,7 +396,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
       {createPortal(<FullModal open={!!realCostItemId} onClose={() => setRealCostItemId(null)} title="Costo real">
         <div className="p-5 space-y-4 sm:max-w-[80%] sm:mx-auto">
           <p className="text-sm text-ink-muted">Estimado: <span className="font-semibold text-ink">${(itemsList.find((i) => i.id === realCostItemId)?.monto ?? 0).toLocaleString()}</span> · Ahorrado: <span className="font-semibold text-ink">${metaMontoAcumulado.toLocaleString()}</span></p>
-          <div><label className="mb-1.5 block text-sm font-semibold text-ink">Monto real</label><div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden"><span className="pl-4 pr-1 text-base text-ink-muted">$</span><input type="number" inputMode="decimal" min={0} value={realCostValue || ''} onChange={(e) => setRealCostValue(Number(e.target.value))} autoFocus className="flex-1 py-3 pr-4 text-base font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div></div>
+          <div><label className="mb-1.5 block text-sm font-semibold text-ink">Monto real</label><div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden"><span className="pl-4 pr-1 text-base text-ink-muted">$</span><input type="number" inputMode="decimal" min={0} step="0.01" value={realCostValue || ''} onChange={(e) => setRealCostValue(Number(e.target.value))} autoFocus className="flex-1 py-3 pr-4 text-base font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div></div>
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-ink">Cartera de destino</label>
             <SearchableSelect options={(bancos ?? []).map((b) => ({ value: b.id, label: `${b.nombre}-${b.creadoPorNombre}-${b.tipoCuenta === 'credito' ? 'C' : 'D'}` }))} value={realCostCarteraId} onChange={setRealCostCarteraId} placeholder="Seleccionar cartera" />
@@ -443,7 +443,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
       {createPortal(<FullModal open={!!editingItem} onClose={() => setEditingItem(null)} title="Editar ítem">
         <form onSubmit={(e) => { e.preventDefault(); saveEdit() }} className="p-5 space-y-4 sm:max-w-[80%] sm:mx-auto">
           <div><label className="mb-1.5 block text-sm font-semibold text-ink">Descripción</label><input type="text" value={editText} onChange={(e) => setEditText(e.target.value)} maxLength={300} autoFocus className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" /></div>
-          <div><label className="mb-1.5 block text-sm font-semibold text-ink">Monto estimado</label><div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden"><span className="pl-4 pr-1 text-base text-ink-muted">$</span><input type="number" inputMode="decimal" min={0} value={editMonto || ''} onChange={(e) => setEditMonto(Number(e.target.value))} className="flex-1 py-3 pr-4 text-base font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div></div>
+          <div><label className="mb-1.5 block text-sm font-semibold text-ink">Monto estimado</label><div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden"><span className="pl-4 pr-1 text-base text-ink-muted">$</span><input type="number" inputMode="decimal" min={0} step="0.01" value={editMonto || ''} onChange={(e) => setEditMonto(Number(e.target.value))} className="flex-1 py-3 pr-4 text-base font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div></div>
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-ink">Comprobante</label>
             <input ref={editFileRef} type="file" accept="image/*,.pdf" onChange={handleEditFileChange} className="hidden" />
@@ -484,7 +484,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
       {createPortal(<FullModal open={showAddModal} onClose={() => setShowAddModal(false)} title="Nuevo ítem">
         <form onSubmit={handleAdd} className="p-5 space-y-4 sm:max-w-[80%] sm:mx-auto">
           <div><label className="mb-1.5 block text-sm font-semibold text-ink">Descripción</label><input type="text" value={newText} onChange={(e) => setNewText(e.target.value)} maxLength={300} autoFocus placeholder="Ej. Pasajes de avión" className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base placeholder:text-ink-muted/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" /></div>
-          <div><label className="mb-1.5 block text-sm font-semibold text-ink">Monto estimado</label><div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden"><span className="pl-4 pr-1 text-base text-ink-muted">$</span><input type="number" inputMode="decimal" min={0} value={newMonto || ''} onChange={(e) => setNewMonto(Number(e.target.value))} placeholder="0" className="flex-1 py-3 pr-4 text-base font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div></div>
+          <div><label className="mb-1.5 block text-sm font-semibold text-ink">Monto estimado</label><div className="flex items-center rounded-xl border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden"><span className="pl-4 pr-1 text-base text-ink-muted">$</span><input type="number" inputMode="decimal" min={0} step="0.01" value={newMonto || ''} onChange={(e) => setNewMonto(Number(e.target.value))} placeholder="0" className="flex-1 py-3 pr-4 text-base font-mono bg-transparent placeholder:text-ink-muted/40 focus:outline-none" /></div></div>
           <button type="submit" disabled={!newText.trim() || addItem.isPending} className="w-full rounded-xl bg-primary py-3.5 text-base font-semibold text-[var(--bg)] shadow-lg shadow-primary/20 hover:bg-primary-light active:scale-[0.98] disabled:opacity-50">Agregar ítem</button>
         </form>
       </FullModal>, document.body)}

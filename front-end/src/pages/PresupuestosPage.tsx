@@ -82,10 +82,14 @@ function GastoCard({ g, presupuestoId }: { g: Gasto; presupuestoId: string }) {
   const [actualEdit, setActualEdit] = useState(false)
   const [actualVal, setActualVal] = useState(g.montoFinal || g.monto)
 
+  const hasFinal = g.montoFinal != null && g.montoFinal > 0
+  const diff = hasFinal ? (g.montoEstimado || g.monto) - g.montoFinal : 0
+
   useEffect(() => { setActualVal(g.montoFinal || g.monto) }, [g.montoFinal, g.monto])
   useEffect(() => { setDescVal(g.descripcion) }, [g.descripcion])
 
   const toggleConciliado = async () => {
+    if (!hasFinal) return
     try { await updateGasto.mutateAsync({ gastoId: g.id, data: { estaConciliado: !g.estaConciliado } }) }
     catch { sileo.error('Error al conciliar') }
   }
@@ -107,7 +111,7 @@ function GastoCard({ g, presupuestoId }: { g: Gasto; presupuestoId: string }) {
     setActualEdit(false)
     const num = Number(actualVal)
     if (isNaN(num) || num < 0) { setActualVal(g.montoFinal || g.monto); return }
-    try { await updateGasto.mutateAsync({ gastoId: g.id, data: { montoFinal: num } }) }
+    try { await updateGasto.mutateAsync({ gastoId: g.id, data: { montoFinal: num, estaConciliado: true } }) }
     catch { sileo.error('Error') }
   }
 
@@ -122,7 +126,7 @@ function GastoCard({ g, presupuestoId }: { g: Gasto; presupuestoId: string }) {
     <div className={`rounded-xl border p-3 bg-surface space-y-2 ${g.estaConciliado ? 'border-success/30 opacity-60' : 'border-border'}`}>
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <button type="button" onClick={toggleConciliado} className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all ${g.estaConciliado ? 'border-success bg-success text-white' : 'border-border hover:border-primary'}`}>
+          <button type="button" onClick={toggleConciliado} disabled={!hasFinal} className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all ${g.estaConciliado ? 'border-success bg-success text-white' : hasFinal ? 'border-border hover:border-primary' : 'border-border/30 cursor-not-allowed'}`}>
             {g.estaConciliado && <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
           </button>
           {editDesc ? (
@@ -140,11 +144,16 @@ function GastoCard({ g, presupuestoId }: { g: Gasto; presupuestoId: string }) {
           <select value={g.categoria} onChange={(e) => changeCategoria(e.target.value)} className={`rounded-lg border-0 px-1.5 py-0.5 text-[10px] font-semibold ${catBg} focus:outline-none cursor-pointer`}>
             <option value="fijos">Fijos</option><option value="ocio">Ocio</option><option value="ahorro">Ahorro</option>
           </select>
-          <span className="text-ink-muted line-through">{fmt(g.montoEstimado || g.monto)}</span>
+          <span className="text-ink-muted">P: {fmt(g.montoEstimado || g.monto)}</span>
         </div>
         <div className="flex items-center gap-1">
+          {hasFinal && diff !== 0 && (
+            <span className={`font-semibold ${diff > 0 ? 'text-success' : 'text-danger'}`}>
+              {diff > 0 ? '+' : ''}{fmt(diff)}
+            </span>
+          )}
           {actualEdit ? (
-            <input type="number" inputMode="decimal" min={0} value={actualVal || ''} autoFocus onChange={(e) => setActualVal(Number(e.target.value))} onBlur={commitActual} onKeyDown={(e) => { if (e.key === 'Enter') commitActual(); if (e.key === 'Escape') { setActualEdit(false); setActualVal(g.montoFinal || g.monto) } }} className="w-16 rounded border border-primary/40 bg-surface px-1 py-0.5 text-xs text-ink text-right focus:outline-none" />
+            <input type="number" inputMode="decimal" min={0} step="0.01" value={actualVal || ''} autoFocus onChange={(e) => setActualVal(Number(e.target.value))} onBlur={commitActual} onKeyDown={(e) => { if (e.key === 'Enter') commitActual(); if (e.key === 'Escape') { setActualEdit(false); setActualVal(g.montoFinal || g.monto) } }} className="w-16 rounded border border-primary/40 bg-surface px-1 py-0.5 text-xs text-ink text-right focus:outline-none" />
           ) : (
             <button type="button" onClick={() => setActualEdit(true)} className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2 py-1 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors">
               <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
@@ -179,9 +188,9 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
           <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Cartera</label><SearchableSelect options={(bancos ?? []).map((b) => ({ value: b.id, label: `${b.nombre}-${b.creadoPorNombre}-${b.tipoCuenta === 'credito' ? 'C' : 'D'}` }))} value={carteraId} onChange={setCarteraId} placeholder="Seleccionar cartera" required /></div>
           <div><label className="mb-1.5 block text-xs font-semibold text-ink-secondary">Frecuencia</label><div className="flex rounded-xl border border-border overflow-hidden"><button type="button" onClick={() => setTipo('mensual')} className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${tipo === 'mensual' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Mensual</button><button type="button" onClick={() => setTipo('quincenal')} className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${tipo === 'quincenal' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Quincenal</button></div></div>
-          <div className="grid grid-cols-2 gap-3"><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Sobrante anterior</label><input type="number" min={0} inputMode="decimal" value={sobrante || ''} onChange={(e) => setSobrante(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Efectivo extra</label><input type="number" min={0} inputMode="decimal" value={efectivo || ''} onChange={(e) => setEfectivo(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div></div>
-          {tipo === 'mensual' ? <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Salario mensual</label><input type="number" min={0} inputMode="decimal" value={salario || ''} onChange={(e) => setSalario(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div> : <div className="grid grid-cols-2 gap-3"><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Salario Q1</label><input type="number" min={0} inputMode="decimal" value={salarioQ1 || ''} onChange={(e) => setSalarioQ1(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Salario Q2</label><input type="number" min={0} inputMode="decimal" value={salarioQ2 || ''} onChange={(e) => setSalarioQ2(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div></div>}
-          <div className="border-t border-border pt-4"><span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">Metas del presupuesto</span><div className="grid grid-cols-3 gap-2 mt-2"><div><label className="mb-1 block text-[10px] text-ink-muted">Gastos Fijos</label><input type="number" min={0} inputMode="decimal" value={metaFijos || ''} onChange={(e) => setMetaFijos(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div><div><label className="mb-1 block text-[10px] text-ink-muted">Ocio</label><input type="number" min={0} inputMode="decimal" value={metaOcio || ''} onChange={(e) => setMetaOcio(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-accent/50 focus:outline-none" /></div><div><label className="mb-1 block text-[10px] text-ink-muted">Ahorro</label><input type="number" min={0} inputMode="decimal" value={metaAhorro || ''} onChange={(e) => setMetaAhorro(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-success/50 focus:outline-none" /></div></div></div>
+          <div className="grid grid-cols-2 gap-3"><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Sobrante anterior</label><input type="number" min={0} inputMode="decimal" step="0.01" value={sobrante || ''} onChange={(e) => setSobrante(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Efectivo extra</label><input type="number" min={0} inputMode="decimal" step="0.01" value={efectivo || ''} onChange={(e) => setEfectivo(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div></div>
+          {tipo === 'mensual' ? <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Salario mensual</label><input type="number" min={0} inputMode="decimal" step="0.01" value={salario || ''} onChange={(e) => setSalario(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div> : <div className="grid grid-cols-2 gap-3"><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Salario Q1</label><input type="number" min={0} inputMode="decimal" step="0.01" value={salarioQ1 || ''} onChange={(e) => setSalarioQ1(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Salario Q2</label><input type="number" min={0} inputMode="decimal" step="0.01" value={salarioQ2 || ''} onChange={(e) => setSalarioQ2(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div></div>}
+          <div className="border-t border-border pt-4"><span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">Metas del presupuesto</span><div className="grid grid-cols-3 gap-2 mt-2"><div><label className="mb-1 block text-[10px] text-ink-muted">Gastos Fijos</label><input type="number" min={0} inputMode="decimal" step="0.01" value={metaFijos || ''} onChange={(e) => setMetaFijos(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div><div><label className="mb-1 block text-[10px] text-ink-muted">Ocio</label><input type="number" min={0} inputMode="decimal" step="0.01" value={metaOcio || ''} onChange={(e) => setMetaOcio(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-accent/50 focus:outline-none" /></div><div><label className="mb-1 block text-[10px] text-ink-muted">Ahorro</label><input type="number" min={0} inputMode="decimal" step="0.01" value={metaAhorro || ''} onChange={(e) => setMetaAhorro(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-success/50 focus:outline-none" /></div></div></div>
           <div className="flex justify-end gap-3 pt-2"><button type="button" onClick={onClose} className="rounded-xl border border-border px-4 py-2.5 text-sm text-ink-muted hover:bg-surface">Cancelar</button><button type="submit" disabled={create.isPending || !carteraId} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-[var(--bg)] hover:bg-primary-light disabled:opacity-50">{create.isPending ? 'Creando...' : 'Crear presupuesto'}</button></div>
         </form>
       </div>
@@ -227,7 +236,7 @@ function AddGastoModal({ open, onClose, presupuestoId, mostrarQ }: { open: boole
           </div>
           <div>
             <label className="mb-1 block text-[11px] font-semibold text-ink-muted">Monto</label>
-            <input type="number" min={1} inputMode="decimal" value={monto || ''} onChange={(e) => setMonto(Number(e.target.value))} placeholder="$ 0" className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink placeholder:text-ink-muted focus:border-primary/50 focus:outline-none" />
+            <input type="number" min={1} inputMode="decimal" step="0.01" value={monto || ''} onChange={(e) => setMonto(Number(e.target.value))} placeholder="$ 0" className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink placeholder:text-ink-muted focus:border-primary/50 focus:outline-none" />
           </div>
           <div>
             <label className="mb-1 block text-[11px] font-semibold text-ink-muted">Categoría</label>

@@ -86,9 +86,9 @@ export default function GoalOverview({ meta, onOpenChecklist, onOpenMovements }:
                   {item.completado && <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                 </button>
                 <span className={`flex-1 text-xs truncate ${item.completado ? 'text-ink-muted line-through' : 'text-ink'}`}>{item.texto}</span>
-                <span className="text-xs text-ink-muted">${(item.monto ?? 0).toLocaleString()}</span>
+                <span className="text-xs text-ink-muted">Est: ${(item.monto ?? 0).toLocaleString()}</span>
                 {item.completado && item.montoReal != null && (
-                  <span className={`text-xs font-semibold ${item.montoReal > (item.monto ?? 0) ? 'text-danger' : 'text-success'}`}>${item.montoReal.toLocaleString()}</span>
+                  <span className={`text-xs font-semibold ${item.montoReal > (item.monto ?? 0) ? 'text-danger' : 'text-success'}`}>Real: ${item.montoReal.toLocaleString()}</span>
                 )}
               </div>
             ))}

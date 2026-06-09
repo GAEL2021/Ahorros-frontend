@@ -107,7 +107,7 @@ function CreateCarteraModal({ open, onClose }: { open: boolean; onClose: () => v
           </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Saldo inicial (opcional)</label>
-            <input type="number" inputMode="decimal" min={0} value={saldoInicial || ''} onChange={(e) => setSaldoInicial(Number(e.target.value))} placeholder="0" className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+            <input type="number" inputMode="decimal" min={0} step="0.01" value={saldoInicial || ''} onChange={(e) => setSaldoInicial(Number(e.target.value))} placeholder="0" className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
           </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Descripción (opcional)</label>
@@ -189,7 +189,7 @@ function DepositarModal({ open, onClose, cartera }: { open: boolean; onClose: ()
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Monto a depositar</label>
             <div className="flex items-center rounded-lg border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden">
               <span className="pl-3.5 pr-1 text-base font-medium text-ink-muted">$</span>
-              <input type="number" inputMode="decimal" min={1} value={monto || ''} onChange={(e) => setMonto(Math.max(0, Number(e.target.value) || 0))} placeholder="0" className="flex-1 py-3 pr-4 text-lg font-semibold bg-transparent placeholder:text-ink-muted focus:outline-none" style={{ fontFamily: "'JetBrains Mono', monospace" }} />
+              <input type="number" inputMode="decimal" min={1} step="0.01" value={monto || ''} onChange={(e) => setMonto(Math.max(0, Number(e.target.value) || 0))} placeholder="0" className="flex-1 py-3 pr-4 text-lg font-semibold bg-transparent placeholder:text-ink-muted focus:outline-none" style={{ fontFamily: "'JetBrains Mono', monospace" }} />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-1">
@@ -241,7 +241,7 @@ function RetirarModal({ open, onClose, cartera }: { open: boolean; onClose: () =
             <label className="mb-1.5 block text-[11px] font-semibold text-ink-secondary">Monto a retirar</label>
             <div className="flex items-center rounded-lg border border-border bg-surface focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden">
               <span className="pl-3.5 pr-1 text-base font-medium text-ink-muted">$</span>
-              <input type="number" inputMode="decimal" min={1} max={cartera.saldo} value={monto || ''} onChange={(e) => setMonto(Math.max(0, Math.min(cartera.saldo, Number(e.target.value) || 0)))} placeholder="0" className="flex-1 py-3 pr-4 text-lg font-semibold bg-transparent placeholder:text-ink-muted focus:outline-none" style={{ fontFamily: "'JetBrains Mono', monospace" }} />
+              <input type="number" inputMode="decimal" min={1} max={cartera.saldo} step="0.01" value={monto || ''} onChange={(e) => setMonto(Math.max(0, Math.min(cartera.saldo, Number(e.target.value) || 0)))} placeholder="0" className="flex-1 py-3 pr-4 text-lg font-semibold bg-transparent placeholder:text-ink-muted focus:outline-none" style={{ fontFamily: "'JetBrains Mono', monospace" }} />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-1">
