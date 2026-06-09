@@ -281,6 +281,11 @@ export interface Presupuesto {
   userId: string
   creadoEn: string
   fecha?: string
+  year: number
+  mes: number
+  controlId: string
+  cerrado: boolean
+  cerradoEn: string | null
   gastos?: Gasto[]
 }
 
@@ -313,6 +318,7 @@ export interface CreatePresupuestoPayload {
   metaOcio?: number
   metaAhorro?: number
   fecha?: string
+  year?: number
   gastosFijos?: Array<{
     descripcion: string
     monto: number

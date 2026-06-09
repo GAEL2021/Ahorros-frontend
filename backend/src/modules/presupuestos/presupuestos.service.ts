@@ -9,7 +9,8 @@ export interface PresupuestoDocument {
   salarioMensual: number; salarioQ1: number; salarioQ2: number;
   sobranteAnterior: number; efectivoExtra: number;
   metaFijos: number; metaOcio: number; metaAhorro: number;
-  fecha: string;
+  fecha: string; year: number; mes: number; controlId: string;
+  cerrado: boolean; cerradoEn: string | null;
   userId: string; creadoEn: string;
 }
 
@@ -30,22 +31,79 @@ export interface GastoDocument {
 export class PresupuestosService {
   constructor(private readonly firebaseService: FirebaseService) {}
 
+  private docFromDto(dto: CreatePresupuestoDto, user: FirebaseUser, mes: number, controlId: string): PresupuestoDocument {
+    let salarioMensual = dto.salarioMensual ?? 0;
+    let salarioQ1 = dto.salarioQ1 ?? 0;
+    let salarioQ2 = dto.salarioQ2 ?? 0;
+    if (dto.year && dto.tipo === 'quincenal' && dto.salarioQ1 === undefined && dto.salarioQ2 === undefined && dto.salarioMensual === undefined) {
+    }
+    return {
+      carteraId: dto.carteraId ?? '',
+      tipo: dto.tipo,
+      salarioMensual, salarioQ1, salarioQ2,
+      sobranteAnterior: mes === 1 ? dto.sobranteAnterior : 0,
+      efectivoExtra: mes === 1 ? dto.efectivoExtra : 0,
+      metaFijos: dto.metaFijos ?? 0,
+      metaOcio: dto.metaOcio ?? 0,
+      metaAhorro: dto.metaAhorro ?? 0,
+      fecha: dto.fecha ?? '',
+      year: dto.year ?? 0,
+      mes,
+      controlId,
+      cerrado: false,
+      cerradoEn: null,
+      userId: user.uid,
+      creadoEn: new Date().toISOString(),
+    };
+  }
+
   async create(dto: CreatePresupuestoDto, user: FirebaseUser) {
     const db = this.firebaseService.firestore;
     if (dto.carteraId) {
       const carteraDoc = await db.collection('bancos').doc(dto.carteraId).get();
       if (!carteraDoc.exists) throw new NotFoundException('Cartera no encontrada');
     }
-    const doc: PresupuestoDocument = {
-      carteraId: dto.carteraId ?? '', tipo: dto.tipo,
-      salarioMensual: dto.salarioMensual ?? 0, salarioQ1: dto.salarioQ1 ?? 0, salarioQ2: dto.salarioQ2 ?? 0,
-      sobranteAnterior: dto.sobranteAnterior, efectivoExtra: dto.efectivoExtra,
-      metaFijos: dto.metaFijos ?? 0, metaOcio: dto.metaOcio ?? 0, metaAhorro: dto.metaAhorro ?? 0,
-      fecha: dto.fecha ?? '',
-      userId: user.uid, creadoEn: new Date().toISOString(),
-    };
-    const ref = await db.collection('presupuestos').add(doc);
 
+    if (dto.year) {
+      const controlId = db.collection('presupuestos').doc().id;
+      const batch = db.batch();
+      const refs: string[] = [];
+      for (let mes = 1; mes <= 12; mes++) {
+        const doc = this.docFromDto(dto, user, mes, controlId);
+        const ref = db.collection('presupuestos').doc();
+        batch.set(ref, doc);
+        refs.push(ref.id);
+      }
+      await batch.commit();
+
+      if (dto.gastosFijos?.length) {
+        const batch2 = db.batch();
+        for (const refId of refs) {
+          for (const g of dto.gastosFijos) {
+            const cuotas = g.cuotas ?? 0;
+            batch2.set(db.collection('presupuestos').doc(refId).collection('gastos').doc(), {
+              descripcion: g.descripcion, monto: g.monto,
+              montoEstimado: g.montoEstimado ?? g.monto,
+              montoFinal: g.montoFinal ?? 0,
+              estaConciliado: g.estaConciliado ?? false,
+              categoria: g.categoria,
+              quincena: g.quincena ?? null,
+              creadoEn: new Date().toISOString(),
+              esFijo: true,
+              cuotasRestantes: cuotas,
+              cuotasOriginales: cuotas,
+              fechaPago: g.fechaPago ?? null,
+            });
+          }
+        }
+        await batch2.commit();
+      }
+
+      return { controlId, year: dto.year, tipo: dto.tipo, meses: refs.length };
+    }
+
+    const doc = this.docFromDto(dto, user, 0, '');
+    const ref = await db.collection('presupuestos').add(doc);
     if (dto.gastosFijos?.length) {
       const batch = db.batch();
       for (const g of dto.gastosFijos) {
@@ -59,7 +117,7 @@ export class PresupuestosService {
           categoria: g.categoria,
           quincena: g.quincena ?? null,
           creadoEn: new Date().toISOString(),
-          esFijo: g.esFijo ?? true,
+          esFijo: true,
           cuotasRestantes: cuotas,
           cuotasOriginales: cuotas,
           fechaPago: g.fechaPago ?? null,
@@ -67,7 +125,6 @@ export class PresupuestosService {
       }
       await batch.commit();
     }
-
     return { id: ref.id, ...doc };
   }
 
@@ -75,6 +132,28 @@ export class PresupuestosService {
     const snapshot = await this.firebaseService.firestore
       .collection('presupuestos').where('userId', '==', user.uid).get();
     return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+  }
+
+  async findControles(user: FirebaseUser) {
+    const all = await this.findAll(user);
+    const grouped: Record<string, any[]> = {};
+    for (const p of all as any[]) {
+      if (p.controlId) {
+        if (!grouped[p.controlId]) grouped[p.controlId] = [];
+        grouped[p.controlId].push(p);
+      }
+    }
+    const controles = Object.entries(grouped).map(([controlId, presupuestos]) => {
+      const first = presupuestos[0];
+      presupuestos.sort((a: any, b: any) => a.mes - b.mes);
+      return {
+        controlId, year: first.year, tipo: first.tipo, presupuestos,
+        totalPresupuestos: presupuestos.length,
+        cerrados: presupuestos.filter((p: any) => p.cerrado).length,
+      };
+    });
+    controles.sort((a, b) => b.year - a.year);
+    return controles;
   }
 
   async findOne(id: string) {
@@ -117,7 +196,56 @@ export class PresupuestosService {
       fechaPago: dto.fechaPago ?? null,
     };
     const ref = await pRef.collection('gastos').add(gasto);
+
+    if (dto.esFijo && p.controlId) {
+      await this.propagateGastoFijo(p.controlId, p.mes, gasto);
+    }
+
     return { id: ref.id, ...gasto };
+  }
+
+  private async propagateGastoFijo(controlId: string, desdeMes: number, gasto: any) {
+    const db = this.firebaseService.firestore;
+    const snapshot = await db.collection('presupuestos')
+      .where('controlId', '==', controlId)
+      .where('mes', '>', desdeMes)
+      .get();
+    if (snapshot.empty) return;
+    const batch = db.batch();
+    for (const doc of snapshot.docs) {
+      batch.set(doc.ref.collection('gastos').doc(), { ...gasto });
+    }
+    await batch.commit();
+  }
+
+  async cerrarMes(presupuestoId: string) {
+    const db = this.firebaseService.firestore;
+    const pRef = db.collection('presupuestos').doc(presupuestoId);
+    const pDoc = await pRef.get();
+    if (!pDoc.exists) throw new NotFoundException('Presupuesto no encontrado');
+    const p = pDoc.data() as PresupuestoDocument;
+    if (p.cerrado) throw new Error('Mes ya cerrado');
+
+    const gastosSnap = await pRef.collection('gastos').get();
+    const totalGastos = gastosSnap.docs.reduce((sum, d) => sum + ((d.data() as any).montoFinal ?? 0), 0);
+    const ingresos = p.sobranteAnterior + p.efectivoExtra + (p.tipo === 'mensual' ? p.salarioMensual : p.salarioQ1 + p.salarioQ2);
+    const remainder = ingresos - totalGastos;
+
+    await pRef.update({ cerrado: true, cerradoEn: new Date().toISOString() });
+
+    const nextMes = p.mes + 1;
+    if (nextMes <= 12 && p.controlId) {
+      const nextSnapshot = await db.collection('presupuestos')
+        .where('controlId', '==', p.controlId)
+        .where('mes', '==', nextMes)
+        .limit(1)
+        .get();
+      if (!nextSnapshot.empty) {
+        await nextSnapshot.docs[0].ref.update({ sobranteAnterior: remainder });
+      }
+    }
+
+    return { remainder, cerrado: true, mes: p.mes };
   }
 
   async updateGasto(presupuestoId: string, gastoId: string, dto: UpdateGastoDto) {
@@ -134,7 +262,6 @@ export class PresupuestosService {
     if (dto.categoria !== undefined) updateData.categoria = dto.categoria;
     if (dto.cuotasRestantes !== undefined) updateData.cuotasRestantes = dto.cuotasRestantes;
 
-    // Si se concilia y el gasto tiene cuotas, reducir cuotasRestantes
     if (dto.estaConciliado === true && doc.data()?.cuotasRestantes > 0) {
       const nuevasCuotas = (doc.data()?.cuotasRestantes ?? 1) - 1;
       updateData.cuotasRestantes = nuevasCuotas;

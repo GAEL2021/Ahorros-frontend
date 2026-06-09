@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Delete, Param, Body, UseGuards, Req, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Param, Body, UseGuards, Req, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PresupuestosService } from './presupuestos.service';
 import { CreatePresupuestoDto } from './dto/create-presupuesto.dto';
 import { CreateGastoDto, UpdateGastoDto } from './dto/create-gasto.dto';
@@ -12,8 +12,10 @@ export class PresupuestosController {
 
   @Post() create(@Body() dto: CreatePresupuestoDto, @Req() req: Request) { return this.service.create(dto, req.user as FirebaseUser); }
   @Get() findAll(@Req() req: Request) { return this.service.findAll(req.user as FirebaseUser); }
+  @Get('controles') findControles(@Req() req: Request) { return this.service.findControles(req.user as FirebaseUser); }
   @Get(':id') async findOne(@Param('id') id: string) { const p = await this.service.findOne(id); if (!p) throw new NotFoundException('No encontrado'); return p; }
   @Post(':id/gastos') addGasto(@Param('id') id: string, @Body() dto: CreateGastoDto, @Req() req: Request) { return this.service.addGasto(id, dto, req.user as FirebaseUser); }
+  @Post(':id/cerrar-mes') async cerrarMes(@Param('id') id: string) { try { return await this.service.cerrarMes(id); } catch (e: any) { throw new BadRequestException(e.message); } }
   @Patch(':id/gastos/:gastoId') updateGasto(@Param('id') id: string, @Param('gastoId') gastoId: string, @Body() dto: UpdateGastoDto) { return this.service.updateGasto(id, gastoId, dto); }
   @Delete(':id/gastos/:gastoId') deleteGasto(@Param('id') id: string, @Param('gastoId') gastoId: string) { return this.service.deleteGasto(id, gastoId); }
   @Delete(':id') delete(@Param('id') id: string) { return this.service.delete(id); }

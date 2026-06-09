@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsIn, IsOptional, Min, ValidateNested, ArrayMinSize } from 'class-validator';
+import { IsString, IsNumber, IsIn, IsOptional, Min, ValidateNested, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateGastoDto } from './create-gasto.dto';
 
@@ -14,5 +14,8 @@ export class CreatePresupuestoDto {
   @IsOptional() @IsNumber() @Min(0) metaOcio?: number;
   @IsOptional() @IsNumber() @Min(0) metaAhorro?: number;
   @IsOptional() @IsString() fecha?: string;
+  @IsOptional() @IsNumber() @Min(2020) @Max(2100) year?: number;
+  @IsOptional() @IsNumber() @Min(1) @Max(12) mes?: number;
+  @IsOptional() @IsString() controlId?: string;
   @IsOptional() @ValidateNested({ each: true }) @Type(() => CreateGastoDto) gastosFijos?: CreateGastoDto[];
 }

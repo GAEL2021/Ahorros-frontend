@@ -64,3 +64,27 @@ export function useUpdateGasto(presupuestoId: string) {
     },
   })
 }
+
+export interface Control {
+  controlId: string
+  year: number
+  tipo: 'mensual' | 'quincenal'
+  presupuestos: Presupuesto[]
+  totalPresupuestos: number
+  cerrados: number
+}
+
+export function useFetchControles() {
+  return useQuery<Control[]>({
+    queryKey: ['controles'],
+    queryFn: async () => { const { data } = await apiClient.get<Control[]>('/presupuestos/controles'); return data },
+  })
+}
+
+export function useCerrarMes() {
+  const qc = useQueryClient()
+  return useMutation<unknown, Error, string>({
+    mutationFn: async (presupuestoId) => { const { data } = await apiClient.post(`/presupuestos/${presupuestoId}/cerrar-mes`); return data },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['presupuestos'] }); qc.invalidateQueries({ queryKey: ['controles'] }) },
+  })
+}
