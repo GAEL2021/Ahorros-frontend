@@ -27,6 +27,14 @@ export function useCreatePresupuesto() {
   })
 }
 
+export function useDeleteControl() {
+  const qc = useQueryClient()
+  return useMutation<void, Error, string>({
+    mutationFn: async (controlId) => { await apiClient.delete(`/presupuestos/controles/${controlId}`) },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['controles'] }); qc.invalidateQueries({ queryKey: ['presupuestos'] }) },
+  })
+}
+
 export function useDeletePresupuesto() {
   const qc = useQueryClient()
   return useMutation<void, Error, string>({

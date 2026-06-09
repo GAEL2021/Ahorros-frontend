@@ -338,4 +338,20 @@ export class PresupuestosService {
     await ref.delete();
     return { message: 'Eliminado' };
   }
+
+  async deleteControl(controlId: string, user: FirebaseUser) {
+    const db = this.firebaseService.firestore;
+    const snapshot = await db.collection('presupuestos')
+      .where('controlId', '==', controlId).where('userId', '==', user.uid).get();
+    if (snapshot.empty) throw new NotFoundException('Control no encontrado');
+
+    for (const doc of snapshot.docs) {
+      const gastosSnap = await doc.ref.collection('gastos').get();
+      const batch = db.batch();
+      gastosSnap.docs.forEach((g) => batch.delete(g.ref));
+      batch.delete(doc.ref);
+      await batch.commit();
+    }
+    return { message: 'Control eliminado' };
+  }
 }

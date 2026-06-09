@@ -20,4 +20,5 @@ export class PresupuestosController {
   @Patch(':id/gastos/:gastoId') updateGasto(@Param('id') id: string, @Param('gastoId') gastoId: string, @Body() dto: UpdateGastoDto) { return this.service.updateGasto(id, gastoId, dto); }
   @Delete(':id/gastos/:gastoId') deleteGasto(@Param('id') id: string, @Param('gastoId') gastoId: string) { return this.service.deleteGasto(id, gastoId); }
   @Delete(':id') delete(@Param('id') id: string) { return this.service.delete(id); }
+  @Delete('controles/:controlId') async deleteControl(@Param('controlId') controlId: string, @Req() req: Request) { try { return await this.service.deleteControl(controlId, req.user as FirebaseUser); } catch (e: any) { throw new BadRequestException(e.message); } }
 }

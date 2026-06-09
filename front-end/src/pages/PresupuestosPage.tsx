@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { useFetchControles, useCreatePresupuesto, useDeletePresupuesto, usePresupuestoDetail, useAddGasto, useDeleteGasto, useUpdateGasto, useCerrarMes, useCarryToNewYear } from '@/hooks/usePresupuestos'
+import { useFetchControles, useCreatePresupuesto, useDeletePresupuesto, usePresupuestoDetail, useAddGasto, useDeleteGasto, useUpdateGasto, useCerrarMes, useCarryToNewYear, useDeleteControl } from '@/hooks/usePresupuestos'
 import { sileo } from '@/lib/sileo'
 import type { Presupuesto, CreatePresupuestoPayload, Gasto } from '@/types'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
@@ -456,7 +456,9 @@ function ControlDetail({ control, onClose }: { control: any; onClose: () => void
   const p = presupuestos.find((x: any) => x.mes === mesActivo)
   const [showAddModal, setShowAddModal] = useState(false)
   const [tabQuincena, setTabQuincena] = useState<'Q1' | 'Q2' | 'todas'>('todas')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const cerrarMes = useCerrarMes()
+  const deleteControl = useDeleteControl()
   const { data: detalle } = usePresupuestoDetail(p?.id ?? '')
 
   const mesData = detalle ?? p
@@ -485,6 +487,9 @@ function ControlDetail({ control, onClose }: { control: any; onClose: () => void
           <h2 className="text-base font-semibold text-ink">Control {control.year}</h2>
           <div className="flex items-center gap-2">
             <span className="text-xs text-ink-muted">{control.cerrados}/{control.totalPresupuestos} cerrados</span>
+            <button type="button" onClick={() => setShowDeleteConfirm(true)} className="rounded-xl p-1.5 text-ink-muted hover:bg-danger hover:text-white transition-colors" title="Eliminar control">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            </button>
             <button type="button" onClick={onClose} className="rounded-xl p-1.5 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
           </div>
         </div>
@@ -556,6 +561,17 @@ function ControlDetail({ control, onClose }: { control: any; onClose: () => void
           </div>
         </div>
         <AddGastoModal open={showAddModal} onClose={() => setShowAddModal(false)} presupuestoId={p.id} mostrarQ={mostrarQ} />
+        <ConfirmModal
+          open={showDeleteConfirm}
+          title="Eliminar control anual"
+          message={`¿Estás seguro? Se eliminarán todos los meses (${control.totalPresupuestos}) y sus gastos del control ${control.year}. Esta acción no se puede deshacer.`}
+          confirmLabel="Sí, eliminar"
+          onConfirm={async () => {
+            try { await deleteControl.mutateAsync(control.controlId); sileo.success('Control eliminado'); setShowDeleteConfirm(false); onClose() }
+            catch { sileo.error('Error al eliminar'); setShowDeleteConfirm(false) }
+          }}
+          onCancel={() => setShowDeleteConfirm(false)}
+        />
       </div>
     </div>
   )
