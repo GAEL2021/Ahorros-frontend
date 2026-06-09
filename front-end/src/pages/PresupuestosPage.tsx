@@ -553,7 +553,11 @@ function ControlDetail({ control, onClose }: { control: any; onClose: () => void
 
 function ControlCard({ control }: { control: any }) {
   const [open, setOpen] = useState(false)
-  const presupuestos = (control.presupuestos ?? []).sort((a: any, b: any) => a.mes - b.mes)
+  const todos = (control.presupuestos ?? []).sort((a: any, b: any) => a.mes - b.mes)
+  const mesActual = new Date().getMonth() + 1
+  const primerCerrado = todos.find((p: any) => p.cerrado)?.mes ?? mesActual
+  const desde = Math.min(primerCerrado, mesActual)
+  const presupuestos = todos.filter((p: any) => p.mes >= desde && p.mes <= mesActual)
   const ingresosAnuales = presupuestos.reduce((s: number, p: any) => s + ingresos(p), 0)
   const gastosAnuales = presupuestos.reduce((s: number, p: any) => {
     const gs = p.gastos ?? []; return s + gs.reduce((ss: number, g: any) => ss + g.monto, 0)
@@ -573,6 +577,7 @@ function ControlCard({ control }: { control: any }) {
           <div className="h-full rounded-full bg-success transition-all" style={{ width: `${(control.cerrados / control.totalPresupuestos) * 100}%` }} />
         </div>
         <div className="mt-2 flex items-center gap-4 text-xs text-ink-muted">
+          <span className="text-ink-muted">YTD ({MESES[desde - 1]} - {MESES[mesActual - 1]})</span>
           <span>Ingresos: <strong className="text-ink">{fmt(ingresosAnuales)}</strong></span>
           <span>Gastos: <strong className="text-ink">{fmt(gastosAnuales)}</strong></span>
           <span>Balance: <strong className={ingresosAnuales - gastosAnuales >= 0 ? 'text-success' : 'text-danger'}>{fmt(ingresosAnuales - gastosAnuales)}</strong></span>
