@@ -8,6 +8,8 @@ export class CreateGastoDto {
   @IsOptional() @IsBoolean() estaConciliado?: boolean;
   @IsString() @IsIn(['fijos', 'ocio', 'ahorro']) categoria!: 'fijos' | 'ocio' | 'ahorro';
   @IsOptional() @IsString() @IsIn(['Q1', 'Q2']) quincena?: 'Q1' | 'Q2';
+  @IsOptional() @IsBoolean() esFijo?: boolean;
+  @IsOptional() @IsNumber() @Min(0) cuotas?: number;
 }
 
 export class UpdateGastoDto {
@@ -17,4 +19,5 @@ export class UpdateGastoDto {
   @IsOptional() @IsBoolean() estaConciliado?: boolean;
   @IsOptional() @IsString() @MaxLength(200) descripcion?: string;
   @IsOptional() @IsString() @IsIn(['fijos', 'ocio', 'ahorro']) categoria?: 'fijos' | 'ocio' | 'ahorro';
+  @IsOptional() @IsNumber() @Min(0) cuotasRestantes?: number;
 }

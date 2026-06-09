@@ -18,6 +18,10 @@ export interface GastoDocument {
   estaConciliado: boolean;
   categoria: 'fijos' | 'ocio' | 'ahorro';
   quincena?: 'Q1' | 'Q2'; creadoEn: string;
+  esFijo: boolean;
+  cuotasRestantes: number;
+  cuotasOriginales: number;
+  activo: boolean;
 }
 
 @Injectable()
@@ -36,6 +40,28 @@ export class PresupuestosService {
       userId: user.uid, creadoEn: new Date().toISOString(),
     };
     const ref = await db.collection('presupuestos').add(doc);
+
+    if (dto.gastosFijos?.length) {
+      const batch = db.batch();
+      for (const g of dto.gastosFijos) {
+        const gastoRef = ref.collection('gastos').doc();
+        const cuotas = g.cuotas ?? 0;
+        batch.set(gastoRef, {
+          descripcion: g.descripcion, monto: g.monto,
+          montoEstimado: g.montoEstimado ?? g.monto,
+          montoFinal: g.montoFinal ?? 0,
+          estaConciliado: g.estaConciliado ?? false,
+          categoria: g.categoria,
+          quincena: g.quincena ?? null,
+          creadoEn: new Date().toISOString(),
+          esFijo: g.esFijo ?? true,
+          cuotasRestantes: cuotas,
+          cuotasOriginales: cuotas,
+        });
+      }
+      await batch.commit();
+    }
+
     return { id: ref.id, ...doc };
   }
 
@@ -70,15 +96,19 @@ export class PresupuestosService {
       });
     }
 
-    const gasto: Omit<GastoDocument, 'quincena'> & { quincena?: string } = {
+    const cuotas = dto.cuotas ?? 0;
+    const gasto = {
       descripcion: dto.descripcion, monto: dto.monto,
       montoEstimado: dto.montoEstimado ?? dto.monto,
       montoFinal: dto.montoFinal ?? 0,
       estaConciliado: dto.estaConciliado ?? false,
       categoria: dto.categoria,
+      quincena: dto.quincena ?? null,
       creadoEn: new Date().toISOString(),
+      esFijo: dto.esFijo ?? false,
+      cuotasRestantes: cuotas,
+      cuotasOriginales: cuotas,
     };
-    if (dto.quincena) gasto.quincena = dto.quincena;
     const ref = await pRef.collection('gastos').add(gasto);
     return { id: ref.id, ...gasto };
   }
@@ -95,6 +125,16 @@ export class PresupuestosService {
     if (dto.montoFinal !== undefined) updateData.montoFinal = dto.montoFinal;
     if (dto.estaConciliado !== undefined) updateData.estaConciliado = dto.estaConciliado;
     if (dto.categoria !== undefined) updateData.categoria = dto.categoria;
+    if (dto.cuotasRestantes !== undefined) updateData.cuotasRestantes = dto.cuotasRestantes;
+
+    // Si se concilia y el gasto tiene cuotas, reducir cuotasRestantes
+    if (dto.estaConciliado === true && doc.data()?.cuotasRestantes > 0) {
+      const nuevasCuotas = (doc.data()?.cuotasRestantes ?? 1) - 1;
+      updateData.cuotasRestantes = nuevasCuotas;
+      if (nuevasCuotas === 0) {
+        updateData.activo = false;
+      }
+    }
 
     if (Object.keys(updateData).length > 0) {
       await ref.update(updateData);

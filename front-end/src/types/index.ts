@@ -293,6 +293,10 @@ export interface Gasto {
   categoria: 'fijos' | 'ocio' | 'ahorro'
   quincena?: 'Q1' | 'Q2'
   creadoEn: string
+  esFijo: boolean
+  cuotasRestantes: number
+  cuotasOriginales: number
+  activo: boolean
 }
 
 export interface CreatePresupuestoPayload {
@@ -306,6 +310,14 @@ export interface CreatePresupuestoPayload {
   metaFijos: number
   metaOcio: number
   metaAhorro: number
+  gastosFijos?: Array<{
+    descripcion: string
+    monto: number
+    categoria: 'fijos' | 'ocio' | 'ahorro'
+    esFijo: boolean
+    cuotas: number
+    quincena?: 'Q1' | 'Q2'
+  }>
 }
 
 export interface CreateGastoPayload {

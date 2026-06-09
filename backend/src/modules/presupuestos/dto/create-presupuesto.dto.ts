@@ -1,4 +1,6 @@
-import { IsString, IsNumber, IsIn, IsOptional, Min, MaxLength } from 'class-validator';
+import { IsString, IsNumber, IsIn, IsOptional, Min, ValidateNested, ArrayMinSize } from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreateGastoDto } from './create-gasto.dto';
 
 export class CreatePresupuestoDto {
   @IsString() carteraId!: string;
@@ -11,4 +13,5 @@ export class CreatePresupuestoDto {
   @IsNumber() @Min(0) metaFijos!: number;
   @IsNumber() @Min(0) metaOcio!: number;
   @IsNumber() @Min(0) metaAhorro!: number;
+  @IsOptional() @ValidateNested({ each: true }) @Type(() => CreateGastoDto) gastosFijos?: CreateGastoDto[];
 }
