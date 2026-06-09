@@ -179,9 +179,10 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
   const [sobrante, setSobrante] = useState(0)
   const [efectivo, setEfectivo] = useState(0)
   const [salario, setSalario] = useState(0)
-  const [gastosFijos, setGastosFijos] = useState<{ desc: string; monto: number; cat: 'fijos' | 'ocio' | 'ahorro'; quincena: string; cuotas: number }[]>([])
+  const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10))
+  const [gastosFijos, setGastosFijos] = useState<{ desc: string; monto: number; cat: 'fijos' | 'ocio' | 'ahorro'; quincena: string; cuotas: number; fechaPago: string }[]>([])
 
-  const addGastoFijo = () => setGastosFijos([...gastosFijos, { desc: '', monto: 0, cat: 'fijos', quincena: '', cuotas: 0 }])
+  const addGastoFijo = () => setGastosFijos([...gastosFijos, { desc: '', monto: 0, cat: 'fijos', quincena: '', cuotas: 0, fechaPago: '' }])
   const removeGastoFijo = (i: number) => setGastosFijos(gastosFijos.filter((_, idx) => idx !== i))
   const updateGastoFijo = (i: number, field: string, val: any) => {
     const copy = [...gastosFijos]; (copy[i] as any)[field] = val; setGastosFijos(copy)
@@ -190,7 +191,7 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
   if (!open) return null
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); try {
-      const payload: any = { tipo, sobranteAnterior: sobrante, efectivoExtra: efectivo }
+      const payload: any = { tipo, sobranteAnterior: sobrante, efectivoExtra: efectivo, fecha: fecha || undefined }
       if (tipo === 'mensual') payload.salarioMensual = salario
       else { payload.salarioQ1 = salario / 2; payload.salarioQ2 = salario / 2 }
       const fijos = gastosFijos.filter(g => g.desc.trim() && g.monto > 0).map(g => ({
@@ -198,6 +199,7 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
         categoria: g.cat, esFijo: true,
         cuotas: g.cuotas || 0,
         quincena: g.quincena || undefined,
+        fechaPago: g.fechaPago || undefined,
       }))
       if (fijos.length) payload.gastosFijos = fijos
       await create.mutateAsync(payload); sileo.success('Control creado'); onClose()
@@ -217,6 +219,8 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
           </div>
 
           <div className="grid grid-cols-2 gap-3"><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Sobrante anterior</label><input type="number" min={0} inputMode="decimal" step="0.01" value={sobrante || ''} onChange={(e) => setSobrante(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div><div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Efectivo extra</label><input type="number" min={0} inputMode="decimal" step="0.01" value={efectivo || ''} onChange={(e) => setEfectivo(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div></div>
+
+          <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Fecha del control</label><input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div>
 
           <div className="border-t border-border pt-4">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">Gastos Fijos Recurrentes</span>
@@ -243,6 +247,10 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-2">
+                  <div>
+                    <label className="mb-0.5 block text-[9px] font-semibold uppercase tracking-wider text-ink-muted">Fecha de pago</label>
+                    <input type="date" value={g.fechaPago} onChange={(e) => updateGastoFijo(i, 'fechaPago', e.target.value)} className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all" />
+                  </div>
                   {tipo === 'quincenal' && (
                     <div>
                       <label className="mb-0.5 block text-[9px] font-semibold uppercase tracking-wider text-ink-muted">Quincena</label>
@@ -251,6 +259,8 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
                       </select>
                     </div>
                   )}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
                   <div className={tipo === 'quincenal' ? '' : 'col-span-2'}>
                     <label className="mb-0.5 block text-[9px] font-semibold uppercase tracking-wider text-ink-muted">Cuotas (0 = ilimitado)</label>
                     <input type="number" min={0} step={1} value={g.cuotas || ''} onChange={(e) => updateGastoFijo(i, 'cuotas', Number(e.target.value))} placeholder="0" className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-muted/40 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all" />

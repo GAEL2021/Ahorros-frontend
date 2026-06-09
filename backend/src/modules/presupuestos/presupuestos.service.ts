@@ -9,6 +9,7 @@ export interface PresupuestoDocument {
   salarioMensual: number; salarioQ1: number; salarioQ2: number;
   sobranteAnterior: number; efectivoExtra: number;
   metaFijos: number; metaOcio: number; metaAhorro: number;
+  fecha: string;
   userId: string; creadoEn: string;
 }
 
@@ -22,6 +23,7 @@ export interface GastoDocument {
   cuotasRestantes: number;
   cuotasOriginales: number;
   activo: boolean;
+  fechaPago?: string;
 }
 
 @Injectable()
@@ -39,6 +41,7 @@ export class PresupuestosService {
       salarioMensual: dto.salarioMensual ?? 0, salarioQ1: dto.salarioQ1 ?? 0, salarioQ2: dto.salarioQ2 ?? 0,
       sobranteAnterior: dto.sobranteAnterior, efectivoExtra: dto.efectivoExtra,
       metaFijos: dto.metaFijos ?? 0, metaOcio: dto.metaOcio ?? 0, metaAhorro: dto.metaAhorro ?? 0,
+      fecha: dto.fecha ?? '',
       userId: user.uid, creadoEn: new Date().toISOString(),
     };
     const ref = await db.collection('presupuestos').add(doc);
@@ -59,6 +62,7 @@ export class PresupuestosService {
           esFijo: g.esFijo ?? true,
           cuotasRestantes: cuotas,
           cuotasOriginales: cuotas,
+          fechaPago: g.fechaPago ?? null,
         });
       }
       await batch.commit();
@@ -110,6 +114,7 @@ export class PresupuestosService {
       esFijo: dto.esFijo ?? false,
       cuotasRestantes: cuotas,
       cuotasOriginales: cuotas,
+      fechaPago: dto.fechaPago ?? null,
     };
     const ref = await pRef.collection('gastos').add(gasto);
     return { id: ref.id, ...gasto };

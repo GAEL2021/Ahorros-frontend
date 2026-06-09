@@ -280,6 +280,7 @@ export interface Presupuesto {
   metaAhorro: number
   userId: string
   creadoEn: string
+  fecha?: string
   gastos?: Gasto[]
 }
 
@@ -297,6 +298,7 @@ export interface Gasto {
   cuotasRestantes: number
   cuotasOriginales: number
   activo: boolean
+  fechaPago?: string
 }
 
 export interface CreatePresupuestoPayload {
@@ -310,6 +312,7 @@ export interface CreatePresupuestoPayload {
   metaFijos?: number
   metaOcio?: number
   metaAhorro?: number
+  fecha?: string
   gastosFijos?: Array<{
     descripcion: string
     monto: number
@@ -317,6 +320,7 @@ export interface CreatePresupuestoPayload {
     esFijo: boolean
     cuotas: number
     quincena?: 'Q1' | 'Q2'
+    fechaPago?: string
   }>
 }
 

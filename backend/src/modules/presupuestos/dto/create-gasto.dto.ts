@@ -10,6 +10,7 @@ export class CreateGastoDto {
   @IsOptional() @IsString() @IsIn(['Q1', 'Q2']) quincena?: 'Q1' | 'Q2';
   @IsOptional() @IsBoolean() esFijo?: boolean;
   @IsOptional() @IsNumber() @Min(0) cuotas?: number;
+  @IsOptional() @IsString() fechaPago?: string;
 }
 
 export class UpdateGastoDto {
