@@ -324,6 +324,10 @@ export class PresupuestosService {
     const sinCartera = gastosData.filter((g: any) => !g.carteraId && g.activo !== false);
     const conCartera = gastosData.filter((g: any) => g.carteraId && g.activo !== false);
 
+    if (sinCartera.length > 0) {
+      return { canClose: false, unpaidGastos: sinCartera.map((g: any) => ({ id: g.id, descripcion: g.descripcion, monto: g.monto })), mes: p.mes };
+    }
+
     // Process payments for gastos with carteraId
     for (const g of conCartera) {
       const carteraRef = db.collection('bancos').doc(g.carteraId);
@@ -337,10 +341,6 @@ export class PresupuestosService {
           userId: userId ?? p.userId,
         });
       }
-    }
-
-    if (sinCartera.length > 0) {
-      return { canClose: false, unpaidGastos: sinCartera.map((g: any) => ({ id: g.id, descripcion: g.descripcion, monto: g.monto })), mes: p.mes };
     }
 
     const totalGastos = gastosData.reduce((sum: number, g: any) => sum + (g.montoFinal ?? g.monto), 0);

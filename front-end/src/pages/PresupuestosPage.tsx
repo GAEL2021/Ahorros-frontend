@@ -388,7 +388,12 @@ function PresupuestoDetail({ presupuestoId, onClose }: { presupuestoId: string; 
 
   const handleCerrarMes = async () => {
     try {
-      const res = await cerrarMes.mutateAsync(presupuestoId)
+      const res: any = await cerrarMes.mutateAsync(presupuestoId)
+      if (res.canClose === false) {
+        sileo.error(`⚠️ ${res.unpaidGastos.length} gastos sin método de pago`)
+        res.unpaidGastos.forEach((g: any) => sileo.info(`• ${g.descripcion}: $${g.monto.toLocaleString()}`))
+        return
+      }
       sileo.success(`Mes cerrado. Remanente: ${fmt(res.remainder)}`)
     } catch { sileo.error('Error al cerrar mes') }
   }
@@ -511,8 +516,15 @@ function ControlDetail({ control, onClose }: { control: any; onClose: () => void
   const totalGastado = gastos.reduce((s: number, g) => s + g.monto, 0)
 
   const handleCerrarMes = async () => {
-    try { const res = await cerrarMes.mutateAsync(p.id); sileo.success(`Mes cerrado. Remanente: ${fmt(res.remainder)}`) }
-    catch { sileo.error('Error al cerrar mes') }
+    try {
+      const res: any = await cerrarMes.mutateAsync(p.id)
+      if (res.canClose === false) {
+        sileo.error(`⚠️ ${res.unpaidGastos.length} gastos sin método de pago`)
+        res.unpaidGastos.forEach((g: any) => sileo.info(`• ${g.descripcion}: $${g.monto.toLocaleString()}`))
+        return
+      }
+      sileo.success(`Mes cerrado. Remanente: ${fmt(res.remainder)}`)
+    } catch { sileo.error('Error al cerrar mes') }
   }
 
   return (
