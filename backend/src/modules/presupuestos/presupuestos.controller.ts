@@ -1,7 +1,7 @@
 import { Controller, Post, Get, Patch, Delete, Param, Body, UseGuards, Req, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PresupuestosService } from './presupuestos.service';
 import { CreatePresupuestoDto } from './dto/create-presupuesto.dto';
-import { CreateGastoDto, UpdateGastoDto } from './dto/create-gasto.dto';
+import { CreateGastoDto, UpdateGastoDto, UpdateGastoFechaDto, PagarGastoDto } from './dto/create-gasto.dto';
 import { FirebaseAuthGuard, FirebaseUser } from '../../common/guards/firebase-auth.guard';
 import { Request } from 'express';
 
@@ -15,9 +15,11 @@ export class PresupuestosController {
   @Get('controles') findControles(@Req() req: Request) { return this.service.findControles(req.user as FirebaseUser); }
   @Get(':id') async findOne(@Param('id') id: string) { const p = await this.service.findOne(id); if (!p) throw new NotFoundException('No encontrado'); return p; }
   @Post(':id/gastos') addGasto(@Param('id') id: string, @Body() dto: CreateGastoDto, @Req() req: Request) { return this.service.addGasto(id, dto, req.user as FirebaseUser); }
-  @Post(':id/cerrar-mes') async cerrarMes(@Param('id') id: string) { try { return await this.service.cerrarMes(id); } catch (e: any) { throw new BadRequestException(e.message); } }
+  @Post(':id/cerrar-mes') async cerrarMes(@Param('id') id: string, @Req() req: Request) { try { return await this.service.cerrarMes(id, (req.user as FirebaseUser)?.uid); } catch (e: any) { throw new BadRequestException(e.message); } }
   @Post(':id/carry-to-new-year') async carryToNewYear(@Param('id') id: string, @Req() req: Request) { try { return await this.service.carryToNewYear(id, req.user as FirebaseUser); } catch (e: any) { throw new BadRequestException(e.message); } }
   @Patch(':id/gastos/:gastoId') updateGasto(@Param('id') id: string, @Param('gastoId') gastoId: string, @Body() dto: UpdateGastoDto) { return this.service.updateGasto(id, gastoId, dto); }
+  @Patch(':id/gastos/:gastoId/fecha') updateGastoFecha(@Param('id') id: string, @Param('gastoId') gastoId: string, @Body() dto: UpdateGastoFechaDto) { return this.service.updateGastoFecha(id, gastoId, dto.fecha); }
+  @Post(':id/gastos/:gastoId/pagar') async pagarGasto(@Param('id') id: string, @Param('gastoId') gastoId: string, @Body() dto: PagarGastoDto, @Req() req: Request) { try { return await this.service.pagarGasto(id, gastoId, req.user as FirebaseUser, dto.montoReal, dto.carteraId); } catch (e: any) { throw new BadRequestException(e.message); } }
   @Delete(':id/gastos/:gastoId') deleteGasto(@Param('id') id: string, @Param('gastoId') gastoId: string) { return this.service.deleteGasto(id, gastoId); }
   @Delete(':id') delete(@Param('id') id: string) { return this.service.delete(id); }
   @Delete('controles/:controlId') async deleteControl(@Param('controlId') controlId: string, @Req() req: Request) { try { return await this.service.deleteControl(controlId, req.user as FirebaseUser); } catch (e: any) { throw new BadRequestException(e.message); } }

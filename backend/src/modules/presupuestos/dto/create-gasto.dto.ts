@@ -1,4 +1,5 @@
-import { IsString, IsNumber, IsIn, IsOptional, Min, MaxLength, IsBoolean } from 'class-validator';
+import { IsString, IsNumber, IsIn, IsOptional, Min, MaxLength, IsBoolean, IsArray, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateGastoDto {
   @IsString() @MaxLength(200) descripcion!: string;
@@ -11,6 +12,12 @@ export class CreateGastoDto {
   @IsOptional() @IsBoolean() esFijo?: boolean;
   @IsOptional() @IsNumber() @Min(0) cuotas?: number;
   @IsOptional() @IsString() fechaPago?: string;
+  @IsOptional() @IsString() fecha?: string;
+  @IsOptional() @IsBoolean() esRecurrente?: boolean;
+  @IsOptional() @IsString() @IsIn(['semanal', 'mensual']) recurrenciaTipo?: 'semanal' | 'mensual';
+  @IsOptional() @IsString() recurrenciaGrupoId?: string;
+  @IsOptional() @IsString() fechaOrigen?: string;
+  @IsOptional() @IsString() carteraId?: string;
 }
 
 export class UpdateGastoDto {
@@ -21,4 +28,19 @@ export class UpdateGastoDto {
   @IsOptional() @IsString() @MaxLength(200) descripcion?: string;
   @IsOptional() @IsString() @IsIn(['fijos', 'ocio', 'ahorro']) categoria?: 'fijos' | 'ocio' | 'ahorro';
   @IsOptional() @IsNumber() @Min(0) cuotasRestantes?: number;
+  @IsOptional() @IsString() fecha?: string;
+  @IsOptional() @IsBoolean() esRecurrente?: boolean;
+  @IsOptional() @IsString() @IsIn(['semanal', 'mensual']) recurrenciaTipo?: 'semanal' | 'mensual';
+  @IsOptional() @IsString() recurrenciaGrupoId?: string;
+  @IsOptional() @IsString() fechaOrigen?: string;
+  @IsOptional() @IsString() carteraId?: string;
+}
+
+export class UpdateGastoFechaDto {
+  @IsString() fecha!: string;
+}
+
+export class PagarGastoDto {
+  @IsOptional() @IsNumber() @Min(0) montoReal?: number;
+  @IsOptional() @IsString() carteraId?: string;
 }
