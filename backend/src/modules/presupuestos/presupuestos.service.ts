@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { FirebaseService } from '../../config/firebase/firebase.service';
 import { CreatePresupuestoDto } from './dto/create-presupuesto.dto';
+import { UpdatePresupuestoDto } from './dto/update-presupuesto.dto';
 import { CreateGastoDto, UpdateGastoDto } from './dto/create-gasto.dto';
 import { FirebaseUser } from '../../common/guards/firebase-auth.guard';
 
@@ -398,6 +399,25 @@ export class PresupuestosService {
     const doc = await ref.get();
     if (!doc.exists) throw new NotFoundException('Gasto no encontrado');
     await ref.update({ fecha, recurrenciaGrupoId: null });
+    const updated = await ref.get();
+    return { id: updated.id, ...updated.data() };
+  }
+
+  async updatePresupuesto(id: string, dto: UpdatePresupuestoDto) {
+    const ref = this.firebaseService.firestore.collection('presupuestos').doc(id);
+    const doc = await ref.get();
+    if (!doc.exists) throw new NotFoundException('Presupuesto no encontrado');
+
+    const updateData: Record<string, unknown> = {};
+    if (dto.salarioMensual !== undefined) updateData.salarioMensual = dto.salarioMensual;
+    if (dto.salarioQ1 !== undefined) updateData.salarioQ1 = dto.salarioQ1;
+    if (dto.salarioQ2 !== undefined) updateData.salarioQ2 = dto.salarioQ2;
+    if (dto.sobranteAnterior !== undefined) updateData.sobranteAnterior = dto.sobranteAnterior;
+    if (dto.efectivoExtra !== undefined) updateData.efectivoExtra = dto.efectivoExtra;
+
+    if (Object.keys(updateData).length > 0) {
+      await ref.update(updateData);
+    }
     const updated = await ref.get();
     return { id: updated.id, ...updated.data() };
   }

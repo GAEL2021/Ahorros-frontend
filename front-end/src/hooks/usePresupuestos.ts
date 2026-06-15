@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import apiClient from '@/lib/axios'
-import type { Presupuesto, CreatePresupuestoPayload, CreateGastoPayload, UpdateGastoPayload } from '@/types'
+import type { Presupuesto, CreatePresupuestoPayload, CreateGastoPayload, UpdateGastoPayload, UpdatePresupuestoPayload } from '@/types'
 
 async function fetchPresupuestos(): Promise<Presupuesto[]> {
   const { data } = await apiClient.get<Presupuesto[]>('/presupuestos')
@@ -143,6 +143,21 @@ export function useUpdateGastoFecha(presupuestoId: string) {
       qc.invalidateQueries({ queryKey: ['presupuesto', presupuestoId] })
       qc.invalidateQueries({ queryKey: ['presupuestos'] })
       qc.invalidateQueries({ queryKey: ['controles'] })
+    },
+  })
+}
+
+export function useUpdatePresupuesto() {
+  const qc = useQueryClient()
+  return useMutation<unknown, Error, { id: string; data: UpdatePresupuestoPayload }>({
+    mutationFn: async ({ id, data }) => {
+      const res = await apiClient.patch(`/presupuestos/${id}`, data)
+      return res.data
+    },
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ['presupuestos'] })
+      qc.invalidateQueries({ queryKey: ['controles'] })
+      qc.invalidateQueries({ queryKey: ['presupuesto', variables.id] })
     },
   })
 }

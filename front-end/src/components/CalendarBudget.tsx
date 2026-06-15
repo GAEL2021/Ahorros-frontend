@@ -111,7 +111,6 @@ export default function CalendarBudget({
   }, [onGastoDrop])
 
   const handleDayClick = (day: number) => {
-    if (bloqueado) return
     setSelectedDay(day === selectedDay ? null : day)
   }
 
@@ -129,6 +128,7 @@ export default function CalendarBudget({
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1)
   const emptyCells = Array.from({ length: firstDay }, (_, i) => i)
 
+  const presupuestoActual = presupuestos.find((p: any) => p.mes === currentMonth + 1)
   const mesAnterior = presupuestos.find((p: any) => p.mes === currentMonth)
   const mesAnteriorCerrado = currentMonth === 0 ? true : mesAnterior?.cerrado === true
   const bloqueado = !mesAnteriorCerrado && currentMonth > 0
@@ -145,15 +145,31 @@ export default function CalendarBudget({
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
         </motion.button>
         <div className="flex items-center gap-2">
-          <motion.h2
-            key={`${currentYear}-${currentMonth}`}
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-            className="text-base md:text-lg font-semibold text-ink"
-          >
-            {MESES[currentMonth]} {currentYear}
-          </motion.h2>
+          <div className="flex items-center gap-2">
+            <motion.h2
+              key={`${currentYear}-${currentMonth}`}
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              className="text-base md:text-lg font-semibold text-ink"
+            >
+              {MESES[currentMonth]} {currentYear}
+            </motion.h2>
+            {presupuestoActual && (
+              <motion.span
+                key={presupuestoActual.cerrado ? 'cerrado' : 'abierto'}
+                initial={{ scale: 0.5 }}
+                animate={{ scale: 1 }}
+                className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                  presupuestoActual.cerrado
+                    ? 'bg-success/10 text-success'
+                    : 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'
+                }`}
+              >
+                {presupuestoActual.cerrado ? 'Cerrado' : 'Abierto'}
+              </motion.span>
+            )}
+          </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.92 }}
@@ -198,7 +214,7 @@ export default function CalendarBudget({
                 key={day}
                 variants={cellVariants}
                 layout
-                className={`border-b border-r border-border-light p-0.5 md:p-1 min-h-[48px] md:min-h-[90px] relative group cursor-pointer transition-colors ${
+                className={`border-b border-r border-border-light p-0.5 md:p-1 min-h-[48px] md:min-h-[90px] relative group cursor-pointer transition-all active:scale-[0.97] ${
                   today ? 'bg-accent-subtle/30 ring-1 ring-inset ring-accent/30' : ''
                 } ${dragOverDay === day ? 'bg-primary/10 ring-2 ring-primary/30' : ''} ${
                   selected ? 'ring-2 ring-primary/40 bg-primary/5' : ''
@@ -230,7 +246,6 @@ export default function CalendarBudget({
                         layout
                         draggable
                         onDragStart={() => { if (!bloqueado) handleDragStart(gasto.id, presupuestoId) }}
-                        onClick={(e) => { e.stopPropagation(); if (!bloqueado) onGastoClick(gasto, presupuestoId) }}
                         whileHover={{ scale: 1.02, x: 2 }}
                         whileTap={{ scale: 0.96 }}
                         className={`rounded px-1 py-0.5 text-[10px] leading-tight cursor-grab active:cursor-grabbing transition-all flex items-center gap-1 ${
@@ -260,20 +275,20 @@ export default function CalendarBudget({
                   )}
                 </div>
 
-                <div className="md:hidden flex flex-wrap gap-0.5 mt-0.5">
-                  {gastos.length > 0 && gastos.slice(0, 4).map(({ gasto }) => (
-                    <motion.span
+                <div className="md:hidden flex flex-wrap gap-1 mt-0.5">
+                  {gastos.slice(0, 4).map(({ gasto }) => (
+                    <span
                       key={gasto.id}
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ duration: 0.15 }}
-                      className={`inline-block h-1.5 w-1.5 rounded-full ${
+                      className={`inline-block h-3 w-3 rounded-full ${
                         gasto.estaConciliado || gasto.montoFinal
                           ? 'bg-success/40'
                           : gasto.categoria === 'fijos' ? 'bg-amber-400' : gasto.categoria === 'ocio' ? 'bg-orange-400' : 'bg-green-400'
                       }`}
                     />
                   ))}
+                  {gastos.length > 4 && (
+                    <span className="text-[9px] text-ink-muted font-medium">+{gastos.length - 4}</span>
+                  )}
                 </div>
               </motion.div>
             )
@@ -294,118 +309,73 @@ export default function CalendarBudget({
         </motion.div>
       )}
 
-      <AnimatePresence>
-        {selectedDay && (
-          <motion.div
-            key={`detail-${selectedDay}`}
-            initial={{ opacity: 0, y: -8, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: 'auto' }}
-            exit={{ opacity: 0, y: -8, height: 0 }}
-            transition={{ duration: 0.25 }}
-            className="mt-3 rounded-xl border border-border bg-surface overflow-hidden"
-          >
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-semibold text-ink-muted uppercase tracking-wider">{selectedDay} de {MESES[currentMonth]}</p>
-                <motion.span
-                  key={gastosDelDia.length}
-                  initial={{ scale: 0.5 }}
-                  animate={{ scale: 1 }}
-                  className="text-xs text-ink-muted"
-                >
-                  {gastosDelDia.length} gastos
-                </motion.span>
-              </div>
-              {gastosDelDia.length > 0 ? (
-                <motion.div className="space-y-1.5 mb-3" variants={stagger} initial="initial" animate="animate">
-                  {gastosDelDia.map(({ gasto, presupuestoId }) => {
-                    const pagado = gasto.estaConciliado || !!gasto.montoFinal
-                    const difiere = pagado && gasto.montoFinal && gasto.montoFinal !== gasto.monto
-                    return (
-                      <motion.div
-                        key={gasto.id}
-                        variants={fadeSlide}
-                        layout
-                        onClick={() => onGastoClick(gasto, presupuestoId)}
-                        whileHover={{ scale: 1.005, x: 2 }}
-                        whileTap={{ scale: 0.99 }}
-                        className={`px-3 py-2 rounded-lg cursor-pointer transition-colors ${
-                          pagado ? 'opacity-70' : ''
-                        } ${
-                          gasto.categoria === 'fijos' ? 'bg-amber-50 dark:bg-amber-900/10' :
-                          gasto.categoria === 'ocio' ? 'bg-orange-50 dark:bg-orange-900/10' : 'bg-green-50 dark:bg-green-900/10'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <motion.span
-                              animate={{ backgroundColor: pagado ? 'rgb(34,197,94)' : undefined }}
-                              className={`h-2 w-2 rounded-full flex-shrink-0 ${
-                                pagado ? 'bg-success' :
-                                gasto.categoria === 'fijos' ? 'bg-amber-400' : gasto.categoria === 'ocio' ? 'bg-orange-400' : 'bg-green-400'
-                              }`}
-                            />
-                            <span className="text-xs font-medium text-ink truncate">{gasto.descripcion}</span>
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            {pagado ? (
-                              <motion.span
-                                initial={{ opacity: 0, x: -4 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className="text-[10px] font-semibold text-success"
-                              >
-                                Pagado
-                              </motion.span>
-                            ) : (
-                              <span className="text-[10px] font-semibold text-amber-600 dark:text-amber-400">Pendiente</span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between mt-1 ml-4">
-                          <div className="flex items-center gap-2 text-[10px] text-ink-muted">
-                            <span className="font-semibold tabular-nums text-ink text-xs">${gasto.monto.toLocaleString()}</span>
-                            {difiere && (
-                              <motion.span
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="line-through opacity-50"
-                              >
-                                ${gasto.montoFinal!.toLocaleString()}
-                              </motion.span>
-                            )}
-                            {gasto.esRecurrente && <span>· 🔄</span>}
-                            {gasto.cuotasOriginales > 0 && <span>· {gasto.cuotasRestantes}/{gasto.cuotasOriginales}</span>}
-                          </div>
-                        </div>
-                      </motion.div>
-                    )
-                  })}
-                </motion.div>
-              ) : (
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-xs text-ink-muted text-center py-2"
-                >
-                  Sin gastos este día
-                </motion.p>
-              )}
-              {!bloqueado && (
-                <motion.button
-                  whileHover={{ scale: 1.01, borderColor: 'var(--primary)' }}
-                  whileTap={{ scale: 0.97 }}
-                  type="button"
-                  onClick={() => onDayClick(selectedDay)}
-                  className="w-full mt-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border px-3 py-2 text-xs font-medium text-ink-muted hover:text-primary hover:border-primary/40 transition-colors"
-                >
-                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-                  Agregar gasto
-                </motion.button>
-              )}
+      {selectedDay && (
+        <div className="mt-3 rounded-xl border border-border bg-surface overflow-hidden">
+          <div className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-semibold text-ink-muted uppercase tracking-wider">{selectedDay} de {MESES[currentMonth]}</p>
+              <span className="text-xs text-ink-muted">{gastosDelDia.length} gastos</span>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {gastosDelDia.length > 0 ? (
+              <div className="space-y-1.5 mb-3">
+                {gastosDelDia.map(({ gasto, presupuestoId }) => {
+                  const pagado = gasto.estaConciliado || !!gasto.montoFinal
+                  const difiere = pagado && gasto.montoFinal && gasto.montoFinal !== gasto.monto
+                  return (
+                    <div
+                      key={gasto.id}
+                      onClick={() => onGastoClick(gasto, presupuestoId)}
+                      className={`px-3 py-2 rounded-lg cursor-pointer transition-colors ${
+                        pagado ? 'opacity-70' : ''
+                      } ${
+                        gasto.categoria === 'fijos' ? 'bg-amber-50 dark:bg-amber-900/10' :
+                        gasto.categoria === 'ocio' ? 'bg-orange-50 dark:bg-orange-900/10' : 'bg-green-50 dark:bg-green-900/10'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className={`h-2 w-2 rounded-full flex-shrink-0 ${
+                            pagado ? 'bg-success' :
+                            gasto.categoria === 'fijos' ? 'bg-amber-400' : gasto.categoria === 'ocio' ? 'bg-orange-400' : 'bg-green-400'
+                          }`} />
+                          <span className="text-xs font-medium text-ink truncate">{gasto.descripcion}</span>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {pagado ? (
+                            <span className="text-[10px] font-semibold text-success">Pagado</span>
+                          ) : (
+                            <span className="text-[10px] font-semibold text-amber-600 dark:text-amber-400">Pendiente</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between mt-1 ml-4">
+                        <div className="flex items-center gap-2 text-[10px] text-ink-muted">
+                          <span className="font-semibold tabular-nums text-ink text-xs">${gasto.monto.toLocaleString()}</span>
+                          {difiere && (
+                            <span className="line-through opacity-50">${gasto.montoFinal!.toLocaleString()}</span>
+                          )}
+                          {gasto.esRecurrente && <span>· 🔄</span>}
+                          {gasto.cuotasOriginales > 0 && <span>· {gasto.cuotasRestantes}/{gasto.cuotasOriginales}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="text-xs text-ink-muted text-center py-2">Sin gastos este día</p>
+            )}
+            <button
+              type="button"
+              onClick={() => onDayClick(selectedDay)}
+              className="w-full mt-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border px-3 py-2 text-xs font-medium text-ink-muted hover:text-primary hover:border-primary/40 transition-colors"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+              Agregar gasto
+            </button>
+          </div>
+        </div>
+      )}
 
       <motion.div
         className="mt-3 flex items-center justify-between text-xs text-ink-muted px-1"

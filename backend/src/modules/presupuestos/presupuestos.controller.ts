@@ -1,6 +1,7 @@
 import { Controller, Post, Get, Patch, Delete, Param, Body, UseGuards, Req, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PresupuestosService } from './presupuestos.service';
 import { CreatePresupuestoDto } from './dto/create-presupuesto.dto';
+import { UpdatePresupuestoDto } from './dto/update-presupuesto.dto';
 import { CreateGastoDto, UpdateGastoDto, UpdateGastoFechaDto, PagarGastoDto } from './dto/create-gasto.dto';
 import { FirebaseAuthGuard, FirebaseUser } from '../../common/guards/firebase-auth.guard';
 import { Request } from 'express';
@@ -14,6 +15,7 @@ export class PresupuestosController {
   @Get() findAll(@Req() req: Request) { return this.service.findAll(req.user as FirebaseUser); }
   @Get('controles') findControles(@Req() req: Request) { return this.service.findControles(req.user as FirebaseUser); }
   @Get(':id') async findOne(@Param('id') id: string) { const p = await this.service.findOne(id); if (!p) throw new NotFoundException('No encontrado'); return p; }
+  @Patch(':id') async update(@Param('id') id: string, @Body() dto: UpdatePresupuestoDto) { try { return await this.service.updatePresupuesto(id, dto); } catch (e: any) { if (e instanceof NotFoundException) throw e; throw new BadRequestException(e.message); } }
   @Post(':id/gastos') addGasto(@Param('id') id: string, @Body() dto: CreateGastoDto, @Req() req: Request) { return this.service.addGasto(id, dto, req.user as FirebaseUser); }
   @Post(':id/cerrar-mes') async cerrarMes(@Param('id') id: string, @Req() req: Request) { try { return await this.service.cerrarMes(id, (req.user as FirebaseUser)?.uid); } catch (e: any) { throw new BadRequestException(e.message); } }
   @Post(':id/carry-to-new-year') async carryToNewYear(@Param('id') id: string, @Req() req: Request) { try { return await this.service.carryToNewYear(id, req.user as FirebaseUser); } catch (e: any) { throw new BadRequestException(e.message); } }

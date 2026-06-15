@@ -351,6 +351,14 @@ export interface CreateGastoPayload {
   carteraId?: string
 }
 
+export interface UpdatePresupuestoPayload {
+  salarioMensual?: number
+  salarioQ1?: number
+  salarioQ2?: number
+  sobranteAnterior?: number
+  efectivoExtra?: number
+}
+
 export interface UpdateGastoPayload {
   monto?: number
   montoEstimado?: number

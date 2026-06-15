@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { useFetchControles, useCreatePresupuesto, useDeletePresupuesto, usePresupuestoDetail, useAddGasto, useDeleteGasto, useUpdateGasto, useUpdateGastoFecha, usePagarGasto, useCerrarMes, useCarryToNewYear, useDeleteControl } from '@/hooks/usePresupuestos'
+import { useFetchControles, useCreatePresupuesto, useDeletePresupuesto, usePresupuestoDetail, useAddGasto, useDeleteGasto, useUpdateGasto, useUpdateGastoFecha, usePagarGasto, useCerrarMes, useCarryToNewYear, useDeleteControl, useUpdatePresupuesto } from '@/hooks/usePresupuestos'
 import { useFetchBancos } from '@/hooks/useFetchBancos'
 import { sileo } from '@/lib/sileo'
 import type { Presupuesto, CreatePresupuestoPayload, Gasto } from '@/types'
@@ -372,7 +372,12 @@ function PresupuestoDetail({ presupuestoId, onClose }: { presupuestoId: string; 
   const { data: p, isLoading } = usePresupuestoDetail(presupuestoId)
   const [showAddModal, setShowAddModal] = useState(false)
   const [tabQuincena, setTabQuincena] = useState<'Q1' | 'Q2' | 'todas'>('todas')
+  const [editField, setEditField] = useState<string | null>(null)
+  const [editVal, setEditVal] = useState(0)
+  const [editQ1, setEditQ1] = useState(0)
+  const [editQ2, setEditQ2] = useState(0)
   const cerrarMes = useCerrarMes()
+  const updatePresupuesto = useUpdatePresupuesto()
 
   if (isLoading || !p) return <div className="flex items-center justify-center py-20"><div className="h-7 w-7 animate-spin rounded-full border-2 border-border border-t-primary" /></div>
 
@@ -419,6 +424,66 @@ function PresupuestoDetail({ presupuestoId, onClose }: { presupuestoId: string; 
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+          {(() => {
+            const fields = [
+              { key: 'salario', label: 'Salario', value: p.tipo === 'mensual' ? p.salarioMensual : p.salarioQ1 + p.salarioQ2 },
+              { key: 'efectivoExtra', label: 'Efectivo Extra', value: p.efectivoExtra },
+              { key: 'sobrante', label: 'Sobrante', value: p.sobranteAnterior },
+            ]
+            const renderEditInput = (key: string) => {
+              if (key === 'salario' && p.tipo === 'quincenal') return (
+                <div className="flex items-center gap-1.5">
+                  <input type="number" inputMode="decimal" min={0} step="0.01" value={editQ1 || ''} onChange={(e) => setEditQ1(Number(e.target.value))} className="w-20 rounded border border-primary/40 bg-surface px-1.5 py-1 text-xs text-ink text-right focus:outline-none" placeholder="Q1" />
+                  <span className="text-[10px] text-ink-muted">Q1</span>
+                  <input type="number" inputMode="decimal" min={0} step="0.01" value={editQ2 || ''} onChange={(e) => setEditQ2(Number(e.target.value))} className="w-20 rounded border border-primary/40 bg-surface px-1.5 py-1 text-xs text-ink text-right focus:outline-none" placeholder="Q2" />
+                  <span className="text-[10px] text-ink-muted">Q2</span>
+                </div>
+              )
+              return (
+                <input type="number" inputMode="decimal" min={0} step="0.01" value={editVal || ''} onChange={(e) => setEditVal(Number(e.target.value))} className="w-24 rounded border border-primary/40 bg-surface px-1.5 py-1 text-xs text-ink text-right focus:outline-none" />
+              )
+            }
+            return (
+              <div className="rounded-xl bg-surface border border-border divide-y divide-border">
+                {fields.map((f) => (
+                  <div key={f.key} className="flex items-center justify-between px-3 py-2.5">
+                    <span className="text-[10px] uppercase tracking-wider text-ink-muted font-semibold">{f.label}</span>
+                    {!p.cerrado && editField === f.key ? (
+                      <div className="flex items-center gap-1.5">
+                        {renderEditInput(f.key)}
+                        <button type="button" onClick={async () => {
+                          const payload: any = f.key === 'salario'
+                            ? (p.tipo === 'mensual' ? { salarioMensual: editVal } : { salarioQ1: editQ1, salarioQ2: editQ2 })
+                            : f.key === 'efectivoExtra' ? { efectivoExtra: editVal }
+                            : { sobranteAnterior: editVal }
+                          await updatePresupuesto.mutateAsync({ id: presupuestoId, data: payload })
+                          setEditField(null)
+                        }} className="rounded bg-primary px-2 py-1 text-[10px] font-semibold text-white hover:bg-primary-light">Guardar</button>
+                        <button type="button" onClick={() => setEditField(null)} className="rounded border border-border px-2 py-1 text-[10px] text-ink-muted hover:bg-surface">Cancelar</button>
+                      </div>
+                    ) : (
+                      <button type="button" onClick={() => {
+                        if (!p.cerrado) {
+                          if (f.key === 'salario') {
+                            if (p.tipo === 'mensual') setEditVal(p.salarioMensual)
+                            else { setEditQ1(p.salarioQ1); setEditQ2(p.salarioQ2) }
+                          } else {
+                            setEditVal(f.value)
+                          }
+                          setEditField(f.key)
+                        }
+                      }} className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink hover:text-primary transition-colors disabled:opacity-50" disabled={p.cerrado}>
+                        {fmt(f.value)}
+                        {!p.cerrado && (
+                          <svg className="h-3 w-3 text-ink-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
           <CalcSummary p={p} />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -498,8 +563,13 @@ function ControlDetail({ control, onClose }: { control: any; onClose: () => void
   const [showAddModal, setShowAddModal] = useState(false)
   const [tabQuincena, setTabQuincena] = useState<'Q1' | 'Q2' | 'todas'>('todas')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [editField, setEditField] = useState<string | null>(null)
+  const [editVal, setEditVal] = useState(0)
+  const [editQ1, setEditQ1] = useState(0)
+  const [editQ2, setEditQ2] = useState(0)
   const cerrarMes = useCerrarMes()
   const deleteControl = useDeleteControl()
+  const updatePresupuesto = useUpdatePresupuesto()
   const { data: detalle } = usePresupuestoDetail(p?.id ?? '')
 
   const mesData = detalle ?? p
@@ -561,6 +631,68 @@ function ControlDetail({ control, onClose }: { control: any; onClose: () => void
               </button>
             )}
           </div>
+          {(() => {
+            const fields = [
+              { key: 'salario', label: 'Salario', value: control.tipo === 'mensual' ? mesData.salarioMensual : mesData.salarioQ1 + mesData.salarioQ2 },
+              { key: 'efectivoExtra', label: 'Efectivo Extra', value: mesData.efectivoExtra },
+              { key: 'sobrante', label: 'Sobrante', value: mesData.sobranteAnterior },
+            ]
+            const renderEditInput = (key: string) => {
+              if (key === 'salario' && control.tipo === 'quincenal') return (
+                <div className="flex items-center gap-1.5">
+                  <input type="number" inputMode="decimal" min={0} step="0.01" value={editQ1 || ''} onChange={(e) => setEditQ1(Number(e.target.value))} className="w-20 rounded border border-primary/40 bg-surface px-1.5 py-1 text-xs text-ink text-right focus:outline-none" placeholder="Q1" />
+                  <span className="text-[10px] text-ink-muted">Q1</span>
+                  <input type="number" inputMode="decimal" min={0} step="0.01" value={editQ2 || ''} onChange={(e) => setEditQ2(Number(e.target.value))} className="w-20 rounded border border-primary/40 bg-surface px-1.5 py-1 text-xs text-ink text-right focus:outline-none" placeholder="Q2" />
+                  <span className="text-[10px] text-ink-muted">Q2</span>
+                </div>
+              )
+              return (
+                <input type="number" inputMode="decimal" min={0} step="0.01" value={editVal || ''} onChange={(e) => setEditVal(Number(e.target.value))} className="w-24 rounded border border-primary/40 bg-surface px-1.5 py-1 text-xs text-ink text-right focus:outline-none" />
+              )
+            }
+            return (
+              <div className="rounded-xl bg-surface border border-border divide-y divide-border">
+                {fields.map((f) => (
+                  <div key={f.key} className="flex items-center justify-between px-3 py-2.5">
+                    <span className="text-[10px] uppercase tracking-wider text-ink-muted font-semibold">{f.label}</span>
+                    {!mesData.cerrado && editField === f.key ? (
+                      <div className="flex items-center gap-1.5">
+                        {renderEditInput(f.key)}
+                        <button type="button" onClick={async () => {
+                          if (p) {
+                            const payload: any = f.key === 'salario'
+                              ? (control.tipo === 'mensual' ? { salarioMensual: editVal } : { salarioQ1: editQ1, salarioQ2: editQ2 })
+                              : f.key === 'efectivoExtra' ? { efectivoExtra: editVal }
+                              : { sobranteAnterior: editVal }
+                            await updatePresupuesto.mutateAsync({ id: p.id, data: payload })
+                            setEditField(null)
+                          }
+                        }} className="rounded bg-primary px-2 py-1 text-[10px] font-semibold text-white hover:bg-primary-light">Guardar</button>
+                        <button type="button" onClick={() => setEditField(null)} className="rounded border border-border px-2 py-1 text-[10px] text-ink-muted hover:bg-surface">Cancelar</button>
+                      </div>
+                    ) : (
+                      <button type="button" onClick={() => {
+                        if (!mesData.cerrado) {
+                          if (f.key === 'salario') {
+                            if (control.tipo === 'mensual') setEditVal(mesData.salarioMensual)
+                            else { setEditQ1(mesData.salarioQ1); setEditQ2(mesData.salarioQ2) }
+                          } else {
+                            setEditVal(f.value)
+                          }
+                          setEditField(f.key)
+                        }
+                      }} className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink hover:text-primary transition-colors disabled:opacity-50" disabled={mesData.cerrado}>
+                        {fmt(f.value)}
+                        {!mesData.cerrado && (
+                          <svg className="h-3 w-3 text-ink-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
           <CalcSummary p={mesData} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <DonutCard p={mesData} />
@@ -689,8 +821,13 @@ export default function PresupuestosPage() {
   const [controlDetail, setControlDetail] = useState<any | null>(null)
   const [gastoAction, setGastoAction] = useState<{ gasto: Gasto; presupuestoId: string } | null>(null)
   const [editGasto, setEditGasto] = useState<{ gasto: Gasto; presupuestoId: string } | null>(null)
+  const [editField, setEditField] = useState<string | null>(null)
+  const [editVal, setEditVal] = useState(0)
+  const [editQ1, setEditQ1] = useState(0)
+  const [editQ2, setEditQ2] = useState(0)
   const updateGastoFecha = useUpdateGastoFecha('')
   const pagarGasto = usePagarGasto()
+  const updatePresupuesto = useUpdatePresupuesto()
 
   const controlActual = controles?.[0]
   const presupuestoMes = controlActual?.presupuestos?.find((p: any) => p.mes === currentMonth + 1)
@@ -823,6 +960,66 @@ export default function PresupuestosPage() {
             onGastoClick={handleGastoClick}
             onGastoDrop={handleGastoDrop}
           />
+          {presupuestoMes && (() => {
+            const fields = [
+              { key: 'salario', label: 'Salario', value: controlActual?.tipo === 'mensual' ? presupuestoMes.salarioMensual : presupuestoMes.salarioQ1 + presupuestoMes.salarioQ2 },
+              { key: 'efectivoExtra', label: 'Efectivo Extra', value: presupuestoMes.efectivoExtra },
+              { key: 'sobrante', label: 'Sobrante', value: presupuestoMes.sobranteAnterior },
+            ]
+            const renderEditInput = (key: string) => {
+              if (key === 'salario' && controlActual?.tipo === 'quincenal') return (
+                <div className="flex items-center gap-1.5">
+                  <input type="number" inputMode="decimal" min={0} step="0.01" value={editQ1 || ''} onChange={(e) => setEditQ1(Number(e.target.value))} className="w-20 rounded border border-primary/40 bg-surface px-1.5 py-1 text-xs text-ink text-right focus:outline-none" placeholder="Q1" />
+                  <span className="text-[10px] text-ink-muted">Q1</span>
+                  <input type="number" inputMode="decimal" min={0} step="0.01" value={editQ2 || ''} onChange={(e) => setEditQ2(Number(e.target.value))} className="w-20 rounded border border-primary/40 bg-surface px-1.5 py-1 text-xs text-ink text-right focus:outline-none" placeholder="Q2" />
+                  <span className="text-[10px] text-ink-muted">Q2</span>
+                </div>
+              )
+              return (
+                <input type="number" inputMode="decimal" min={0} step="0.01" value={editVal || ''} onChange={(e) => setEditVal(Number(e.target.value))} className="w-24 rounded border border-primary/40 bg-surface px-1.5 py-1 text-xs text-ink text-right focus:outline-none" />
+              )
+            }
+            return (
+              <div className="rounded-xl bg-surface border border-border divide-y divide-border">
+                {fields.map((f) => (
+                  <div key={f.key} className="flex items-center justify-between px-3 py-2.5">
+                    <span className="text-[10px] uppercase tracking-wider text-ink-muted font-semibold">{f.label}</span>
+                    {!presupuestoMes.cerrado && editField === f.key ? (
+                      <div className="flex items-center gap-1.5">
+                        {renderEditInput(f.key)}
+                        <button type="button" onClick={async () => {
+                          const payload: any = f.key === 'salario'
+                            ? (controlActual?.tipo === 'mensual' ? { salarioMensual: editVal } : { salarioQ1: editQ1, salarioQ2: editQ2 })
+                            : f.key === 'efectivoExtra' ? { efectivoExtra: editVal }
+                            : { sobranteAnterior: editVal }
+                          await updatePresupuesto.mutateAsync({ id: presupuestoMes.id, data: payload })
+                          setEditField(null)
+                        }} className="rounded bg-primary px-2 py-1 text-[10px] font-semibold text-white hover:bg-primary-light">Guardar</button>
+                        <button type="button" onClick={() => setEditField(null)} className="rounded border border-border px-2 py-1 text-[10px] text-ink-muted hover:bg-surface">Cancelar</button>
+                      </div>
+                    ) : (
+                      <button type="button" onClick={() => {
+                        if (!presupuestoMes.cerrado) {
+                          if (f.key === 'salario') {
+                            if (controlActual?.tipo === 'mensual') setEditVal(presupuestoMes.salarioMensual)
+                            else { setEditQ1(presupuestoMes.salarioQ1); setEditQ2(presupuestoMes.salarioQ2) }
+                          } else {
+                            setEditVal(f.value)
+                          }
+                          setEditField(f.key)
+                        }
+                      }} className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink hover:text-primary transition-colors disabled:opacity-50" disabled={presupuestoMes.cerrado}>
+                        {fmt(f.value)}
+                        {!presupuestoMes.cerrado && (
+                          <svg className="h-3 w-3 text-ink-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
           <div className="flex items-center justify-between">
             {controlActual && (
               <button type="button" onClick={() => setControlDetail(controlActual)} className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline font-semibold">
