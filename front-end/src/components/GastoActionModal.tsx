@@ -17,6 +17,7 @@ export default function GastoActionModal({ open, gasto, onEdit, onPay, onClose }
   const [montoReal, setMontoReal] = useState(gasto.montoFinal || gasto.monto)
   const [carteraPago, setCarteraPago] = useState(gasto.carteraId || '')
   const yaPagado = gasto.estaConciliado || !!gasto.montoFinal
+  const carteraNombre = bancos?.find((b: any) => b.id === gasto.carteraId)?.nombre
 
   if (!open) return null
 
@@ -54,6 +55,41 @@ export default function GastoActionModal({ open, gasto, onEdit, onPay, onClose }
             </button>
           </div>
 
+          {yaPagado && (
+            <div className="space-y-3 mb-4">
+              <div className="rounded-xl bg-success/5 border border-success/10 divide-y divide-success/10">
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <span className="text-xs text-ink-muted">Presupuestado</span>
+                  <span className="text-sm font-semibold text-ink">{fmt(gasto.monto)}</span>
+                </div>
+                {gasto.montoFinal && gasto.montoFinal !== gasto.monto && (
+                  <div className="flex items-center justify-between px-4 py-2.5">
+                    <span className="text-xs text-ink-muted">Liquidado real</span>
+                    <span className="text-sm font-semibold text-ink">{fmt(gasto.montoFinal)}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <span className="text-xs text-ink-muted">Método de pago</span>
+                  <span className="text-sm font-semibold text-ink">{carteraNombre || 'Efectivo'}</span>
+                </div>
+                {gasto.montoFinal && gasto.monto !== gasto.montoFinal && (
+                  <div className="flex items-center justify-between px-4 py-2.5">
+                    <span className="text-xs text-ink-muted">Diferencia</span>
+                    <span className={`text-sm font-semibold ${gasto.montoFinal < gasto.monto ? 'text-success' : 'text-danger'}`}>
+                      {gasto.montoFinal < gasto.monto ? '-' : '+'}{fmt(Math.abs(gasto.monto - gasto.montoFinal))}
+                    </span>
+                  </div>
+                )}
+              </div>
+              {gasto.esRecurrente && (
+                <div className="flex items-center gap-2 text-[11px] text-ink-muted">
+                  <span>🔄</span>
+                  <span>{gasto.recurrenciaTipo === 'semanal' ? 'Semanal' : 'Mensual'}{gasto.cuotasOriginales > 0 ? ` · ${gasto.cuotasRestantes}/${gasto.cuotasOriginales} cuotas` : ' · Recurrente'}</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {!yaPagado && (
             <div className="space-y-4">
               <div className="space-y-1.5">
@@ -72,6 +108,11 @@ export default function GastoActionModal({ open, gasto, onEdit, onPay, onClose }
                     className="w-full pl-8 pr-4 py-3 text-sm font-mono font-semibold text-ink bg-surface border border-border rounded-xl placeholder:text-ink-muted/30 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
                   />
                 </div>
+                {Number(montoReal) !== gasto.monto && Number(montoReal) > 0 && (
+                  <p className="text-[11px] text-ink-muted/70">
+                    {Number(montoReal) > gasto.monto ? '⚠️ Excede el presupuesto' : '💡 Menor al presupuestado'}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -108,12 +149,6 @@ export default function GastoActionModal({ open, gasto, onEdit, onPay, onClose }
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                 Liquidar gasto
               </button>
-            </div>
-          )}
-
-          {yaPagado && (
-            <div className="rounded-xl bg-success/5 border border-success/10 px-4 py-3 text-center">
-              <p className="text-xs text-success font-medium">Este gasto ya está liquidado</p>
             </div>
           )}
 
