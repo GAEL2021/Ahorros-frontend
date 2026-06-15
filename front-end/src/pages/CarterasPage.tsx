@@ -637,7 +637,7 @@ function CarteraMovimientosDrawer({ open, onClose, cartera }: { open: boolean; o
 
   const transacciones = detail?.transacciones ?? []
   const totalIngresos = transacciones.filter((t) => t.tipo === 'deposito' || t.tipo === 'aporte_meta').reduce((sum, t) => sum + t.monto, 0)
-  const totalEgresos = transacciones.filter((t) => t.tipo === 'retiro' || (t as any).esChecklist).reduce((sum, t) => sum + t.monto, 0)
+  const totalEgresos = transacciones.filter((t) => t.tipo === 'retiro' || ('esChecklist' in t && t.esChecklist)).reduce((sum, t) => sum + t.monto, 0)
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true">
@@ -694,7 +694,7 @@ function CarteraMovimientosDrawer({ open, onClose, cartera }: { open: boolean; o
           ) : (
             transacciones.map((t) => {
               const isIncome = t.tipo === 'deposito' || t.tipo === 'aporte_meta'
-              const isChecklist = (t as any).esChecklist === true || t.descripcion?.startsWith('Compra checklist:')
+              const isChecklist = ('esChecklist' in t && t.esChecklist) || t.descripcion?.startsWith('Compra checklist:')
               const metaNombre = (t as any).metaNombre as string | undefined
               const displayDesc = t.tipo === 'aporte_meta' ? 'Abono a meta' : t.descripcion
               return (

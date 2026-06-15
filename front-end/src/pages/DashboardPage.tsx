@@ -91,10 +91,10 @@ export default function DashboardPage() {
 
   // Ring data for circular radial chart representation
   const ringProgressData = [
-    { name: 'Metas', percentage: metasProgress > 0 ? metasProgress : 40, color: '#6336FF' },
-    { name: 'Saldo', percentage: saldoPct > 0 ? saldoPct : 31, color: '#FFC700' },
-    { name: 'Checklist', percentage: checklistPct > 0 ? checklistPct : 30, color: '#00D1FF' },
-    { name: 'Ahorro', percentage: savingsRate > 0 ? savingsRate : 11, color: '#EC4899' },
+    { name: 'Metas', percentage: metasProgress, color: '#6336FF' },
+    { name: 'Saldo', percentage: saldoPct, color: '#FFC700' },
+    { name: 'Checklist', percentage: checklistPct, color: '#00D1FF' },
+    { name: 'Ahorro', percentage: savingsRate, color: '#EC4899' },
   ]
 
   // Dynamic Activity Feed Data representing member contributions from transactions
@@ -413,7 +413,7 @@ export default function DashboardPage() {
                 <Card variant="light" delay={0.9} className="space-y-4 h-full">
                   <div className="flex items-center justify-between border-b border-border pb-2">
                     <h4 className="text-xs font-extrabold text-ink-secondary uppercase tracking-wider">Egresos Recientes</h4>
-                    <span onClick={() => navigate('/carteras')} className="text-[10px] text-ink-muted font-bold hover:underline cursor-pointer">Ver Todos</span>
+                    <span onClick={() => navigate('/presupuestos')} className="text-[10px] text-ink-muted font-bold hover:underline cursor-pointer">Ver Todos</span>
                   </div>
                   <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
                     {transactions?.filter(t => t.tipo === 'retiro').slice(0, 3).map((t) => (

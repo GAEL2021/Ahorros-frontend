@@ -11,7 +11,7 @@ interface GoalDetailPanelProps {
   meta: Meta
 }
 
-function fmt(n: number) { return `$${n.toLocaleString()}` }
+function fmt(n: number) { return '$' + n.toLocaleString() }
 
 export default function GoalDetailPanel({ open, onClose, meta }: GoalDetailPanelProps) {
   const [section, setSection] = useState<'checklist' | 'movements' | null>(null)
@@ -43,7 +43,7 @@ export default function GoalDetailPanel({ open, onClose, meta }: GoalDetailPanel
             <h2 className="text-base font-semibold text-ink truncate">{meta.nombre}</h2>
             <p className="text-xs text-ink-muted mt-0.5">
               {meta.estado === 'activo' ? 'Activa' : meta.estado === 'completado' ? 'Completada' : 'Cancelada'}
-              {(miembros?.length ?? 0) > 1 && ` · ${miembros!.length} participantes`} · ${fmt(meta.montoObjetivo)}
+              {(miembros?.length ?? 0) > 1 && ` · ${miembros!.length} participantes`} · {fmt(meta.montoObjetivo)}
             </p>
           </div>
           <button type="button" onClick={onClose} className="rounded-xl p-1.5 text-ink-muted hover:bg-surface hover:text-ink">

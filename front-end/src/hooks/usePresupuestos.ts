@@ -47,7 +47,12 @@ export function useAddGasto(presupuestoId: string) {
   const qc = useQueryClient()
   return useMutation<unknown, Error, CreateGastoPayload>({
     mutationFn: async (g) => { const { data } = await apiClient.post(`/presupuestos/${presupuestoId}/gastos`, g); return data },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['presupuesto', presupuestoId] }); qc.invalidateQueries({ queryKey: ['presupuestos'] }); qc.invalidateQueries({ queryKey: ['bancos'] }) },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['presupuesto', presupuestoId] })
+      qc.invalidateQueries({ queryKey: ['presupuestos'] })
+      qc.invalidateQueries({ queryKey: ['controles'] })
+      qc.invalidateQueries({ queryKey: ['bancos'] })
+    },
   })
 }
 
@@ -55,7 +60,12 @@ export function useDeleteGasto(presupuestoId: string) {
   const qc = useQueryClient()
   return useMutation<void, Error, string>({
     mutationFn: async (gastoId) => { await apiClient.delete(`/presupuestos/${presupuestoId}/gastos/${gastoId}`) },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['presupuesto', presupuestoId] }); qc.invalidateQueries({ queryKey: ['presupuestos'] }); qc.invalidateQueries({ queryKey: ['bancos'] }) },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['presupuesto', presupuestoId] })
+      qc.invalidateQueries({ queryKey: ['presupuestos'] })
+      qc.invalidateQueries({ queryKey: ['controles'] })
+      qc.invalidateQueries({ queryKey: ['bancos'] })
+    },
   })
 }
 
@@ -69,6 +79,7 @@ export function useUpdateGasto(presupuestoId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['presupuesto', presupuestoId] })
       qc.invalidateQueries({ queryKey: ['presupuestos'] })
+      qc.invalidateQueries({ queryKey: ['controles'] })
     },
   })
 }
@@ -102,5 +113,36 @@ export function useCerrarMes() {
   return useMutation<unknown, Error, string>({
     mutationFn: async (presupuestoId) => { const { data } = await apiClient.post(`/presupuestos/${presupuestoId}/cerrar-mes`); return data },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['presupuestos'] }); qc.invalidateQueries({ queryKey: ['controles'] }) },
+  })
+}
+
+export function usePagarGasto() {
+  const qc = useQueryClient()
+  return useMutation<unknown, Error, { gastoId: string; presupuestoId: string; montoReal?: number; carteraId?: string }>({
+    mutationFn: async ({ gastoId, presupuestoId, montoReal, carteraId }) => {
+      const { data } = await apiClient.post(`/presupuestos/${presupuestoId}/gastos/${gastoId}/pagar`, { montoReal, carteraId })
+      return data
+    },
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ['presupuesto', variables.presupuestoId] })
+      qc.invalidateQueries({ queryKey: ['presupuestos'] })
+      qc.invalidateQueries({ queryKey: ['controles'] })
+      qc.invalidateQueries({ queryKey: ['bancos'] })
+    },
+  })
+}
+
+export function useUpdateGastoFecha(presupuestoId: string) {
+  const qc = useQueryClient()
+  return useMutation<unknown, Error, { gastoId: string; fecha: string }>({
+    mutationFn: async ({ gastoId, fecha }) => {
+      const { data } = await apiClient.patch(`/presupuestos/${presupuestoId}/gastos/${gastoId}/fecha`, { fecha })
+      return data
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['presupuesto', presupuestoId] })
+      qc.invalidateQueries({ queryKey: ['presupuestos'] })
+      qc.invalidateQueries({ queryKey: ['controles'] })
+    },
   })
 }

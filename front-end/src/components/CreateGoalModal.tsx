@@ -32,6 +32,7 @@ export default function CreateGoalModal({ open, onClose }: CreateGoalModalProps)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!nombre || montoObjetivo < 1 || !fechaLimite) return
     const payload: CreateGoalPayload = { nombre, montoObjetivo, fechaLimite: fechaLimite || new Date(Date.now() + 365 * 86400000).toISOString().split('T')[0], invitadosEmails: invitadosEmails.length > 0 ? invitadosEmails : undefined, modoAporte }
     if (modoAporte === 'automatico' && carteraId) { payload.carteraId = carteraId; payload.programacionTipo = progTipo; if (progTipo === 'fijo') payload.programacionMonto = progMonto; else payload.programacionPorcentaje = progPorcentaje; payload.programacionDia = progDia }
     try { await createGoal.mutateAsync(payload); sileo.success(`Meta "${nombre}" creada`); onClose(); resetForm() } catch { sileo.error('Error al crear la meta') }

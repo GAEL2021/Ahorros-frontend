@@ -304,6 +304,12 @@ export interface Gasto {
   cuotasOriginales: number
   activo: boolean
   fechaPago?: string
+  fecha?: string
+  esRecurrente?: boolean
+  recurrenciaTipo?: 'semanal' | 'mensual'
+  recurrenciaGrupoId?: string
+  fechaOrigen?: string
+  carteraId?: string
 }
 
 export interface CreatePresupuestoPayload {
@@ -337,6 +343,12 @@ export interface CreateGastoPayload {
   montoEstimado?: number
   categoria: 'fijos' | 'ocio' | 'ahorro'
   quincena?: 'Q1' | 'Q2'
+  fecha?: string
+  esRecurrente?: boolean
+  recurrenciaTipo?: 'semanal' | 'mensual'
+  cuotas?: number
+  fechaOrigen?: string
+  carteraId?: string
 }
 
 export interface UpdateGastoPayload {

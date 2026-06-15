@@ -1,16 +1,18 @@
 // @ts-nocheck
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { useFetchControles, useCreatePresupuesto, useDeletePresupuesto, usePresupuestoDetail, useAddGasto, useDeleteGasto, useUpdateGasto, useCerrarMes, useCarryToNewYear, useDeleteControl } from '@/hooks/usePresupuestos'
+import { useFetchControles, useCreatePresupuesto, useDeletePresupuesto, usePresupuestoDetail, useAddGasto, useDeleteGasto, useUpdateGasto, useUpdateGastoFecha, usePagarGasto, useCerrarMes, useCarryToNewYear, useDeleteControl } from '@/hooks/usePresupuestos'
+import { useFetchBancos } from '@/hooks/useFetchBancos'
 import { sileo } from '@/lib/sileo'
 import type { Presupuesto, CreatePresupuestoPayload, Gasto } from '@/types'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 import ConfirmModal from '@/components/ConfirmModal'
+import CalendarBudget from '@/components/CalendarBudget'
+import EditGastoModal from '@/components/EditGastoModal'
+import GastoActionModal from '@/components/GastoActionModal'
+import { MESES, CAT_LABELS, fmt } from '@/lib/formatters'
 
-const CAT_LABELS: Record<string, string> = { fijos: 'Gastos Fijos', ocio: 'Ocio', ahorro: 'Ahorro' }
-const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
-function fmt(n: number) { return `$${n.toLocaleString()}` }
 
 function ingresos(p: Presupuesto) {
   return p.tipo === 'mensual'
@@ -55,7 +57,7 @@ function DonutCard({ p }: { p: Presupuesto }) {
   const total = data.reduce((s, d) => s + d.value, 0)
   return (
     <div className="rounded-xl bg-surface border border-border p-4 flex items-center gap-4">
-      <div className="h-20 w-20 flex-shrink-0">
+      <div className="h-20 w-20 flex-shrink-0 min-w-0">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart><Pie data={data} cx="50%" cy="50%" innerRadius={22} outerRadius={32} dataKey="value" stroke="none">
             {data.map((e, i) => <Cell key={i} fill={e.color} />)}
@@ -291,12 +293,20 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
   )
 }
 
-function AddGastoModal({ open, onClose, presupuestoId, mostrarQ }: { open: boolean; onClose: () => void; presupuestoId: string; mostrarQ: boolean }) {
+function AddGastoModal({ open, onClose, presupuestoId, mostrarQ, fechaPreset, defaultCarteraId }: { open: boolean; onClose: () => void; presupuestoId: string; mostrarQ: boolean; fechaPreset?: string; defaultCarteraId?: string }) {
   const addGasto = useAddGasto(presupuestoId)
+  const { data: bancos } = useFetchBancos()
   const [desc, setDesc] = useState('')
   const [monto, setMonto] = useState(0)
   const [cat, setCat] = useState<'fijos' | 'ocio' | 'ahorro'>('fijos')
   const [quincena, setQuincena] = useState<'Q1' | 'Q2' | ''>('')
+  const [fecha, setFecha] = useState(fechaPreset || new Date().toISOString().split('T')[0])
+  const [esRecurrente, setEsRecurrente] = useState(false)
+  const [recurrenciaTipo, setRecurrenciaTipo] = useState<'mensual' | 'semanal'>('mensual')
+  const [cuotas, setCuotas] = useState(0)
+  const [carteraId, setCarteraId] = useState(defaultCarteraId || '')
+
+  useEffect(() => { if (fechaPreset) setFecha(fechaPreset) }, [fechaPreset])
 
   if (!open) return null
 
@@ -304,10 +314,17 @@ function AddGastoModal({ open, onClose, presupuestoId, mostrarQ }: { open: boole
     e.preventDefault()
     if (!desc.trim() || monto < 1 || addGasto.isPending) return
     try {
-      const payload: any = { descripcion: desc.trim(), monto, montoEstimado: monto, categoria: cat }
+      const payload: any = { descripcion: desc.trim(), monto, montoEstimado: monto, categoria: cat, fecha }
       if (quincena) payload.quincena = quincena
+      if (carteraId) payload.carteraId = carteraId
+      if (esRecurrente) {
+        payload.esRecurrente = true
+        payload.recurrenciaTipo = recurrenciaTipo
+        payload.cuotas = cuotas
+        payload.fechaOrigen = fecha
+      }
       await addGasto.mutateAsync(payload)
-      setDesc(''); setMonto(0); setCat('fijos'); setQuincena('')
+      setDesc(''); setMonto(0); setCat('fijos'); setQuincena(''); setFecha(new Date().toISOString().split('T')[0]); setEsRecurrente(false); setRecurrenciaTipo('mensual'); setCuotas(0); setCarteraId('')
       sileo.success('Gasto registrado')
       onClose()
     } catch { sileo.error('Error') }
@@ -315,7 +332,7 @@ function AddGastoModal({ open, onClose, presupuestoId, mostrarQ }: { open: boole
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in" onClick={onClose}>
-      <div className="glass rounded-2xl shadow-xl w-full max-w-sm animate-scale-in" onClick={(e) => e.stopPropagation()}>
+      <div className="glass rounded-2xl shadow-xl w-full max-w-sm animate-scale-in max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
           <h2 className="text-sm font-semibold text-ink">Agregar Gasto</h2>
           <button type="button" onClick={onClose} className="rounded-xl p-1 text-ink-muted hover:bg-surface hover:text-ink"><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
@@ -324,7 +341,26 @@ function AddGastoModal({ open, onClose, presupuestoId, mostrarQ }: { open: boole
           <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Descripción</label><input type="text" value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Ej: Comida del mes" maxLength={200} className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink placeholder:text-ink-muted focus:border-primary/50 focus:outline-none" autoFocus /></div>
           <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Monto</label><input type="number" min={1} inputMode="decimal" step="0.01" value={monto || ''} onChange={(e) => setMonto(Number(e.target.value))} placeholder="$ 0" className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink placeholder:text-ink-muted focus:border-primary/50 focus:outline-none" /></div>
           <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Categoría</label><select value={cat} onChange={(e) => setCat(e.target.value as 'fijos' | 'ocio' | 'ahorro')} className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink focus:outline-none"><option value="fijos">Gastos Fijos</option><option value="ocio">Ocio</option><option value="ahorro">Ahorro</option></select></div>
+          <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Fecha</label><input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div>
+          {bancos && bancos.length > 0 && (
+            <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Pagado desde</label><select value={carteraId} onChange={(e) => setCarteraId(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink focus:outline-none"><option value="">Sin cartera (efectivo)</option>{bancos.map((b: any) => <option key={b.id} value={b.id}>{b.nombre} - ${b.saldo.toLocaleString()}</option>)}</select></div>
+          )}
           {mostrarQ && <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Quincena</label><select value={quincena} onChange={(e) => setQuincena(e.target.value as 'Q1' | 'Q2' | '')} className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink focus:outline-none"><option value="">Sin quincena</option><option value="Q1">Q1</option><option value="Q2">Q2</option></select></div>}
+          <div className="border-t border-border pt-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={esRecurrente} onChange={(e) => setEsRecurrente(e.target.checked)} className="rounded border-border text-primary focus:ring-primary/30" />
+              <span className="text-xs font-semibold text-ink">¿Es recurrente?</span>
+            </label>
+            {esRecurrente && (
+              <div className="mt-2 space-y-2 pl-6">
+                <div className="flex rounded-lg border border-border overflow-hidden">
+                  <button type="button" onClick={() => setRecurrenciaTipo('mensual')} className={`flex-1 py-1.5 text-xs font-semibold ${recurrenciaTipo === 'mensual' ? 'bg-primary/15 text-primary' : 'text-ink-muted'}`}>Mensual</button>
+                  <button type="button" onClick={() => setRecurrenciaTipo('semanal')} className={`flex-1 py-1.5 text-xs font-semibold ${recurrenciaTipo === 'semanal' ? 'bg-primary/15 text-primary' : 'text-ink-muted'}`}>Semanal</button>
+                </div>
+                <div><label className="mb-0.5 block text-[10px] font-semibold text-ink-muted">Cuotas (0 = indefinido)</label><input type="number" min={0} value={cuotas || ''} onChange={(e) => setCuotas(Number(e.target.value))} className="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-ink focus:outline-none focus:border-primary/50" /></div>
+              </div>
+            )}
+          </div>
           <div className="flex justify-end gap-3 pt-1"><button type="button" onClick={onClose} className="rounded-xl border border-border px-4 py-2.5 text-sm text-ink-muted hover:bg-surface">Cancelar</button><button type="submit" disabled={!desc.trim() || monto < 1 || addGasto.isPending} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-[var(--bg)] hover:bg-primary-light disabled:opacity-50">{addGasto.isPending ? '...' : 'Agregar'}</button></div>
         </form>
       </div>
@@ -581,7 +617,7 @@ function ControlCard({ control }: { control: any }) {
   const [open, setOpen] = useState(false)
   const todos = (control.presupuestos ?? []).sort((a: any, b: any) => a.mes - b.mes)
   const mesActual = new Date().getMonth() + 1
-  const primerCerrado = todos.find((p: any) => p.cerrado)?.mes ?? mesActual
+  const primerCerrado = todos.find((p: any) => p.cerrado)?.mes ?? 1
   const desde = Math.min(primerCerrado, mesActual)
   const presupuestos = todos.filter((p: any) => p.mes >= desde && p.mes <= mesActual)
   const ingresosAnuales = presupuestos.reduce((s: number, p: any) => s + ingresos(p), 0)
@@ -633,6 +669,88 @@ export default function PresupuestosPage() {
   const { data: controles, isLoading } = useFetchControles()
   const create = useCreatePresupuesto()
   const [showCreate, setShowCreate] = useState(false)
+  const [viewMode, setViewMode] = useState<'calendar' | 'cards'>('calendar')
+  const today = new Date()
+  const [currentYear, setCurrentYear] = useState(today.getFullYear())
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth())
+  const [selectedDay, setSelectedDay] = useState<number | null>(null)
+  const [controlDetail, setControlDetail] = useState<any | null>(null)
+  const [gastoAction, setGastoAction] = useState<{ gasto: Gasto; presupuestoId: string } | null>(null)
+  const [editGasto, setEditGasto] = useState<{ gasto: Gasto; presupuestoId: string } | null>(null)
+  const updateGastoFecha = useUpdateGastoFecha('')
+  const pagarGasto = usePagarGasto()
+
+  const controlActual = controles?.[0]
+  const presupuestoMes = controlActual?.presupuestos?.find((p: any) => p.mes === currentMonth + 1)
+  const cerrarMes = useCerrarMes()
+  const carry = useCarryToNewYear()
+  const yaTieneControlEsteAnio = controles?.some((c: any) => c.year === currentYear)
+  const diciembreCerrado = controlActual?.presupuestos?.find((p: any) => p.mes === 12)?.cerrado
+  const mostrarCrearNuevoAnio = diciembreCerrado && controles && !controles.some((c: any) => c.year === currentYear + 1)
+
+  const handleCerrarMes = async () => {
+    if (!presupuestoMes || presupuestoMes.cerrado) return
+    try {
+      const res: any = await cerrarMes.mutateAsync(presupuestoMes.id)
+      if (res.canClose === false) {
+        sileo.error(`⚠️ ${res.unpaidGastos.length} gastos sin método de pago`)
+        res.unpaidGastos.forEach((g: any) => sileo.info(`• ${g.descripcion}: $${g.monto.toLocaleString()}`))
+        return
+      }
+      sileo.success(`Mes cerrado. Remanente: ${fmt(res.remainder)}`)
+      if (presupuestoMes.mes === 12 && controlActual) {
+        try {
+          const newYear = await carry.mutateAsync(controlActual.controlId)
+          sileo.success(`🎉 Año cerrado. Control ${newYear.year} creado con $${newYear.sobranteInicial.toLocaleString()} de remanente`)
+        } catch { sileo.info('Diciembre cerrado. Creá un nuevo control si querés continuar.') }
+      }
+    } catch { sileo.error('Error al cerrar mes') }
+  }
+
+  const handleGastoClick = (gasto: Gasto, presupuestoId: string) => {
+    setGastoAction({ gasto, presupuestoId })
+  }
+
+  const handlePayGasto = async (data: { montoReal: number; carteraId: string }) => {
+    if (!gastoAction) return
+    try {
+      const { gasto, presupuestoId } = gastoAction
+      await pagarGasto.mutateAsync({ gastoId: gasto.id, presupuestoId, montoReal: data.montoReal, carteraId: data.carteraId })
+      sileo.success(`✅ "${gasto.descripcion}" liquidado por $${data.montoReal.toLocaleString()}`)
+      setGastoAction(null)
+    } catch { sileo.error('Error al liquidar') }
+  }
+
+  const handleEditGasto = () => {
+    if (gastoAction) {
+      setEditGasto(gastoAction)
+      setGastoAction(null)
+    }
+  }
+
+  const handleDayClick = (day: number) => {
+    setSelectedDay(day)
+  }
+
+  const handleGastoDrop = (gastoId: string, presupuestoId: string, newDay: number) => {
+    const fecha = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(newDay).padStart(2, '0')}`
+    updateGastoFecha.mutate({ gastoId, fecha })
+  }
+
+  const handlePrevMonth = () => {
+    if (currentMonth === 0) { setCurrentYear(currentYear - 1); setCurrentMonth(11) }
+    else { setCurrentMonth(currentMonth - 1) }
+  }
+
+  const handleNextMonth = () => {
+    if (currentMonth === 11) { setCurrentYear(currentYear + 1); setCurrentMonth(0) }
+    else { setCurrentMonth(currentMonth + 1) }
+  }
+
+  const handleToday = () => {
+    setCurrentYear(today.getFullYear())
+    setCurrentMonth(today.getMonth())
+  }
 
   return (
     <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full">
@@ -641,11 +759,22 @@ export default function PresupuestosPage() {
           <h1 className="text-2xl font-semibold text-ink tracking-tight">Control de Finanzas</h1>
           <p className="mt-1 text-sm text-ink-muted">Controlá tus gastos anuales, mes por mes</p>
         </div>
-        <button type="button" onClick={() => setShowCreate(true)} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-[var(--bg)] shadow-lg shadow-primary/20 transition-all hover:bg-primary-light active:scale-[0.97]">
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>Nuevo control anual
-        </button>
+        <div className="flex items-center gap-2">
+          {controles && controles.length > 0 && (
+            <button type="button" onClick={() => setViewMode(viewMode === 'calendar' ? 'cards' : 'calendar')} className="inline-flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-xs font-semibold text-ink-muted hover:bg-surface-raised transition-colors">
+              {viewMode === 'calendar' ? '📋 Ver controles' : '📅 Ver calendario'}
+            </button>
+          )}
+          {!yaTieneControlEsteAnio && (
+            <button type="button" onClick={() => setShowCreate(true)} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-[var(--bg)] shadow-lg shadow-primary/20 transition-all hover:bg-primary-light active:scale-[0.97]">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>Nuevo control anual
+            </button>
+          )}
+        </div>
       </div>
+
       {isLoading && <div className="space-y-3">{Array.from({ length: 2 }).map((_, i) => <div key={i} className="glass rounded-2xl p-5 space-y-3"><div className="skeleton h-4 w-48" /><div className="skeleton h-8 w-full rounded-xl" /></div>)}</div>}
+
       {!isLoading && (!controles || controles.length === 0) && (
         <div className="glass rounded-2xl px-6 py-16 text-center animate-fade-in">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20" style={{ animation: 'float 3s ease-in-out infinite' }}>
@@ -658,12 +787,92 @@ export default function PresupuestosPage() {
           </button>
         </div>
       )}
-      {!isLoading && controles && controles.length > 0 && (
+
+      {mostrarCrearNuevoAnio && (
+        <div className="rounded-xl border border-accent/30 bg-accent/5 px-5 py-4 flex items-center justify-between animate-fade-in">
+          <div>
+            <p className="text-sm font-semibold text-ink">🎉 {currentYear} cerrado</p>
+            <p className="text-xs text-ink-muted mt-0.5">¿Querés crear un control para {currentYear + 1}?</p>
+          </div>
+          <button type="button" onClick={() => setShowCreate(true)} className="rounded-xl bg-accent px-4 py-2 text-xs font-semibold text-white hover:bg-accent-light transition-colors">Crear control {currentYear + 1}</button>
+        </div>
+      )}
+
+      {!isLoading && controles && controles.length > 0 && viewMode === 'calendar' && (
+        <div className="space-y-4 animate-fade-in">
+          <CalendarBudget
+            presupuestos={controlActual?.presupuestos ?? []}
+            currentMonth={currentMonth}
+            currentYear={currentYear}
+            onPrevMonth={handlePrevMonth}
+            onNextMonth={handleNextMonth}
+            onToday={handleToday}
+            onDayClick={handleDayClick}
+            onGastoClick={handleGastoClick}
+            onGastoDrop={handleGastoDrop}
+          />
+          <div className="flex items-center justify-between">
+            {controlActual && (
+              <button type="button" onClick={() => setControlDetail(controlActual)} className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline font-semibold">
+                Ver control anual {controlActual.year} →
+              </button>
+            )}
+            {presupuestoMes && !presupuestoMes.cerrado && (
+              <button type="button" onClick={handleCerrarMes} disabled={cerrarMes.isPending} className="inline-flex items-center gap-1.5 rounded-lg bg-success/15 px-3 py-1.5 text-xs font-semibold text-success hover:bg-success/25 transition-colors disabled:opacity-50">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                {cerrarMes.isPending ? 'Cerrando...' : 'Cerrar Mes'}
+              </button>
+            )}
+            {presupuestoMes?.cerrado && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-success/10 px-3 py-1.5 text-xs font-semibold text-success">Mes Cerrado</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {!isLoading && controles && controles.length > 0 && viewMode === 'cards' && (
         <div className="space-y-4 stagger">
           {controles.map((c: any) => <ControlCard key={c.controlId} control={c} />)}
         </div>
       )}
+
       <CreateModal open={showCreate} onClose={() => setShowCreate(false)} />
+
+      {selectedDay && presupuestoMes && (
+        <AddGastoModal
+          open={!!selectedDay}
+          onClose={() => setSelectedDay(null)}
+          presupuestoId={presupuestoMes.id}
+          mostrarQ={controlActual?.tipo === 'quincenal'}
+          fechaPreset={`${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`}
+          defaultCarteraId={presupuestoMes.carteraId}
+        />
+      )}
+
+      {gastoAction && (
+        <GastoActionModal
+          open={!!gastoAction}
+          gasto={gastoAction.gasto}
+          presupuestoId={gastoAction.presupuestoId}
+          onEdit={handleEditGasto}
+          onPay={handlePayGasto}
+          onClose={() => setGastoAction(null)}
+        />
+      )}
+
+      {editGasto && !gastoAction && (
+        <EditGastoModal
+          open={!!editGasto}
+          onClose={() => setEditGasto(null)}
+          gasto={editGasto.gasto}
+          presupuestoId={editGasto.presupuestoId}
+        />
+      )}
+
+      {controlDetail && (
+        <ControlDetail control={controlDetail} onClose={() => setControlDetail(null)} />
+      )}
     </main>
   )
 }
+

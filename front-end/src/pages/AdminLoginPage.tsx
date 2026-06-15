@@ -14,6 +14,8 @@ export default function AdminLoginPage() {
   const verified = useRef(false)
 
   useEffect(() => {
+    setEmail('')
+    setPassword('')
     if (!user || verified.current) {
       setChecking(false)
       return

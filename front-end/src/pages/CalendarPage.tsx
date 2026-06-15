@@ -8,7 +8,7 @@ const WEEKDAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 
 function parseDateStr(dateStr: string): { year: number; month: number; day: number } | null {
   if (!dateStr) return null
-  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  const match = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/)
   if (!match) {
     const d = new Date(dateStr)
     if (isNaN(d.getTime())) return null
@@ -154,7 +154,11 @@ export default function CalendarPage() {
       {goals && goals.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-4 overflow-x-auto pb-1">
           {Array.from(monthsWithGoals)
-            .sort()
+            .sort((a, b) => {
+              const [ay, am] = a.split('-').map(Number)
+              const [by, bm] = b.split('-').map(Number)
+              return ay !== by ? ay - by : am - bm
+            })
             .map((key) => {
               const [y, m] = key.split('-').map(Number)
               const isCurrent = y === viewYear && m === viewMonth
@@ -173,8 +177,8 @@ export default function CalendarPage() {
                       : 'border-border bg-surface text-ink-muted hover:bg-surface-raised hover:border-primary/30'
                   }`}
                 >
-                  {SHORT_MONTHS[m]} {y}
-                  <span className="ml-1 opacity-60">{count}</span>
+                  {SHORT_MONTHS[m]} {y}{' '}
+                  <span className="opacity-60">{count}</span>
                 </button>
               )
             })}

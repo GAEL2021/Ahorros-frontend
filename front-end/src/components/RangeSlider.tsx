@@ -39,19 +39,32 @@ export default function RangeSlider({
     updateFromPosition(e.clientX)
   }
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    dragging.current = true
+    updateFromPosition(e.touches[0].clientX)
+  }
+
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
       if (!dragging.current) return
       updateFromPosition(e.clientX)
+    }
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!dragging.current) return
+      updateFromPosition(e.touches[0].clientX)
     }
     const handleUp = () => {
       dragging.current = false
     }
     window.addEventListener('mousemove', handleMove)
     window.addEventListener('mouseup', handleUp)
+    window.addEventListener('touchmove', handleTouchMove, { passive: true })
+    window.addEventListener('touchend', handleUp)
     return () => {
       window.removeEventListener('mousemove', handleMove)
       window.removeEventListener('mouseup', handleUp)
+      window.removeEventListener('touchmove', handleTouchMove)
+      window.removeEventListener('touchend', handleUp)
     }
   }, [updateFromPosition])
 
@@ -60,7 +73,8 @@ export default function RangeSlider({
       <div
         ref={trackRef}
         onMouseDown={handleMouseDown}
-        className="relative h-2 w-full cursor-pointer rounded-full bg-border select-none touch-none"
+        onTouchStart={handleTouchStart}
+        className="relative h-2 w-full cursor-pointer rounded-full bg-border select-none"
       >
         {/* Filled track */}
         <div

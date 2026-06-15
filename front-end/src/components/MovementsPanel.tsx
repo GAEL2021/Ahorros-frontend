@@ -16,7 +16,8 @@ const STATUS_STYLE: Record<StatusKey, { bg: string; text: string; dot: string; l
 
 function MonthNames(monthNum: number): string {
   const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-  return months[(monthNum - 1) % 12]
+  if (monthNum < 1 || monthNum > 12) return '???'
+  return months[monthNum - 1]
 }
 
 export default function MovementsPanel({ goalId, totalMonths, members }: MovementsPanelProps) {
@@ -45,7 +46,7 @@ export default function MovementsPanel({ goalId, totalMonths, members }: Movemen
 
   // Group cuotas by month for chronological view
   const months = Array.from({ length: totalMonths }, (_, i) => i + 1).filter((mes) =>
-    cuotasList.some((c) => c.mes === mes && c.estado !== 'PENDIENTE')
+    cuotasList.some((c) => c.mes === mes)
   )
 
   // Calculate totals per member

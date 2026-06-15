@@ -19,7 +19,6 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
   const { data: detail } = useGoalDetail(open ? meta.id : '')
   const { data: bancos } = useFetchBancos()
   const addContribution = useAddContribution()
-  const [monto, setMonto] = useState(0)
   const [carteraId, setCarteraId] = useState<string>('')
 
   const bancosList = bancos ?? []
@@ -34,6 +33,8 @@ export default function ContributeModal({ open, onClose, meta }: ContributeModal
 
   const miembroActual = metaData.miembros?.find((m) => m.email === user?.email)
   const sugerido = miembroActual?.cuotaMensual ?? Math.ceil(remaining / Math.max(1, meta.mesesRestantes))
+
+  const [monto, setMonto] = useState(0)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
