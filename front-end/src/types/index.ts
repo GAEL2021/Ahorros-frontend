@@ -39,6 +39,7 @@ export interface Cartera {
   creadoPorNombre: string
   creadoEn: string
   codigoCompartir: string
+  esAhorro?: boolean
   metasDistribucion?: Array<{
     metaId: string
     montoAsignado: number
@@ -47,7 +48,7 @@ export interface Cartera {
   }>
 }
 
-export interface BancoMember {
+export interface CarteraMember {
   id: string
   uid: string
   email: string
@@ -67,7 +68,7 @@ export interface TransaccionBanco {
 }
 
 export interface CarteraDetail extends Cartera {
-  miembros: BancoMember[]
+  miembros: CarteraMember[]
   transacciones: TransaccionBanco[]
 }
 
@@ -286,6 +287,10 @@ export interface Presupuesto {
   controlId: string
   cerrado: boolean
   cerradoEn: string | null
+  cerradoQ1: boolean
+  cerradoQ1En: string | null
+  cerradoQ2: boolean
+  sobranteQ1: number
   gastos?: Gasto[]
 }
 
@@ -306,7 +311,7 @@ export interface Gasto {
   fechaPago?: string
   fecha?: string
   esRecurrente?: boolean
-  recurrenciaTipo?: 'semanal' | 'mensual'
+  recurrenciaTipo?: 'quincenal' | 'mensual'
   recurrenciaGrupoId?: string
   fechaOrigen?: string
   carteraId?: string
@@ -345,7 +350,7 @@ export interface CreateGastoPayload {
   quincena?: 'Q1' | 'Q2'
   fecha?: string
   esRecurrente?: boolean
-  recurrenciaTipo?: 'semanal' | 'mensual'
+  recurrenciaTipo?: 'quincenal' | 'mensual'
   cuotas?: number
   fechaOrigen?: string
   carteraId?: string
@@ -367,3 +372,5 @@ export interface UpdateGastoPayload {
   descripcion?: string
   categoria?: 'fijos' | 'ocio' | 'ahorro'
 }
+
+

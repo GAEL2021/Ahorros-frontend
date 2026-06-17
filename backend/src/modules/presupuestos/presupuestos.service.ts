@@ -12,6 +12,9 @@ export interface PresupuestoDocument {
   metaFijos: number; metaOcio: number; metaAhorro: number;
   fecha: string; year: number; mes: number; controlId: string;
   cerrado: boolean; cerradoEn: string | null;
+  cerradoQ1: boolean; cerradoQ1En: string | null;
+  cerradoQ2: boolean;
+  sobranteQ1: number;
   userId: string; creadoEn: string;
 }
 
@@ -28,7 +31,7 @@ export interface GastoDocument {
   fechaPago?: string;
   fecha?: string;
   esRecurrente?: boolean;
-  recurrenciaTipo?: 'semanal' | 'mensual';
+  recurrenciaTipo?: 'quincenal' | 'mensual';
   recurrenciaGrupoId?: string;
   fechaOrigen?: string;
   carteraId?: string;
@@ -59,6 +62,10 @@ export class PresupuestosService {
       controlId,
       cerrado: false,
       cerradoEn: null,
+      cerradoQ1: false,
+      cerradoQ1En: null,
+      cerradoQ2: false,
+      sobranteQ1: 0,
       userId: user.uid,
       creadoEn: new Date().toISOString(),
     };
@@ -203,6 +210,7 @@ export class PresupuestosService {
         metaFijos: first.metaFijos, metaOcio: first.metaOcio, metaAhorro: first.metaAhorro,
         fecha: '', year: nextYear, mes, controlId: newControlId,
         cerrado: false, cerradoEn: null,
+        cerradoQ1: false, cerradoQ1En: null, cerradoQ2: false, sobranteQ1: 0,
         userId: user.uid, creadoEn: new Date().toISOString(),
       };
       batch.set(db.collection('presupuestos').doc(), doc);
@@ -226,30 +234,21 @@ export class PresupuestosService {
     if (!pDoc.exists) throw new NotFoundException('Presupuesto no encontrado');
     const p = pDoc.data() as PresupuestoDocument;
 
-    const carteraIdUsar = dto.carteraId || p.carteraId;
-    if (carteraIdUsar) {
-      const carteraRef = db.collection('bancos').doc(carteraIdUsar);
-      const carteraDoc = await carteraRef.get();
-      if (carteraDoc.exists) {
-        const cd = carteraDoc.data() as { saldo: number };
-        await carteraRef.update({ saldo: Math.max(0, (cd.saldo ?? 0) - dto.monto) });
-        await carteraRef.collection('transacciones').add({
-          tipo: 'retiro', monto: dto.monto, descripcion: `Presupuesto: ${dto.descripcion}`,
-          fecha: new Date().toISOString(), presupuestoId, userId: user.uid,
-        });
-      }
-    }
-
     const cuotas = dto.cuotas ?? 0;
     const fecha = dto.fecha ?? new Date(p.year, p.mes - 1, 1).toISOString().split('T')[0];
     const recurrenciaGrupoId = dto.esRecurrente ? (dto.recurrenciaGrupoId ?? db.collection('_').doc().id) : '';
+    let quincena = dto.quincena ?? null;
+    if (!quincena && p.tipo === 'quincenal' && fecha) {
+      const dia = parseInt(fecha.split('-')[2], 10);
+      quincena = dia <= 15 ? 'Q1' : 'Q2';
+    }
     const gasto = {
       descripcion: dto.descripcion, monto: dto.monto,
       montoEstimado: dto.montoEstimado ?? dto.monto,
       montoFinal: dto.montoFinal ?? 0,
       estaConciliado: dto.estaConciliado ?? false,
       categoria: dto.categoria,
-      quincena: dto.quincena ?? null,
+      quincena,
       creadoEn: new Date().toISOString(),
       esFijo: dto.esFijo ?? false,
       cuotasRestantes: cuotas,
@@ -260,7 +259,7 @@ export class PresupuestosService {
       recurrenciaTipo: dto.recurrenciaTipo ?? null,
       recurrenciaGrupoId: dto.esRecurrente ? recurrenciaGrupoId : null,
       fechaOrigen: dto.fechaOrigen ?? fecha,
-      carteraId: carteraIdUsar || null,
+      carteraId: dto.carteraId || null,
     };
     const ref = await pRef.collection('gastos').add(gasto);
 
@@ -272,10 +271,55 @@ export class PresupuestosService {
       await this.propagateGastoRecurrente(p.controlId, p.mes, gasto, cuotas, dto.recurrenciaTipo ?? 'mensual');
     }
 
+    if (dto.categoria === 'ahorro' && dto.monto > 0) {
+      await this.depositarAhorro(user.uid, user.email ?? '', dto.monto, dto.descripcion);
+    }
+
     return { id: ref.id, ...gasto };
   }
 
-  private async propagateGastoRecurrente(controlId: string, desdeMes: number, gasto: any, cuotas: number, tipo: 'semanal' | 'mensual') {
+  private async depositarAhorro(uid: string, email: string, monto: number, descripcion: string) {
+    const db = this.firebaseService.firestore;
+    const existing = await db.collection('bancos')
+      .where('uid', '==', uid)
+      .where('esAhorro', '==', true)
+      .limit(1)
+      .get();
+
+    const now = new Date().toISOString();
+    if (existing.empty) {
+      const ref = db.collection('bancos').doc();
+      await ref.set({
+        uid, catalogoBancoId: '', nombre: 'Ahorros', color: '#10B981',
+        saldo: monto, descripcion: 'Cartera de ahorros automática',
+        tipoCuenta: 'debito', tipo: 'personal', esAhorro: true,
+        creadoPor: uid, creadoPorNombre: email?.split('@')[0] || 'Usuario',
+        creadoEn: now, codigoCompartir: '',
+      });
+      await ref.collection('miembros').doc(email).set({
+        uid, email, saldoAportado: monto, rol: 'creador',
+      });
+      await ref.collection('transacciones').add({
+        carteraId: ref.id, userId: uid, tipo: 'deposito',
+        monto, descripcion: `Ahorro: ${descripcion}`, fecha: now,
+      });
+    } else {
+      const doc = existing.docs[0];
+      const data = doc.data() as any;
+      await doc.ref.update({ saldo: (data.saldo || 0) + monto });
+      await doc.ref.collection('transacciones').add({
+        carteraId: doc.id, userId: uid, tipo: 'deposito',
+        monto, descripcion: `Ahorro: ${descripcion}`, fecha: now,
+      });
+      const miembroRef = doc.ref.collection('miembros').doc(email);
+      if ((await miembroRef.get()).exists) {
+        const m = (await miembroRef.get()).data() as any;
+        await miembroRef.update({ saldoAportado: (m.saldoAportado || 0) + monto });
+      }
+    }
+  }
+
+  private async propagateGastoRecurrente(controlId: string, desdeMes: number, gasto: any, cuotas: number, tipo: 'quincenal' | 'mensual') {
     const db = this.firebaseService.firestore;
     const allSnap = await db.collection('presupuestos').where('controlId', '==', controlId).get();
     const futures = allSnap.docs
@@ -312,43 +356,59 @@ export class PresupuestosService {
     await batch.commit();
   }
 
-  async cerrarMes(presupuestoId: string, userId?: string) {
+  async cerrarMes(presupuestoId: string, userId?: string, quincena?: 'Q1' | 'Q2') {
     const db = this.firebaseService.firestore;
     const pRef = db.collection('presupuestos').doc(presupuestoId);
     const pDoc = await pRef.get();
     if (!pDoc.exists) throw new NotFoundException('Presupuesto no encontrado');
     const p = pDoc.data() as PresupuestoDocument;
-    if (p.cerrado) throw new Error('Mes ya cerrado');
+
+    if (quincena && p.tipo === 'quincenal') {
+      if (quincena === 'Q1' && p.cerradoQ1) throw new Error('Q1 ya cerrado');
+      if (quincena === 'Q2' && p.cerradoQ2) throw new Error('Q2 ya cerrado');
+    } else {
+      if (p.cerrado) throw new Error('Mes ya cerrado');
+    }
 
     const gastosSnap = await pRef.collection('gastos').get();
     const gastosData = gastosSnap.docs.map((d) => ({ id: d.id, ...d.data() } as any));
-    const sinCartera = gastosData.filter((g: any) => !g.carteraId && g.activo !== false);
-    const conCartera = gastosData.filter((g: any) => g.carteraId && g.activo !== false);
+    const sinAhorro = (g: any) => g.categoria !== 'ahorro';
+    const montoGasto = (g: any) => g.montoFinal ?? g.monto;
 
-    if (sinCartera.length > 0) {
-      return { canClose: false, unpaidGastos: sinCartera.map((g: any) => ({ id: g.id, descripcion: g.descripcion, monto: g.monto })), mes: p.mes };
+    if (quincena === 'Q1' && p.tipo === 'quincenal') {
+      const q1Gastos = gastosData.filter((g: any) => (g.quincena === 'Q1' || !g.quincena) && sinAhorro(g)).reduce((s, g) => s + montoGasto(g), 0);
+      const remainder = p.sobranteAnterior + p.salarioQ1 - q1Gastos;
+      await pRef.update({ cerradoQ1: true, cerradoQ1En: new Date().toISOString(), sobranteQ1: remainder });
+      return { remainder, cerradoQ1: true, mes: p.mes, quincena: 'Q1' };
     }
 
-    // Process payments for gastos with carteraId
-    for (const g of conCartera) {
-      const carteraRef = db.collection('bancos').doc(g.carteraId);
-      const carteraDoc = await carteraRef.get();
-      if (carteraDoc.exists) {
-        const cd = carteraDoc.data() as { saldo: number };
-        await carteraRef.update({ saldo: Math.max(0, (cd.saldo ?? 0) - g.monto) });
-        await carteraRef.collection('transacciones').add({
-          tipo: 'retiro', monto: g.monto, descripcion: `Presupuesto: ${g.descripcion}`,
-          fecha: new Date().toISOString(), presupuestoId,
-          userId: userId ?? p.userId,
-        });
+    if (quincena === 'Q2' && p.tipo === 'quincenal') {
+      const q2Gastos = gastosData.filter((g: any) => (g.quincena === 'Q2' || !g.quincena) && sinAhorro(g)).reduce((s, g) => s + montoGasto(g), 0);
+      const remainder = (p.cerradoQ1 ? p.sobranteQ1 : p.sobranteAnterior) + p.salarioQ2 - q2Gastos;
+      await pRef.update({ cerrado: true, cerradoEn: new Date().toISOString(), cerradoQ2: true });
+
+      const nextMes = p.mes + 1;
+      if (nextMes <= 12 && p.controlId) {
+        const nextSnapshot = await db.collection('presupuestos')
+          .where('controlId', '==', p.controlId)
+          .where('mes', '==', nextMes)
+          .limit(1)
+          .get();
+        if (!nextSnapshot.empty) {
+          await nextSnapshot.docs[0].ref.update({ sobranteAnterior: remainder });
+        }
       }
+
+      return { remainder, cerrado: true, cerradoQ2: true, mes: p.mes, quincena: 'Q2' };
     }
 
-    const totalGastos = gastosData.reduce((sum: number, g: any) => sum + (g.montoFinal ?? g.monto), 0);
+    if (p.cerrado) throw new Error('Mes ya cerrado');
+
+    const totalGastos = gastosData.filter(sinAhorro).reduce((s, g) => s + montoGasto(g), 0);
     const ingresos = p.sobranteAnterior + p.efectivoExtra + (p.tipo === 'mensual' ? p.salarioMensual : p.salarioQ1 + p.salarioQ2);
     const remainder = ingresos - totalGastos;
 
-    await pRef.update({ cerrado: true, cerradoEn: new Date().toISOString() });
+    await pRef.update({ cerrado: true, cerradoEn: new Date().toISOString(), cerradoQ1: true, cerradoQ2: true });
 
     const nextMes = p.mes + 1;
     if (nextMes <= 12 && p.controlId) {
@@ -362,7 +422,7 @@ export class PresupuestosService {
       }
     }
 
-    return { remainder, cerrado: true, mes: p.mes, pagados: conCartera.length, sinPagar: 0 };
+    return { remainder, cerrado: true, mes: p.mes };
   }
 
   async updateGasto(presupuestoId: string, gastoId: string, dto: UpdateGastoDto) {
@@ -422,28 +482,13 @@ export class PresupuestosService {
     return { id: updated.id, ...updated.data() };
   }
 
-  async pagarGasto(presupuestoId: string, gastoId: string, user: FirebaseUser, montoReal?: number, carteraIdOverride?: string) {
-    const db = this.firebaseService.firestore;
-    const ref = db.collection('presupuestos').doc(presupuestoId).collection('gastos').doc(gastoId);
+  async pagarGasto(presupuestoId: string, gastoId: string, _user: FirebaseUser, montoReal?: number, _carteraIdOverride?: string) {
+    const ref = this.firebaseService.firestore.collection('presupuestos').doc(presupuestoId).collection('gastos').doc(gastoId);
     const doc = await ref.get();
     if (!doc.exists) throw new NotFoundException('Gasto no encontrado');
-    const g = doc.data() as GastoDocument;
-    const carteraIdUsar = carteraIdOverride || g.carteraId;
-    if (!carteraIdUsar) throw new Error('El gasto no tiene cartera asignada');
-    const montoUsar = montoReal ?? g.monto;
+    const montoUsar = montoReal ?? (doc.data() as GastoDocument).monto;
 
-    const carteraRef = db.collection('bancos').doc(carteraIdUsar);
-    const carteraDoc = await carteraRef.get();
-    if (carteraDoc.exists) {
-      const cd = carteraDoc.data() as { saldo: number };
-      await carteraRef.update({ saldo: Math.max(0, (cd.saldo ?? 0) - montoUsar) });
-      await carteraRef.collection('transacciones').add({
-        tipo: 'retiro', monto: montoUsar, descripcion: `Pago: ${g.descripcion}`,
-        fecha: new Date().toISOString(), presupuestoId, userId: user.uid,
-      });
-    }
-
-    const updateData: Record<string, unknown> = { estaConciliado: true, carteraId: carteraIdUsar };
+    const updateData: Record<string, unknown> = { estaConciliado: true };
     if (montoReal !== undefined) updateData.montoFinal = montoReal;
     await ref.update(updateData);
 

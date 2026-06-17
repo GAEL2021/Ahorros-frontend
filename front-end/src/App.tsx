@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import AppLayout from '@/components/AppLayout'
 import DashboardPage from '@/pages/DashboardPage'
 import MetasPage from '@/pages/MetasPage'
@@ -19,7 +19,8 @@ export default function App() {
         <Route index element={<DashboardPage />} />
         <Route path="metas" element={<MetasPage />} />
         <Route path="calendario" element={<CalendarPage />} />
-        <Route path="carteras" element={<CarterasPage />} />
+        <Route path="bancos" element={<CarterasPage />} />
+          <Route path="carteras" element={<Navigate to="/bancos" replace />} />
         <Route path="programaciones" element={<ProgramacionesPage />} />
         <Route path="presupuestos" element={<PresupuestosPage />} />
         <Route path="logros" element={<LogrosPage />} />

@@ -18,6 +18,7 @@ export interface BancoDocument {
   descripcion: string;
   tipoCuenta: 'debito' | 'credito';
   tipo: 'personal' | 'compartida';
+  esAhorro?: boolean;
   creadoPor: string;
   creadoPorNombre: string;
   creadoEn: string;
@@ -354,6 +355,9 @@ export class BancosService {
     if (data.creadoPor !== user.uid) {
       throw new ForbiddenException('Solo el creador puede editar la cartera');
     }
+    if (data.esAhorro) {
+      throw new ForbiddenException('No puedes modificar la cartera de ahorros');
+    }
 
     const updates: Record<string, string> = {};
     if (dto.descripcion !== undefined) updates.descripcion = dto.descripcion;
@@ -379,6 +383,9 @@ export class BancosService {
     const data = doc.data() as BancoDocument;
     if (data.creadoPor !== user.uid) {
       throw new ForbiddenException('Solo el creador puede eliminar la cartera');
+    }
+    if (data.esAhorro) {
+      throw new ForbiddenException('No puedes eliminar la cartera de ahorros');
     }
 
     if (data.saldo > 0) {

@@ -14,7 +14,7 @@ export class CreateGastoDto {
   @IsOptional() @IsString() fechaPago?: string;
   @IsOptional() @IsString() fecha?: string;
   @IsOptional() @IsBoolean() esRecurrente?: boolean;
-  @IsOptional() @IsString() @IsIn(['semanal', 'mensual']) recurrenciaTipo?: 'semanal' | 'mensual';
+  @IsOptional() @IsString() @IsIn(['quincenal', 'mensual']) recurrenciaTipo?: 'quincenal' | 'mensual';
   @IsOptional() @IsString() recurrenciaGrupoId?: string;
   @IsOptional() @IsString() fechaOrigen?: string;
   @IsOptional() @IsString() carteraId?: string;
@@ -30,7 +30,7 @@ export class UpdateGastoDto {
   @IsOptional() @IsNumber() @Min(0) cuotasRestantes?: number;
   @IsOptional() @IsString() fecha?: string;
   @IsOptional() @IsBoolean() esRecurrente?: boolean;
-  @IsOptional() @IsString() @IsIn(['semanal', 'mensual']) recurrenciaTipo?: 'semanal' | 'mensual';
+  @IsOptional() @IsString() @IsIn(['quincenal', 'mensual']) recurrenciaTipo?: 'quincenal' | 'mensual';
   @IsOptional() @IsString() recurrenciaGrupoId?: string;
   @IsOptional() @IsString() fechaOrigen?: string;
   @IsOptional() @IsString() carteraId?: string;

@@ -110,8 +110,11 @@ export function useCarryToNewYear() {
 
 export function useCerrarMes() {
   const qc = useQueryClient()
-  return useMutation<unknown, Error, string>({
-    mutationFn: async (presupuestoId) => { const { data } = await apiClient.post(`/presupuestos/${presupuestoId}/cerrar-mes`); return data },
+  return useMutation<unknown, Error, { presupuestoId: string; quincena?: 'Q1' | 'Q2' }>({
+    mutationFn: async ({ presupuestoId, quincena }) => {
+      const { data } = await apiClient.post(`/presupuestos/${presupuestoId}/cerrar-mes`, { quincena })
+      return data
+    },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['presupuestos'] }); qc.invalidateQueries({ queryKey: ['controles'] }) },
   })
 }

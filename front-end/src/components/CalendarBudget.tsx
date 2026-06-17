@@ -7,6 +7,9 @@ interface CalendarBudgetProps {
   presupuestos: Presupuesto[]
   currentMonth: number
   currentYear: number
+  tipo: 'mensual' | 'quincenal'
+  quincenaActiva: 'Q1' | 'Q2' | 'todas'
+  onQuincenaChange: (q: 'Q1' | 'Q2' | 'todas') => void
   onPrevMonth: () => void
   onNextMonth: () => void
   onToday: () => void
@@ -44,11 +47,35 @@ const pillVariants = {
 
 export default function CalendarBudget({
   presupuestos, currentMonth, currentYear,
+  tipo, quincenaActiva, onQuincenaChange,
   onPrevMonth, onNextMonth, onToday,
   onDayClick, onGastoClick, onGastoDrop,
 }: CalendarBudgetProps) {
   const daysInMonth = getDaysInMonth(currentYear, currentMonth)
   const firstDay = getFirstDayOfMonth(currentYear, currentMonth)
+  const esQuincenal = tipo === 'quincenal'
+  const q = quincenaActiva || 'todas'
+
+  const { daysArray, emptyCells } = (() => {
+    if (!esQuincenal || q === 'todas') {
+      return {
+        daysArray: Array.from({ length: daysInMonth }, (_, i) => i + 1),
+        emptyCells: Array.from({ length: firstDay }, (_, i) => i),
+      }
+    }
+    if (q === 'Q1') {
+      return {
+        daysArray: Array.from({ length: Math.min(15, daysInMonth) }, (_, i) => i + 1),
+        emptyCells: Array.from({ length: firstDay }, (_, i) => i),
+      }
+    }
+    const q2FirstDay = new Date(currentYear, currentMonth, 16).getDay()
+    return {
+      daysArray: Array.from({ length: daysInMonth - 15 }, (_, i) => i + 16),
+      emptyCells: Array.from({ length: q2FirstDay }, (_, i) => i),
+    }
+  })()
+
   const dragRef = useRef<{ gastoId: string; presupuestoId: string } | null>(null)
   const [dragOverDay, setDragOverDay] = useState<number | null>(null)
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
@@ -70,6 +97,7 @@ export default function CalendarBudget({
   const gastosByDay = new Map<number, { gasto: Gasto; presupuestoId: string }[]>()
   presupuestos.forEach((p) => {
     ;(p.gastos ?? []).forEach((g) => {
+      if (esQuincenal && q !== 'todas' && g.quincena !== q) return
       const parsed = gastoFecha(g, p)
       if (!parsed) return
       if (parsed.month !== currentMonth || parsed.year !== currentYear) return
@@ -87,6 +115,7 @@ export default function CalendarBudget({
     return s + ing
   }, 0)
   const totalGastos = presupuestos.reduce((s, p) => s + (p.gastos ?? []).reduce((ss, g) => ss + g.monto, 0), 0)
+  const totalGastosSinAhorro = presupuestos.reduce((s, p) => s + (p.gastos ?? []).reduce((ss, g) => ss + (g.categoria !== 'ahorro' ? g.monto : 0), 0), 0)
 
   const handleDragStart = useCallback((gastoId: string, presupuestoId: string) => {
     dragRef.current = { gastoId, presupuestoId }
@@ -120,73 +149,81 @@ export default function CalendarBudget({
   }
 
   const gastosDelDia = selectedDay ? gastosByDay.get(selectedDay) ?? [] : []
-  const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1)
-  const emptyCells = Array.from({ length: firstDay }, (_, i) => i)
 
   const presupuestoActual = presupuestos.find((p: any) => p.mes === currentMonth + 1)
   const mesAnterior = presupuestos.find((p: any) => p.mes === currentMonth)
-  const mesAnteriorCerrado = currentMonth === 0 ? true : mesAnterior?.cerrado === true
+  const sinMesAnterior = !mesAnterior && currentMonth > 0
+  const mesAnteriorCerrado = currentMonth === 0 || sinMesAnterior ? true : mesAnterior?.cerrado === true
   const bloqueado = !mesAnteriorCerrado && currentMonth > 0
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-3">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.92 }}
-          type="button" onClick={handlePrev}
-          className="rounded-lg border border-border px-2.5 py-2 text-sm text-ink-secondary hover:bg-surface-raised transition-colors"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-        </motion.button>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-2 mb-3">
+        <div className="flex items-center justify-between">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.92 }}
+            type="button" onClick={handlePrev}
+            className="rounded-lg border border-border px-2.5 py-2 text-sm text-ink-secondary hover:bg-surface-raised transition-colors"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+          </motion.button>
           <div className="flex items-center gap-2">
-            <motion.h2
-              key={`${currentYear}-${currentMonth}`}
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-              className="text-base md:text-lg font-semibold text-ink"
-            >
-              {MESES[currentMonth]} {currentYear}
-            </motion.h2>
-            {presupuestoActual && (
-              <motion.span
-                key={presupuestoActual.cerrado ? 'cerrado' : 'abierto'}
-                initial={{ scale: 0.5 }}
-                animate={{ scale: 1 }}
-                className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                  presupuestoActual.cerrado
-                    ? 'bg-success/10 text-success'
-                    : 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'
-                }`}
+            <div className="flex items-center gap-2">
+              <motion.h2
+                key={`${currentYear}-${currentMonth}`}
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+                className="text-base md:text-lg font-semibold text-ink"
               >
-                {presupuestoActual.cerrado ? 'Cerrado' : 'Abierto'}
-              </motion.span>
-            )}
+                {MESES[currentMonth]} {currentYear}
+              </motion.h2>
+              {presupuestoActual && (
+                <motion.span
+                  key={presupuestoActual.cerrado ? 'cerrado' : 'abierto'}
+                  initial={{ scale: 0.5 }}
+                  animate={{ scale: 1 }}
+                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                    presupuestoActual.cerrado
+                      ? 'bg-success/10 text-success'
+                      : 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'
+                  }`}
+                >
+                  {presupuestoActual.cerrado ? 'Cerrado' : 'Abierto'}
+                </motion.span>
+              )}
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.92 }}
+              type="button" onClick={onToday}
+              className="rounded-full border border-border px-2.5 py-0.5 text-[10px] md:text-xs font-semibold text-primary hover:bg-primary-subtle transition-colors"
+            >
+              Hoy
+            </motion.button>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.92 }}
-            type="button" onClick={onToday}
-            className="rounded-full border border-border px-2.5 py-0.5 text-[10px] md:text-xs font-semibold text-primary hover:bg-primary-subtle transition-colors"
+            type="button" onClick={handleNext}
+            className="rounded-lg border border-border px-2.5 py-2 text-sm text-ink-secondary hover:bg-surface-raised transition-colors"
           >
-            Hoy
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
           </motion.button>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.92 }}
-          type="button" onClick={handleNext}
-          className="rounded-lg border border-border px-2.5 py-2 text-sm text-ink-secondary hover:bg-surface-raised transition-colors"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-        </motion.button>
+        {esQuincenal && (
+          <div className="flex rounded-lg border border-border overflow-hidden self-center">
+            <button type="button" onClick={() => onQuincenaChange('Q1')} className={`px-4 py-1.5 text-xs font-semibold transition-colors ${q === 'Q1' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Q1 (días 1-15)</button>
+            <button type="button" onClick={() => onQuincenaChange('Q2')} className={`px-4 py-1.5 text-xs font-semibold transition-colors ${q === 'Q2' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Q2 (días 16-{daysInMonth})</button>
+            <button type="button" onClick={() => onQuincenaChange('todas')} className={`px-4 py-1.5 text-xs font-semibold transition-colors ${q === 'todas' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Todas</button>
+          </div>
+        )}
       </div>
 
       <motion.div
         className="rounded-xl border border-border bg-surface overflow-hidden"
-        key={`grid-${currentYear}-${currentMonth}`}
+        key={`grid-${currentYear}-${currentMonth}-${q}`}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -366,7 +403,7 @@ export default function CalendarBudget({
               className="w-full mt-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border px-3 py-2 text-xs font-medium text-ink-muted hover:text-primary hover:border-primary/40 transition-colors"
             >
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-              Agregar gasto
+              Agregar gasto en este día
             </button>
           </div>
         </div>
@@ -381,10 +418,9 @@ export default function CalendarBudget({
         <div className="flex items-center gap-4">
           <span className="text-[11px] md:text-xs">YTD: <strong className="text-ink">{fmt(totalIngresos)}</strong></span>
           <span className="text-[11px] md:text-xs">Gastos: <strong className="text-danger">{fmt(totalGastos)}</strong></span>
-          <span className="text-[11px] md:text-xs">Balance: <strong className={totalIngresos - totalGastos >= 0 ? 'text-success' : 'text-danger'}>{fmt(totalIngresos - totalGastos)}</strong></span>
+          <span className="text-[11px] md:text-xs">Disponible: <strong className={totalIngresos - totalGastosSinAhorro >= 0 ? 'text-success' : 'text-danger'}>{fmt(totalIngresos - totalGastosSinAhorro)}</strong></span>
         </div>
       </motion.div>
     </div>
   )
 }
-

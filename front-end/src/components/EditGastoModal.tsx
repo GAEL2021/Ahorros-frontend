@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { sileo } from '@/lib/sileo'
 import { useUpdateGasto, useDeleteGasto } from '@/hooks/usePresupuestos'
-import { useFetchBancos } from '@/hooks/useFetchBancos'
 import type { Gasto } from '@/types'
+import SearchableSelect from '@/components/ui/SearchableSelect'
 
 interface EditGastoModalProps {
   open: boolean
@@ -14,12 +14,10 @@ interface EditGastoModalProps {
 export default function EditGastoModal({ open, onClose, gasto, presupuestoId }: EditGastoModalProps) {
   const updateGasto = useUpdateGasto(presupuestoId)
   const deleteGasto = useDeleteGasto(presupuestoId)
-  const { data: bancos } = useFetchBancos()
   const [monto, setMonto] = useState(gasto.monto)
   const [desc, setDesc] = useState(gasto.descripcion)
   const [cat, setCat] = useState(gasto.categoria)
   const [fecha, setFecha] = useState(gasto.fecha || '')
-  const [carteraId, setCarteraId] = useState(gasto.carteraId || '')
   const [editAll, setEditAll] = useState(false)
 
   if (!open) return null
@@ -29,7 +27,6 @@ export default function EditGastoModal({ open, onClose, gasto, presupuestoId }: 
     try {
       const data: Record<string, unknown> = { descripcion: desc.trim(), monto, categoria: cat }
       if (fecha) data.fecha = fecha
-      if (carteraId) data.carteraId = carteraId; else data.carteraId = null
       if (gasto.esRecurrente && !editAll) {
         data.recurrenciaGrupoId = null
       }
@@ -57,11 +54,18 @@ export default function EditGastoModal({ open, onClose, gasto, presupuestoId }: 
         <div className="space-y-3.5 px-5 py-4">
           <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Descripción</label><input type="text" value={desc} onChange={(e) => setDesc(e.target.value)} maxLength={200} className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div>
           <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Monto</label><input type="number" min={1} inputMode="decimal" step="0.01" value={monto || ''} onChange={(e) => setMonto(Number(e.target.value))} className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div>
-          <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Categoría</label><select value={cat} onChange={(e) => setCat(e.target.value as 'fijos' | 'ocio' | 'ahorro')} className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink focus:outline-none"><option value="fijos">Gastos Fijos</option><option value="ocio">Ocio</option><option value="ahorro">Ahorro</option></select></div>
+          <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Categoría</label>
+            <SearchableSelect
+              options={[
+                { value: 'fijos', label: '📋 Gastos Fijos' },
+                { value: 'ocio', label: '🎮 Ocio' },
+                { value: 'ahorro', label: '🐷 Ahorro' },
+              ]}
+              value={cat}
+              onChange={(v) => setCat(v as any)}
+            />
+          </div>
           <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Fecha</label><input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink focus:border-primary/50 focus:outline-none" /></div>
-          {bancos && bancos.length > 0 && (
-            <div><label className="mb-1 block text-[11px] font-semibold text-ink-muted">Pagado desde</label><select value={carteraId} onChange={(e) => setCarteraId(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink focus:outline-none"><option value="">Sin cartera (efectivo)</option>{bancos.map((b: any) => <option key={b.id} value={b.id}>{b.nombre} - ${b.saldo.toLocaleString()}</option>)}</select></div>
-          )}
 
           {gasto.esRecurrente && (
             <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 px-3 py-2">

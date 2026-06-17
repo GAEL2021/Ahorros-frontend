@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { motion } from 'framer-motion'
 import { useFetchBancos, useBancoDetail } from '@/hooks/useFetchBancos'
 import { useCreateBanco } from '@/hooks/useCreateBanco'
 import { useUpdateBanco } from '@/hooks/useUpdateBanco'
@@ -14,19 +15,34 @@ import type { Cartera } from '@/types'
 
 function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
   return (
-    <div className="glass rounded-2xl px-6 py-16 text-center animate-fade-in">
-      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20" style={{ animation: 'float 3s ease-in-out infinite' }}>
-        <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="glass rounded-2xl px-6 py-10 text-center">
+      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, delay: 0.1 }} className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20">
+        <motion.svg animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 3 }} className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-        </svg>
-      </div>
-      <h3 className="text-lg font-semibold text-ink">No tienes carteras</h3>
-      <p className="mt-1.5 text-sm text-ink-muted">Registra tus cuentas bancarias y administra tus ahorros.</p>
-      <button type="button" onClick={onCreateClick} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-[var(--bg)] shadow-lg shadow-primary/20 transition-all hover:bg-primary-light active:scale-[0.97]">
+        </motion.svg>
+      </motion.div>
+      <motion.h3 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="text-lg font-semibold text-ink">Administrá tus cuentas</motion.h3>
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="mt-2 text-sm text-ink-muted max-w-md mx-auto">
+        Registrá tus bancos para tener el control de tu dinero. Depositá, retirá y gestioná todo desde un solo lugar.
+      </motion.p>
+      <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }} className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-lg mx-auto text-left">
+        {[
+          { icon: '🏦', title: 'Agregá tu banco', desc: 'Elegí el banco y registrá tu cuenta de débito o crédito.' },
+          { icon: '💰', title: 'Depositá dinero', desc: 'Agregá saldo a tu banco para llevar el control de tus ahorros.' },
+          { icon: '📤', title: 'Retiralo cuando quieras', desc: 'Disponé de tu dinero en cualquier momento. Solo retirá lo que necesites.' },
+        ].map((item, i) => (
+          <motion.div key={i} variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} whileHover={{ y: -2 }} className="rounded-xl border border-border bg-surface p-3 text-center">
+            <span className="text-2xl">{item.icon}</span>
+            <p className="text-xs font-semibold text-ink mt-1">{item.title}</p>
+            <p className="text-[10px] text-ink-muted mt-0.5">{item.desc}</p>
+          </motion.div>
+        ))}
+      </motion.div>
+      <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} type="button" onClick={onCreateClick} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-[var(--bg)] shadow-lg shadow-primary/20 transition-all hover:bg-primary-light">
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-        Nueva cartera
-      </button>
-    </div>
+        Agregar mi banco
+      </motion.button>
+    </motion.div>
   )
 }
 
@@ -382,7 +398,7 @@ export default function CarterasPage() {
     <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between animate-fade-in">
         <div>
-          <h1 className="text-xl font-semibold text-ink">Mis Carteras</h1>
+          <h1 className="text-xl font-semibold text-ink">Mis Bancos</h1>
           <p className="mt-0.5 text-sm text-ink-muted">
             {bancos && bancos.length > 0
               ? `${bancos.length} cartera(s) · Total: $${totalSaldo.toLocaleString()}`
@@ -391,7 +407,7 @@ export default function CarterasPage() {
         </div>
         <button type="button" onClick={() => setShowCreate(true)} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/30">
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-          Nueva cartera
+Nuevo banco
         </button>
       </div>
 
