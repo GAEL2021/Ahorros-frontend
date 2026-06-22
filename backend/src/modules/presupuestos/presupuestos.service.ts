@@ -240,7 +240,7 @@ export class PresupuestosService {
     let quincena = dto.quincena ?? null;
     if (!quincena && p.tipo === 'quincenal' && fecha) {
       const dia = parseInt(fecha.split('-')[2], 10);
-      quincena = dia <= 15 ? 'Q1' : 'Q2';
+      quincena = dia <= 15 ? 'Q2' : 'Q1';
     }
     const gasto = {
       descripcion: dto.descripcion, monto: dto.monto,

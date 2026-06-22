@@ -91,7 +91,7 @@ function GastoCard({ g, presupuestoId, tipo }: { g: Gasto; presupuestoId: string
 
   const hasFinal = g.montoFinal != null && g.montoFinal > 0
   const diff = hasFinal ? (g.montoEstimado || g.monto) - g.montoFinal : 0
-  const quincenaActual = new Date().getDate() <= 15 ? 'Q1' : 'Q2'
+  const quincenaActual = new Date().getDate() <= 15 ? 'Q2' : 'Q1'
   const bloqueadoQuincena = tipo === 'quincenal' && g.quincena && g.quincena !== quincenaActual
 
   useEffect(() => { setActualVal(g.montoFinal || g.monto) }, [g.montoFinal, g.monto])
@@ -388,7 +388,7 @@ function AddGastoModal({ open, onClose, presupuestoId, mostrarQ, fechaPreset }: 
   useEffect(() => {
     if (mostrarQ && fecha) {
       const dia = parseInt(fecha.split('-')[2], 10)
-      setQuincena(dia <= 15 ? 'Q1' : 'Q2')
+      setQuincena(dia <= 15 ? 'Q2' : 'Q1')
     }
   }, [fecha, mostrarQ])
 
@@ -452,8 +452,8 @@ function AddGastoModal({ open, onClose, presupuestoId, mostrarQ, fechaPreset }: 
               <label className="mb-1 block text-[11px] font-semibold text-ink-muted">📆 Quincena</label>
               <p className="text-[9px] text-ink-muted mb-1">Se asignó automáticamente según la fecha. Podés cambiarlo si querés.</p>
               <select value={quincena} onChange={(e) => setQuincena(e.target.value as 'Q1' | 'Q2' | '')} className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink focus:outline-none">
-                <option value="Q1">Q1 - Primera quincena (días 1-15)</option>
-                <option value="Q2">Q2 - Segunda quincena (días 16-31)</option>
+                <option value="Q1">Q1 - Segunda quincena (días 16-31)</option>
+                <option value="Q2">Q2 - Primera quincena (días 1-15)</option>
               </select>
             </div>
           )}
@@ -486,7 +486,7 @@ function AddGastoModal({ open, onClose, presupuestoId, mostrarQ, fechaPreset }: 
 function PresupuestoDetail({ presupuestoId, onClose }: { presupuestoId: string; onClose: () => void }) {
   const { data: p, isLoading } = usePresupuestoDetail(presupuestoId)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [tabQuincena, setTabQuincena] = useState<'Q1' | 'Q2' | 'todas'>(() => new Date().getDate() <= 15 ? 'Q1' : 'Q2')
+  const [tabQuincena, setTabQuincena] = useState<'Q1' | 'Q2' | 'todas'>(() => new Date().getDate() <= 15 ? 'Q2' : 'Q1')
   const [catFiltro, setCatFiltro] = useState<'todas' | 'fijos' | 'ocio' | 'ahorro'>('todas')
   const [editField, setEditField] = useState<string | null>(null)
   const [editVal, setEditVal] = useState(0)
@@ -494,7 +494,7 @@ function PresupuestoDetail({ presupuestoId, onClose }: { presupuestoId: string; 
   const [editQ2, setEditQ2] = useState(0)
   const cerrarMes = useCerrarMes()
   const updatePresupuesto = useUpdatePresupuesto()
-  const qAuto = new Date().getDate() <= 15 ? 'Q1' : 'Q2'
+  const qAuto = new Date().getDate() <= 15 ? 'Q2' : 'Q1'
 
   if (isLoading || !p) return <div className="flex items-center justify-center py-20"><div className="h-7 w-7 animate-spin rounded-full border-2 border-border border-t-primary" /></div>
 
@@ -710,7 +710,7 @@ function ControlDetail({ control, onClose }: { control: any; onClose: () => void
   const [mesActivo, setMesActivo] = useState(presupuestos[0]?.mes ?? 1)
   const p = presupuestos.find((x: any) => x.mes === mesActivo)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [tabQuincena, setTabQuincena] = useState<'Q1' | 'Q2' | 'todas'>(() => new Date().getDate() <= 15 ? 'Q1' : 'Q2')
+  const [tabQuincena, setTabQuincena] = useState<'Q1' | 'Q2' | 'todas'>(() => new Date().getDate() <= 15 ? 'Q2' : 'Q1')
   const [catFiltro, setCatFiltro] = useState<'todas' | 'fijos' | 'ocio' | 'ahorro'>('todas')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [editField, setEditField] = useState<string | null>(null)
@@ -721,7 +721,7 @@ function ControlDetail({ control, onClose }: { control: any; onClose: () => void
   const deleteControl = useDeleteControl()
   const updatePresupuesto = useUpdatePresupuesto()
   const { data: detalle } = usePresupuestoDetail(p?.id ?? '')
-  const qAuto = new Date().getDate() <= 15 ? 'Q1' : 'Q2'
+  const qAuto = new Date().getDate() <= 15 ? 'Q2' : 'Q1'
 
   const mesData = detalle ?? p
   if (!p) return null
@@ -1002,7 +1002,7 @@ export default function PresupuestosPage() {
   const [currentYear, setCurrentYear] = useState(today.getFullYear())
   const [currentMonth, setCurrentMonth] = useState(today.getMonth())
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
-  const [quincenaView, setQuincenaView] = useState<'Q1' | 'Q2' | 'todas'>(() => new Date().getDate() <= 15 ? 'Q1' : 'Q2')
+  const [quincenaView, setQuincenaView] = useState<'Q1' | 'Q2' | 'todas'>(() => new Date().getDate() <= 15 ? 'Q2' : 'Q1')
   const [controlDetail, setControlDetail] = useState<any | null>(null)
   const [gastoAction, setGastoAction] = useState<{ gasto: Gasto; presupuestoId: string } | null>(null)
   const [editGasto, setEditGasto] = useState<{ gasto: Gasto; presupuestoId: string } | null>(null)
@@ -1021,7 +1021,7 @@ export default function PresupuestosPage() {
   const yaTieneControlEsteAnio = controles?.some((c: any) => c.year === currentYear)
   const diciembreCerrado = controlActual?.presupuestos?.find((p: any) => p.mes === 12)?.cerrado
   const mostrarCrearNuevoAnio = diciembreCerrado && controles && !controles.some((c: any) => c.year === currentYear + 1)
-  const quincenaAuto = today.getDate() <= 15 ? 'Q1' : 'Q2'
+  const quincenaAuto = today.getDate() <= 15 ? 'Q2' : 'Q1'
 
   const handleCerrarMes = async (quincena?: 'Q1' | 'Q2') => {
     if (!presupuestoMes) return
@@ -1171,7 +1171,7 @@ export default function PresupuestosPage() {
                 <p className="text-xs font-semibold text-ink">¡Empezá a registrar tus gastos!</p>
                 <p className="text-[11px] text-ink-muted mt-0.5">
                   {controlActual?.tipo === 'quincenal'
-                    ? 'Hacé clic en un día del calendario para agregar un gasto en esa fecha. Cada gasto se asigna automáticamente a Q1 (días 1-15) o Q2 (días 16+).'
+                    ? 'Hacé clic en un día del calendario para agregar un gasto en esa fecha. Cada gasto se asigna automáticamente a Q1 (días 16+) o Q2 (días 1-15).'
                     : 'Hacé clic en un día del calendario para agregar un gasto en esa fecha. También podés arrastrar gastos entre días para reasignarlos.'}
                 </p>
               </div>
@@ -1292,7 +1292,7 @@ export default function PresupuestosPage() {
                         <div className="p-3 space-y-2">
                           <div className="flex items-center gap-2">
                             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-[10px] font-bold text-primary">1</span>
-                            <span className="text-xs font-semibold text-ink">Q1 · Días 1-15</span>
+                            <span className="text-xs font-semibold text-ink">Q1 · Días 16-{new Date(presupuestoMes.year, presupuestoMes.mes, 0).getDate()}</span>
                           </div>
                           <div className="space-y-1 text-[11px]">
                             <div className="flex justify-between"><span className="text-ink-muted">Saldo anterior</span><span className="font-semibold text-ink">{fmt(presupuestoMes.sobranteAnterior)}</span></div>
@@ -1304,7 +1304,7 @@ export default function PresupuestosPage() {
                         <div className="p-3 space-y-2">
                           <div className="flex items-center gap-2">
                             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-[10px] font-bold text-primary">2</span>
-                            <span className="text-xs font-semibold text-ink">Q2 · Días 16-{new Date(presupuestoMes.year, presupuestoMes.mes, 0).getDate()}</span>
+                            <span className="text-xs font-semibold text-ink">Q2 · Días 1-15</span>
                           </div>
                           <div className="space-y-1 text-[11px]">
                             <div className="flex justify-between"><span className="text-ink-muted">Recibe de Q1</span><span className="font-semibold text-ink">{fmt(q1restante)}</span></div>

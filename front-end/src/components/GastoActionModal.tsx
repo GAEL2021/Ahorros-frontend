@@ -17,7 +17,7 @@ export default function GastoActionModal({ open, gasto, tipo, onEdit, onPay, onC
   const yaPagado = gasto.estaConciliado || !!gasto.montoFinal
 
   const hoy = new Date().getDate()
-  const quincenaActual = hoy <= 15 ? 'Q1' : 'Q2'
+  const quincenaActual = hoy <= 15 ? 'Q2' : 'Q1'
   const esQuincenal = tipo === 'quincenal'
   const puedeLiquidar = !esQuincenal || !gasto.quincena || gasto.quincena === quincenaActual
 

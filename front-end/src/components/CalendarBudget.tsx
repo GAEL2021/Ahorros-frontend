@@ -214,8 +214,8 @@ export default function CalendarBudget({
         </div>
         {esQuincenal && (
           <div className="flex rounded-lg border border-border overflow-hidden self-center">
-            <button type="button" onClick={() => onQuincenaChange('Q1')} className={`px-4 py-1.5 text-xs font-semibold transition-colors ${q === 'Q1' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Q1 (días 1-15)</button>
-            <button type="button" onClick={() => onQuincenaChange('Q2')} className={`px-4 py-1.5 text-xs font-semibold transition-colors ${q === 'Q2' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Q2 (días 16-{daysInMonth})</button>
+            <button type="button" onClick={() => onQuincenaChange('Q1')} className={`px-4 py-1.5 text-xs font-semibold transition-colors ${q === 'Q1' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Q1 (días 16-{daysInMonth})</button>
+            <button type="button" onClick={() => onQuincenaChange('Q2')} className={`px-4 py-1.5 text-xs font-semibold transition-colors ${q === 'Q2' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Q2 (días 1-15)</button>
             <button type="button" onClick={() => onQuincenaChange('todas')} className={`px-4 py-1.5 text-xs font-semibold transition-colors ${q === 'todas' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>Todas</button>
           </div>
         )}
