@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { AnimateNumbers } from '@/components/ui/AnimateNumbers'
 import { MultiRingProgress } from '@/components/ui/MultiRingProgress'
+import { useFetchControles } from '@/hooks/usePresupuestos'
+import { BudgetSavingsEvolution } from '@/components/ui/BudgetSavingsEvolution'
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -15,6 +17,12 @@ export default function DashboardPage() {
   const { data: goals, isLoading: loadingGoals, isError: errorGoals } = useFetchGoals()
   const { data: carteras, isLoading: loadingBancos } = useFetchBancos()
   const { data: transactions, isLoading: loadingTrans } = useFetchTransactions()
+  const { data: controles } = useFetchControles()
+
+  const currentYearControl = useMemo(() => {
+    const currentYear = new Date().getFullYear()
+    return controles?.find((c) => c.year === currentYear) || controles?.[0]
+  }, [controles])
 
   // Financial calculations
   const totalBalance = carteras?.reduce((sum, b) => sum + b.saldo, 0) ?? 0
@@ -320,6 +328,12 @@ export default function DashboardPage() {
               </div>
             </div>
           </motion.section>
+
+          {currentYearControl && currentYearControl.presupuestos && currentYearControl.presupuestos.length > 0 && (
+            <motion.section variants={itemVariants} className="space-y-4 animate-fade-in">
+              <BudgetSavingsEvolution presupuestos={currentYearControl.presupuestos} />
+            </motion.section>
+          )}
 
           <motion.section variants={itemVariants} custom={2} className="space-y-4">
             <motion.div className="border-b border-border/60 pb-2">

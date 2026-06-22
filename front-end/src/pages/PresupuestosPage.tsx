@@ -13,6 +13,7 @@ import EditGastoModal from '@/components/EditGastoModal'
 import GastoActionModal from '@/components/GastoActionModal'
 import SearchableSelect from '@/components/ui/SearchableSelect'
 import { MESES, CATEGORIAS, CAT_LABELS, CAT_ICONS, fmt } from '@/lib/formatters'
+import { BudgetSavingsEvolution } from '@/components/ui/BudgetSavingsEvolution'
 
 
 
@@ -626,15 +627,99 @@ function PresupuestoDetail({ presupuestoId, onClose }: { presupuestoId: string; 
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
-            {(['fijos', 'ocio', 'ahorro'] as const).map((c) => {
-              const t = totalesPorCat[c]; const pct = t.meta > 0 ? Math.min(100, Math.round((t.estimado / t.meta) * 100)) : 0
-              return <div key={c} className="rounded-xl bg-surface border border-border px-3 py-2.5 text-center">
-                <span className="text-[10px] uppercase tracking-wider text-ink-muted">{CAT_LABELS[c]}</span>
-                <p className="text-xs font-bold text-ink mt-0.5">{fmt(t.estimado)} / {fmt(t.meta)}</p>
-                <div className="h-1 w-full rounded-full bg-border mt-1"><div className={`h-full rounded-full ${pct >= 100 ? 'bg-danger' : 'bg-primary'}`} style={{ width: `${pct}%` }} /></div>
-              </div>
-            })}
+          <div className="space-y-3 pt-2">
+            <h4 className="text-[10px] font-bold text-ink-muted uppercase tracking-wider">Consumo por Categoría</h4>
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
+              {(['fijos', 'ocio', 'ahorro'] as const).map((c) => {
+                const t = totalesPorCat[c]
+                const limit = t.meta || 0
+                const actual = t.estimado || 0
+                const pct = limit > 0 ? Math.min(100, Math.round((actual / limit) * 100)) : 0
+                const catDetails = CATEGORIAS.find(cat => cat.id === c)
+                
+                // Color states for consumption alerts
+                const strokeColor = pct >= 90 
+                  ? 'bg-danger animate-pulse' 
+                  : pct >= 70 
+                  ? 'bg-amber-500' 
+                  : c === 'ahorro' 
+                  ? 'bg-success' 
+                  : 'bg-primary'
+
+                return (
+                  <div key={c} className="rounded-2xl border border-border bg-surface-raised p-3.5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-ink flex items-center gap-1.5">
+                        <span>{catDetails?.icon}</span>
+                        <span>{catDetails?.label}</span>
+                      </span>
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${catDetails?.bgClass}`}>
+                        {pct}%
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[10px] text-ink-muted">
+                        <span>Estimado: <strong>{fmt(actual)}</strong></span>
+                        {!p.cerrado && editField === `limit_${c}` ? (
+                          <input
+                            type="number"
+                            inputMode="decimal"
+                            defaultValue={limit || ''}
+                            autoFocus
+                            onBlur={async (e) => {
+                              const val = Number(e.target.value)
+                              if (!isNaN(val) && val >= 0) {
+                                const payloadKey = c === 'fijos' ? 'metaFijos' : c === 'ocio' ? 'metaOcio' : 'metaAhorro'
+                                await updatePresupuesto.mutateAsync({ id: presupuestoId, data: { [payloadKey]: val } })
+                                sileo.success('Límite actualizado')
+                              }
+                              setEditField(null)
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') e.currentTarget.blur()
+                              if (e.key === 'Escape') setEditField(null)
+                            }}
+                            className="w-16 rounded border border-primary/40 bg-surface px-1 py-0.5 text-[9px] text-ink text-right focus:outline-none"
+                          />
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={p.cerrado}
+                            onClick={() => setEditField(`limit_${c}`)}
+                            className="hover:text-primary transition-colors flex items-center gap-0.5 disabled:opacity-85"
+                          >
+                            <span>Límite: <strong>{limit > 0 ? fmt(limit) : 'Sin límite'}</strong></span>
+                            {!p.cerrado && (
+                              <svg className="h-2.5 w-2.5 opacity-60 hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                      
+                      {/* Modern progress bar */}
+                      <div className="h-1.5 w-full rounded-full bg-border overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }} 
+                          animate={{ width: `${limit > 0 ? pct : 0}%` }} 
+                          transition={{ duration: 0.8, ease: 'easeOut' }} 
+                          className={`h-full rounded-full ${strokeColor}`} 
+                        />
+                      </div>
+
+                      {limit > 0 && (
+                        <p className="text-[9px] text-ink-muted text-right mt-0.5">
+                          {limit - actual >= 0 
+                            ? `Restan ${fmt(limit - actual)}` 
+                            : `Excedido por ${fmt(actual - limit)}`
+                          }
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </div>
 
           {mostrarQ && (
@@ -731,7 +816,7 @@ function ControlDetail({ control, onClose }: { control: any; onClose: () => void
   const gastosFiltrados = gastos
     .filter((g) => !mostrarQ || tabQuincena === 'todas' || g.quincena === tabQuincena)
     .filter((g) => catFiltro === 'todas' || g.categoria === catFiltro)
-  const totalesPorCat: Record<string, { estimado: number; actual: number }> = { fijos: { estimado: 0, actual: 0 }, ocio: { estimado: 0, actual: 0 }, ahorro: { estimado: 0, actual: 0 } }
+  const totalesPorCat: Record<string, { estimado: number; actual: number; meta: number }> = { fijos: { estimado: 0, actual: 0, meta: mesData.metaFijos || 0 }, ocio: { estimado: 0, actual: 0, meta: mesData.metaOcio || 0 }, ahorro: { estimado: 0, actual: 0, meta: mesData.metaAhorro || 0 } }
   gastosFiltrados.forEach((g) => { totalesPorCat[g.categoria].estimado += g.montoEstimado || g.monto; totalesPorCat[g.categoria].actual += g.estaConciliado ? (g.montoFinal || g.monto) : 0 })
   const totalEstimado = Object.values(totalesPorCat).reduce((s, t) => s + t.estimado, 0)
   const totalActual = Object.values(totalesPorCat).reduce((s, t) => s + t.actual, 0)
@@ -866,6 +951,92 @@ function ControlDetail({ control, onClose }: { control: any; onClose: () => void
               <div className="flex items-center justify-between text-xs"><span className="text-ink-muted">Presupuestado</span><span className="font-semibold text-ink">{fmt(totalEstimado)}</span></div>
               <div className="flex items-center justify-between text-xs"><span className="text-ink-muted">Conciliado</span><span className="font-semibold text-success">{fmt(totalActual)}</span></div>
               <div className="border-t border-border pt-2"><div className="flex items-center justify-between text-xs"><span className="text-ink-muted">Total disponible</span><span className="font-semibold text-ink">{fmt(inc)}</span></div></div>
+            </div>
+          </div>
+          <div className="space-y-3 pt-2">
+            <h4 className="text-[10px] font-bold text-ink-muted uppercase tracking-wider">Consumo por Categoría</h4>
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
+              {(['fijos', 'ocio', 'ahorro'] as const).map((c) => {
+                const t = totalesPorCat[c]
+                const limit = t.meta || 0
+                const actual = t.estimado || 0
+                const pct = limit > 0 ? Math.min(100, Math.round((actual / limit) * 100)) : 0
+                const catDetails = CATEGORIAS.find(cat => cat.id === c)
+                
+                const strokeColor = pct >= 90 
+                  ? 'bg-danger animate-pulse' 
+                  : pct >= 70 
+                  ? 'bg-amber-500' 
+                  : c === 'ahorro' 
+                  ? 'bg-success' 
+                  : 'bg-primary'
+
+                return (
+                  <div key={c} className="rounded-2xl border border-border bg-surface-raised p-3.5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-ink flex items-center gap-1.5">
+                        <span>{catDetails?.icon}</span>
+                        <span>{catDetails?.label}</span>
+                      </span>
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${catDetails?.bgClass}`}>
+                        {pct}%
+                      </span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[10px] text-ink-muted">
+                        <span>Estimado: <strong>{fmt(actual)}</strong></span>
+                        {!mesData.cerrado && editField === `limit_${c}` ? (
+                          <input
+                            type="number"
+                            inputMode="decimal"
+                            defaultValue={limit || ''}
+                            autoFocus
+                            onBlur={async (e) => {
+                              const val = Number(e.target.value)
+                              if (!isNaN(val) && val >= 0) {
+                                const payloadKey = c === 'fijos' ? 'metaFijos' : c === 'ocio' ? 'metaOcio' : 'metaAhorro'
+                                await updatePresupuesto.mutateAsync({ id: p.id, data: { [payloadKey]: val } })
+                                sileo.success('Límite actualizado')
+                              }
+                              setEditField(null)
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') e.currentTarget.blur()
+                              if (e.key === 'Escape') setEditField(null)
+                            }}
+                            className="w-16 rounded border border-primary/40 bg-surface px-1 py-0.5 text-[9px] text-ink text-right focus:outline-none"
+                          />
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={mesData.cerrado}
+                            onClick={() => setEditField(`limit_${c}`)}
+                            className="hover:text-primary transition-colors flex items-center gap-0.5 disabled:opacity-85"
+                          >
+                            <span>Límite: <strong>{limit > 0 ? fmt(limit) : 'Sin límite'}</strong></span>
+                            {!mesData.cerrado && (
+                              <svg className="h-2.5 w-2.5 opacity-60 hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-border overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }} 
+                          animate={{ width: `${limit > 0 ? pct : 0}%` }} 
+                          transition={{ duration: 0.8, ease: 'easeOut' }} 
+                          className={`h-full rounded-full ${strokeColor}`} 
+                        />
+                      </div>
+                      {limit > 0 && (
+                        <p className="text-[9px] text-ink-muted text-right mt-0.5">
+                          {limit - actual >= 0 ? `Restan ${fmt(limit - actual)}` : `Excedido por ${fmt(actual - limit)}`}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
           {mostrarQ && (
@@ -1191,6 +1362,9 @@ export default function PresupuestosPage() {
             onGastoClick={handleGastoClick}
             onGastoDrop={handleGastoDrop}
           />
+          {controlActual && (
+            <BudgetSavingsEvolution presupuestos={controlActual.presupuestos ?? []} />
+          )}
           {presupuestoMes && (() => {
             const gastos = presupuestoMes.gastos ?? []
             const ingresosTotal = ingresos(presupuestoMes)

@@ -6,4 +6,7 @@ export class UpdatePresupuestoDto {
   @IsOptional() @IsNumber() @Min(0) salarioQ2?: number;
   @IsOptional() @IsNumber() @Min(0) sobranteAnterior?: number;
   @IsOptional() @IsNumber() @Min(0) efectivoExtra?: number;
+  @IsOptional() @IsNumber() @Min(0) metaFijos?: number;
+  @IsOptional() @IsNumber() @Min(0) metaOcio?: number;
+  @IsOptional() @IsNumber() @Min(0) metaAhorro?: number;
 }

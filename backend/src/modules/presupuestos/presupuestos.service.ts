@@ -474,6 +474,9 @@ export class PresupuestosService {
     if (dto.salarioQ2 !== undefined) updateData.salarioQ2 = dto.salarioQ2;
     if (dto.sobranteAnterior !== undefined) updateData.sobranteAnterior = dto.sobranteAnterior;
     if (dto.efectivoExtra !== undefined) updateData.efectivoExtra = dto.efectivoExtra;
+    if (dto.metaFijos !== undefined) updateData.metaFijos = dto.metaFijos;
+    if (dto.metaOcio !== undefined) updateData.metaOcio = dto.metaOcio;
+    if (dto.metaAhorro !== undefined) updateData.metaAhorro = dto.metaAhorro;
 
     if (Object.keys(updateData).length > 0) {
       await ref.update(updateData);

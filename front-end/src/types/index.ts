@@ -362,6 +362,9 @@ export interface UpdatePresupuestoPayload {
   salarioQ2?: number
   sobranteAnterior?: number
   efectivoExtra?: number
+  metaFijos?: number
+  metaOcio?: number
+  metaAhorro?: number
 }
 
 export interface UpdateGastoPayload {

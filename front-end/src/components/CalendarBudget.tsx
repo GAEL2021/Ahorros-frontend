@@ -397,14 +397,18 @@ export default function CalendarBudget({
             ) : (
               <p className="text-xs text-ink-muted text-center py-2">Sin gastos este día</p>
             )}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
               type="button"
               onClick={() => onDayClick(selectedDay)}
-              className="w-full mt-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border px-3 py-2 text-xs font-medium text-ink-muted hover:text-primary hover:border-primary/40 transition-colors"
+              className="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-[#8750FF] px-4 py-3 text-xs font-bold text-white shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:from-primary-light hover:to-[#935FFF] transition-all focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-              Agregar gasto en este día
-            </button>
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Agregar Gasto en este Día
+            </motion.button>
           </div>
         </div>
       )}
