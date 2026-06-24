@@ -7,6 +7,7 @@ import CarterasPage from '@/pages/CarterasPage'
 import ProgramacionesPage from '@/pages/ProgramacionesPage'
 import CatalogoBancosPage from '@/pages/CatalogoBancosPage'
 import PresupuestosPage from '@/pages/PresupuestosPage'
+import TarjetasCreditoPage from '@/pages/TarjetasCreditoPage'
 import LogrosPage from '@/pages/LogrosPage'
 import AdminLoginPage from '@/pages/AdminLoginPage'
 import ShowcasePage from '@/pages/ShowcasePage'
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="bancos" element={<CarterasPage />} />
           <Route path="carteras" element={<Navigate to="/bancos" replace />} />
         <Route path="programaciones" element={<ProgramacionesPage />} />
+        <Route path="tarjetas" element={<TarjetasCreditoPage />} />
         <Route path="presupuestos" element={<PresupuestosPage />} />
         <Route path="logros" element={<LogrosPage />} />
         <Route path="showcase" element={<ShowcasePage />} />

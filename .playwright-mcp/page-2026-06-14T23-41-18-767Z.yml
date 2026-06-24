@@ -1,0 +1,158 @@
+- generic [ref=e86]:
+  - complementary [ref=e87]:
+    - generic [ref=e88]:
+      - generic [ref=e90]: EQ
+      - generic [ref=e91]: Equilibra
+    - navigation [ref=e92]:
+      - link "Dashboard" [ref=e93] [cursor=pointer]:
+        - /url: /
+        - img [ref=e94]
+        - text: Dashboard
+      - link "Mis Metas" [ref=e96] [cursor=pointer]:
+        - /url: /metas
+        - img [ref=e97]
+        - text: Mis Metas
+      - link "Carteras" [ref=e99] [cursor=pointer]:
+        - /url: /carteras
+        - img [ref=e100]
+        - text: Carteras
+      - link "Programaciones" [ref=e102] [cursor=pointer]:
+        - /url: /programaciones
+        - img [ref=e103]
+        - text: Programaciones
+      - link "Presupuestos" [ref=e105] [cursor=pointer]:
+        - /url: /presupuestos
+        - img [ref=e106]
+        - text: Presupuestos
+      - link "Logros" [ref=e108] [cursor=pointer]:
+        - /url: /logros
+        - img [ref=e109]
+        - text: Logros
+      - link "Calendario" [ref=e111] [cursor=pointer]:
+        - /url: /calendario
+        - img [ref=e112]
+        - text: Calendario
+    - generic [ref=e115]:
+      - generic [ref=e116]: U
+      - generic [ref=e117]:
+        - paragraph [ref=e118]: Usuario Prueba
+        - paragraph [ref=e119]: testuser@prueba.com
+      - button "Cambiar a modo claro" [ref=e120]:
+        - img [ref=e121]
+      - button "Cerrar sesión" [ref=e123]:
+        - img [ref=e124]
+  - main [ref=e127]:
+    - generic [ref=e128]:
+      - heading "Equilibra" [level=1] [ref=e129]
+      - paragraph [ref=e130]: Tu panel interactivo con visualización concéntrica y microinteracciones
+    - generic [ref=e131]:
+      - generic [ref=e132]:
+        - heading "Resumen General y Salud Financiera" [level=2] [ref=e134]
+        - generic [ref=e135]:
+          - generic [ref=e136]:
+            - img [ref=e138]
+            - img [ref=e141]
+            - generic [ref=e143]:
+              - img [ref=e145]
+              - generic [ref=e150]:
+                - heading "Equilibra" [level=2] [ref=e151]
+                - paragraph [ref=e152]: Tu panel financiero inteligente
+            - generic [ref=e153]:
+              - heading "¡Hola, Usuario Prueba!" [level=3] [ref=e154]
+              - paragraph [ref=e155]: Gestiona tus finanzas, carteras de ahorro y colabora con tu grupo de forma interactiva.
+            - button "Ver mis Metas" [ref=e156] [cursor=pointer]
+          - generic [ref=e157]:
+            - generic [ref=e158]:
+              - generic [ref=e159]: Balance General
+              - heading "$666,62" [level=1] [ref=e160]
+            - generic [ref=e161]:
+              - generic [ref=e162]:
+                - text: Ingresos
+                - paragraph [ref=e163]: +$667
+              - generic [ref=e164]:
+                - text: Egresos
+                - paragraph [ref=e165]: "-$0"
+              - generic [ref=e166]:
+                - text: Gastado
+                - paragraph [ref=e167]: "-$0"
+          - generic [ref=e168]:
+            - generic [ref=e169]:
+              - heading "Salud Financiera" [level=3] [ref=e170]
+              - generic [ref=e171]: Metas Activas
+            - generic [ref=e172]:
+              - generic [ref=e173]:
+                - img [ref=e174]
+                - generic [ref=e187]:
+                  - generic [ref=e188]: Balance Total
+                  - generic [ref=e189]: $1000
+              - generic [ref=e190]:
+                - generic [ref=e191]:
+                  - generic [ref=e194]: Metas
+                  - generic [ref=e195]: 0%
+                - generic [ref=e196]:
+                  - generic [ref=e199]: Saldo
+                  - generic [ref=e200]: 20%
+                - generic [ref=e201]:
+                  - generic [ref=e204]: Checklist
+                  - generic [ref=e205]: 0%
+                - generic [ref=e206]:
+                  - generic [ref=e209]: Ahorro
+                  - generic [ref=e210]: 100%
+      - generic [ref=e211]:
+        - heading "Planificación y Avance de Metas" [level=2] [ref=e213]
+        - generic [ref=e214]:
+          - generic [ref=e215]:
+            - generic [ref=e216] [cursor=pointer]:
+              - generic [ref=e217]: +
+              - generic [ref=e218]: Agregar Nueva Meta
+            - generic [ref=e219]:
+              - generic [ref=e220]: Viaje a Cancún
+              - generic [ref=e221]:
+                - generic [ref=e222]: $0
+                - paragraph [ref=e223]: Acumulado en tu meta principal
+                - paragraph [ref=e224]: "Gastado (checklist): $0"
+            - generic [ref=e225]:
+              - generic [ref=e226]: BAC
+              - generic [ref=e227]:
+                - generic [ref=e228]: $667
+                - paragraph [ref=e229]: Total en cartera
+            - generic [ref=e231]:
+              - generic [ref=e232]: Avance de Objetivo
+              - generic [ref=e233]: 0%
+          - generic [ref=e236]:
+            - generic [ref=e237]:
+              - heading "📊 Control vs Metas" [level=3] [ref=e238]:
+                - generic [ref=e239]: 📊
+                - text: Control vs Metas
+              - generic [ref=e240]: Análisis
+            - generic [ref=e241]:
+              - generic [ref=e243]:
+                - generic [ref=e244]: Asignado a Metas
+                - generic [ref=e245]: $0
+              - generic [ref=e248]:
+                - generic [ref=e249]: Disponible
+                - generic [ref=e250]: $1000
+            - generic [ref=e253]:
+              - generic [ref=e254]:
+                - generic [ref=e255]: "Estado de Ahorro:"
+                - generic [ref=e256]: $5000
+              - paragraph [ref=e257]: Faltan $4000 para tus metas.
+      - generic [ref=e258]:
+        - heading "Flujo de Caja y Transacciones" [level=2] [ref=e260]
+        - generic [ref=e261]:
+          - generic [ref=e263]:
+            - generic [ref=e264]:
+              - heading "Actividad de Ahorro" [level=4] [ref=e265]
+              - generic [ref=e266]: En Vivo
+            - generic [ref=e268]:
+              - generic [ref=e269]:
+                - generic [ref=e270]: TE
+                - generic [ref=e271]:
+                  - heading "testuser" [level=5] [ref=e272]
+                  - paragraph [ref=e273]: Depósito
+              - generic [ref=e274]: +$1000
+          - generic [ref=e276]:
+            - generic [ref=e277]:
+              - heading "Egresos Recientes" [level=4] [ref=e278]
+              - generic [ref=e279] [cursor=pointer]: Ver Todos
+            - paragraph [ref=e281]: Sin egresos recientes.

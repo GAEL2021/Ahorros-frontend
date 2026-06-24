@@ -9,6 +9,7 @@ import { ProgramacionesModule } from './modules/programaciones/programaciones.mo
 import { CatalogoBancosModule } from './modules/catalogo-bancos/catalogo-bancos.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { PresupuestosModule } from './modules/presupuestos/presupuestos.module';
+import { TarjetasCreditoModule } from './modules/tarjetas-credito/tarjetas-credito.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
 
 @Module({
@@ -22,6 +23,7 @@ import { SchedulerModule } from './scheduler/scheduler.module';
     CatalogoBancosModule,
     AdminModule,
     PresupuestosModule,
+    TarjetasCreditoModule,
     SchedulerModule,
     ScheduleModule.forRoot(),
   ],

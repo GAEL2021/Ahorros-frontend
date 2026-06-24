@@ -1,0 +1,61 @@
+- generic [ref=e92]:
+  - complementary [ref=e93]:
+    - generic [ref=e94]:
+      - generic [ref=e96]: EQ
+      - generic [ref=e97]: Equilibra
+    - navigation [ref=e98]:
+      - link "Dashboard" [ref=e99] [cursor=pointer]:
+        - /url: /
+        - img [ref=e100]
+        - text: Dashboard
+      - link "Mis Metas" [active] [ref=e102] [cursor=pointer]:
+        - /url: /metas
+        - img [ref=e103]
+        - text: Mis Metas
+      - link "Carteras" [ref=e105] [cursor=pointer]:
+        - /url: /carteras
+        - img [ref=e106]
+        - text: Carteras
+      - link "Programaciones" [ref=e108] [cursor=pointer]:
+        - /url: /programaciones
+        - img [ref=e109]
+        - text: Programaciones
+      - link "Presupuestos" [ref=e111] [cursor=pointer]:
+        - /url: /presupuestos
+        - img [ref=e112]
+        - text: Presupuestos
+      - link "Logros" [ref=e114] [cursor=pointer]:
+        - /url: /logros
+        - img [ref=e115]
+        - text: Logros
+      - link "Calendario" [ref=e117] [cursor=pointer]:
+        - /url: /calendario
+        - img [ref=e118]
+        - text: Calendario
+    - generic [ref=e121]:
+      - generic [ref=e122]: U
+      - generic [ref=e123]:
+        - paragraph [ref=e124]: Usuario Prueba
+        - paragraph [ref=e125]: testuser@prueba.com
+      - button "Cambiar a modo claro" [ref=e126]:
+        - img [ref=e127]
+      - button "Cerrar sesión" [ref=e129]:
+        - img [ref=e130]
+  - main [ref=e283]:
+    - generic [ref=e284]:
+      - generic [ref=e285]:
+        - heading "Mis Metas" [level=1] [ref=e286]
+        - paragraph [ref=e287]: Administra y colabora en tus metas de ahorro
+      - button "Nueva meta" [ref=e288]:
+        - img [ref=e289]
+        - text: Nueva meta
+    - button "Unirse con código" [ref=e292]:
+      - img [ref=e293]
+      - text: Unirse con código
+    - generic [ref=e295]:
+      - img [ref=e297]
+      - heading "No tienes metas aún" [level=3] [ref=e299]
+      - paragraph [ref=e300]: Crea tu primera meta colaborativa y empieza a ahorrar en grupo.
+      - button "Crear meta" [ref=e301]:
+        - img [ref=e302]
+        - text: Crear meta

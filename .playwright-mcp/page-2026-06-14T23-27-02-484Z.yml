@@ -1,0 +1,111 @@
+- generic [ref=e92]:
+  - complementary [ref=e93]:
+    - generic [ref=e94]:
+      - generic [ref=e96]: EQ
+      - generic [ref=e97]: Equilibra
+    - navigation [ref=e98]:
+      - link "Dashboard" [ref=e99] [cursor=pointer]:
+        - /url: /
+        - img [ref=e100]
+        - text: Dashboard
+      - link "Mis Metas" [ref=e102] [cursor=pointer]:
+        - /url: /metas
+        - img [ref=e103]
+        - text: Mis Metas
+      - link "Carteras" [ref=e105] [cursor=pointer]:
+        - /url: /carteras
+        - img [ref=e106]
+        - text: Carteras
+      - link "Programaciones" [ref=e108] [cursor=pointer]:
+        - /url: /programaciones
+        - img [ref=e109]
+        - text: Programaciones
+      - link "Presupuestos" [ref=e111] [cursor=pointer]:
+        - /url: /presupuestos
+        - img [ref=e112]
+        - text: Presupuestos
+      - link "Logros" [ref=e114] [cursor=pointer]:
+        - /url: /logros
+        - img [ref=e115]
+        - text: Logros
+      - link "Calendario" [active] [ref=e117] [cursor=pointer]:
+        - /url: /calendario
+        - img [ref=e118]
+        - text: Calendario
+    - generic [ref=e121]:
+      - generic [ref=e122]: U
+      - generic [ref=e123]:
+        - paragraph [ref=e124]: Usuario Prueba
+        - paragraph [ref=e125]: testuser@prueba.com
+      - button "Cambiar a modo claro" [ref=e126]:
+        - img [ref=e127]
+      - button "Cerrar sesión" [ref=e129]:
+        - img [ref=e130]
+  - main [ref=e650]:
+    - generic [ref=e651]:
+      - heading "Calendario de Metas" [level=1] [ref=e652]
+      - paragraph [ref=e653]: Visualiza tus metas en el tiempo y cuándo terminan
+    - generic [ref=e654]:
+      - generic [ref=e655]:
+        - text: Activas
+        - paragraph [ref=e656]: "1"
+      - generic [ref=e657]:
+        - text: Completadas
+        - paragraph [ref=e658]: "0"
+      - generic [ref=e659]:
+        - text: Ahorrado
+        - paragraph [ref=e660]: $0
+    - generic [ref=e661]:
+      - button [ref=e662]:
+        - img [ref=e663]
+      - generic [ref=e665]:
+        - heading "Junio 2026" [level=2] [ref=e666]
+        - button "Hoy" [ref=e667]
+      - button [ref=e668]:
+        - img [ref=e669]
+    - button "Dic 20261" [ref=e672]
+    - generic [ref=e675]:
+      - generic [ref=e676]:
+        - generic [ref=e677]: Dom
+        - generic [ref=e678]: Lun
+        - generic [ref=e679]: Mar
+        - generic [ref=e680]: Mié
+        - generic [ref=e681]: Jue
+        - generic [ref=e682]: Vie
+        - generic [ref=e683]: Sáb
+      - generic [ref=e684]:
+        - generic [ref=e687]: "1"
+        - generic [ref=e689]: "2"
+        - generic [ref=e691]: "3"
+        - generic [ref=e693]: "4"
+        - generic [ref=e695]: "5"
+        - generic [ref=e697]: "6"
+        - generic [ref=e699]: "7"
+        - generic [ref=e701]: "8"
+        - generic [ref=e703]: "9"
+        - generic [ref=e705]: "10"
+        - generic [ref=e707]: "11"
+        - generic [ref=e709]: "12"
+        - generic [ref=e711]: "13"
+        - generic [ref=e713]: "14"
+        - generic [ref=e715]: "15"
+        - generic [ref=e717]: "16"
+        - generic [ref=e719]: "17"
+        - generic [ref=e721]: "18"
+        - generic [ref=e723]: "19"
+        - generic [ref=e725]: "20"
+        - generic [ref=e727]: "21"
+        - generic [ref=e729]: "22"
+        - generic [ref=e731]: "23"
+        - generic [ref=e733]: "24"
+        - generic [ref=e735]: "25"
+        - generic [ref=e737]: "26"
+        - generic [ref=e739]: "27"
+        - generic [ref=e741]: "28"
+        - generic [ref=e743]: "29"
+        - generic [ref=e745]: "30"
+    - generic [ref=e746]:
+      - generic [ref=e747]: Activa
+      - generic [ref=e749]: Completada
+      - generic [ref=e751]: Cancelada
+      - generic [ref=e753]: Hoy

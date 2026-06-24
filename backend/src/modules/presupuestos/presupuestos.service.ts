@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { FirebaseService } from '../../config/firebase/firebase.service';
 import { CreatePresupuestoDto } from './dto/create-presupuesto.dto';
 import { UpdatePresupuestoDto } from './dto/update-presupuesto.dto';
 import { CreateGastoDto, UpdateGastoDto } from './dto/create-gasto.dto';
 import { FirebaseUser } from '../../common/guards/firebase-auth.guard';
+import { TarjetasCreditoService } from '../tarjetas-credito/tarjetas-credito.service';
 
 export interface PresupuestoDocument {
   carteraId: string; tipo: 'mensual' | 'quincenal';
@@ -35,11 +36,17 @@ export interface GastoDocument {
   recurrenciaGrupoId?: string;
   fechaOrigen?: string;
   carteraId?: string;
+  medioDePago?: string;
+  tarjetaCreditoId?: string;
 }
 
 @Injectable()
 export class PresupuestosService {
-  constructor(private readonly firebaseService: FirebaseService) {}
+  constructor(
+    private readonly firebaseService: FirebaseService,
+    @Inject(forwardRef(() => TarjetasCreditoService))
+    private readonly tarjetasCreditoService: TarjetasCreditoService,
+  ) {}
 
   private docFromDto(dto: CreatePresupuestoDto, user: FirebaseUser, mes: number, controlId: string): PresupuestoDocument {
     let salarioMensual = dto.salarioMensual ?? 0;
@@ -260,6 +267,8 @@ export class PresupuestosService {
       recurrenciaGrupoId: dto.esRecurrente ? recurrenciaGrupoId : null,
       fechaOrigen: dto.fechaOrigen ?? fecha,
       carteraId: dto.carteraId || null,
+      medioDePago: dto.medioDePago || null,
+      tarjetaCreditoId: dto.tarjetaCreditoId || null,
     };
     const ref = await pRef.collection('gastos').add(gasto);
 
@@ -273,6 +282,19 @@ export class PresupuestosService {
 
     if (dto.categoria === 'ahorro' && dto.monto > 0) {
       await this.depositarAhorro(user.uid, user.email ?? '', dto.monto, dto.descripcion);
+    }
+
+    if (dto.medioDePago === 'tarjeta_credito' && dto.tarjetaCreditoId) {
+      try {
+        await this.tarjetasCreditoService.acumularCompra(
+          dto.tarjetaCreditoId,
+          { descripcion: dto.descripcion, monto: dto.monto, fecha: fecha, gastoId: ref.id },
+          user,
+        );
+      } catch (e: any) {
+        // No bloquear el registro del gasto si falla la acumulación en TC
+        console.error('Error acumulando compra en tarjeta:', e.message);
+      }
     }
 
     return { id: ref.id, ...gasto };
@@ -485,15 +507,38 @@ export class PresupuestosService {
     return { id: updated.id, ...updated.data() };
   }
 
-  async pagarGasto(presupuestoId: string, gastoId: string, _user: FirebaseUser, montoReal?: number, _carteraIdOverride?: string) {
+  async pagarGasto(
+    presupuestoId: string,
+    gastoId: string,
+    _user: FirebaseUser,
+    montoReal?: number,
+    _carteraIdOverride?: string,
+    medioDePago?: string,
+    tarjetaCreditoId?: string,
+  ) {
     const ref = this.firebaseService.firestore.collection('presupuestos').doc(presupuestoId).collection('gastos').doc(gastoId);
     const doc = await ref.get();
     if (!doc.exists) throw new NotFoundException('Gasto no encontrado');
-    const montoUsar = montoReal ?? (doc.data() as GastoDocument).monto;
+    const data = doc.data() as GastoDocument;
+    const montoUsar = montoReal ?? data.monto;
 
     const updateData: Record<string, unknown> = { estaConciliado: true };
     if (montoReal !== undefined) updateData.montoFinal = montoReal;
+    if (medioDePago !== undefined) updateData.medioDePago = medioDePago;
+    if (tarjetaCreditoId !== undefined) updateData.tarjetaCreditoId = tarjetaCreditoId;
     await ref.update(updateData);
+
+    if (medioDePago === 'tarjeta_credito' && tarjetaCreditoId) {
+      try {
+        await this.tarjetasCreditoService.acumularCompra(
+          tarjetaCreditoId,
+          { descripcion: data.descripcion, monto: montoUsar, fecha: data.fecha || new Date().toISOString(), gastoId },
+          _user,
+        );
+      } catch (e: any) {
+        console.error('Error acumulando compra en tarjeta:', e.message);
+      }
+    }
 
     return { message: 'Gasto pagado', gastoId, montoUsar };
   }

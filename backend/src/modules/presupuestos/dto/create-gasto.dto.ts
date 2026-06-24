@@ -18,6 +18,8 @@ export class CreateGastoDto {
   @IsOptional() @IsString() recurrenciaGrupoId?: string;
   @IsOptional() @IsString() fechaOrigen?: string;
   @IsOptional() @IsString() carteraId?: string;
+  @IsOptional() @IsString() @IsIn(['efectivo', 'debito', 'tarjeta_credito']) medioDePago?: string;
+  @IsOptional() @IsString() tarjetaCreditoId?: string;
 }
 
 export class UpdateGastoDto {
@@ -34,6 +36,8 @@ export class UpdateGastoDto {
   @IsOptional() @IsString() recurrenciaGrupoId?: string;
   @IsOptional() @IsString() fechaOrigen?: string;
   @IsOptional() @IsString() carteraId?: string;
+  @IsOptional() @IsString() @IsIn(['efectivo', 'debito', 'tarjeta_credito']) medioDePago?: string;
+  @IsOptional() @IsString() tarjetaCreditoId?: string;
 }
 
 export class UpdateGastoFechaDto {
@@ -43,4 +47,6 @@ export class UpdateGastoFechaDto {
 export class PagarGastoDto {
   @IsOptional() @IsNumber() @Min(0) montoReal?: number;
   @IsOptional() @IsString() carteraId?: string;
+  @IsOptional() @IsString() @IsIn(['efectivo', 'debito', 'tarjeta_credito']) medioDePago?: string;
+  @IsOptional() @IsString() tarjetaCreditoId?: string;
 }

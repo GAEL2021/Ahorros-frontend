@@ -35,7 +35,7 @@ export interface BancoMember {
 export interface TransaccionDocument {
   carteraId: string;
   userId: string;
-  tipo: 'deposito' | 'retiro' | 'aporte_meta';
+  tipo: 'deposito' | 'retiro' | 'aporte_meta' | 'pago_tarjeta';
   monto: number;
   metaId?: string;
   descripcion: string;

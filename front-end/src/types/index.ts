@@ -1,4 +1,7 @@
 export type PaymentState = 'PAGADO' | 'PENDIENTE'
+export type MedioDePago = 'efectivo' | 'debito' | 'tarjeta_credito'
+export type CapacidadPagoEstado = 'cubierto' | 'parcial' | 'insuficiente'
+export type UtilizacionColor = 'verde' | 'amarillo' | 'rojo'
 
 export type GoalType = 'individual' | 'shared'
 
@@ -60,7 +63,7 @@ export interface TransaccionBanco {
   id: string
   carteraId: string
   userId: string
-  tipo: 'deposito' | 'retiro' | 'aporte_meta'
+  tipo: 'deposito' | 'retiro' | 'aporte_meta' | 'pago_tarjeta'
   monto: number
   metaId?: string
   descripcion: string
@@ -236,6 +239,93 @@ export interface Participant {
 // --- Legacy alias (backward compat) ---
 export type Goal = Meta
 
+// --- Tarjeta de Crédito ---
+
+export interface TarjetaCredito {
+  id: string
+  nombre: string
+  bancoEmisor: string
+  limiteCredito: number
+  fechaCorte: number
+  fechaPago: number
+  saldoUtilizado: number
+  activa: boolean
+  creadoEn: string
+}
+
+export interface CreateTarjetaCreditoPayload {
+  nombre: string
+  bancoEmisor: string
+  limiteCredito: number
+  fechaCorte: number
+  fechaPago: number
+}
+
+export interface UpdateTarjetaCreditoPayload {
+  nombre?: string
+  bancoEmisor?: string
+  limiteCredito?: number
+  fechaCorte?: number
+  fechaPago?: number
+}
+
+export interface CompraTarjeta {
+  id: string
+  descripcion: string
+  monto: number
+  fecha: string
+  gastoId?: string
+  checklistItemId?: string
+  metaId?: string
+  cicloFechaCorte: string
+  creadoEn: string
+}
+
+export interface PagoTarjeta {
+  id: string
+  monto: number
+  fecha: string
+  carteraId: string
+  carteraNombre: string
+  creadoEn: string
+}
+
+export interface DashboardTarjeta {
+  tarjeta: TarjetaCredito
+  creditDisponible: number
+  porcentajeUtilizacion: number
+  colorUtilizacion: UtilizacionColor
+  proximoCorte: string
+  proximoPago: string
+  totalCicloActual: number
+  comprasCicloActual: CompraTarjeta[]
+  historialCompras: CompraTarjeta[]
+  historialPagos: PagoTarjeta[]
+}
+
+export interface CapacidadPago {
+  saldoPendiente: number
+  totalCarteras: number
+  dineroComprometido: number
+  dineroLibre: number
+  porcentajeCubierto: number
+  estado: CapacidadPagoEstado
+}
+
+export interface SimulacionPago {
+  montoSimulado: number
+  saldoRestanteTarjeta: number
+  nuevoSaldoUtilizado: number
+  carteraOrigen?: string
+  saldoCarteraRestante?: number
+}
+
+export interface ResumenBancos {
+  totalCarteras: number
+  dineroComprometido: number
+  dineroLibre: number
+}
+
 // --- Checklist ---
 
 export interface ChecklistItem {
@@ -248,6 +338,8 @@ export interface ChecklistItem {
   completado: boolean
   orden: number
   creadoEn: string
+  medioDePago?: MedioDePago
+  tarjetaCreditoId?: string
 }
 
 export interface CreateChecklistItemPayload {
@@ -263,6 +355,8 @@ export interface UpdateChecklistItemPayload {
   montoReal?: number
   comprobante?: string
   ignorarExceso?: boolean
+  medioDePago?: MedioDePago
+  tarjetaCreditoId?: string
 }
 
 // --- Presupuesto ---
@@ -315,6 +409,8 @@ export interface Gasto {
   recurrenciaGrupoId?: string
   fechaOrigen?: string
   carteraId?: string
+  medioDePago?: MedioDePago
+  tarjetaCreditoId?: string
 }
 
 export interface CreatePresupuestoPayload {
@@ -354,6 +450,8 @@ export interface CreateGastoPayload {
   cuotas?: number
   fechaOrigen?: string
   carteraId?: string
+  medioDePago?: MedioDePago
+  tarjetaCreditoId?: string
 }
 
 export interface UpdatePresupuestoPayload {
@@ -374,6 +472,8 @@ export interface UpdateGastoPayload {
   estaConciliado?: boolean
   descripcion?: string
   categoria?: 'fijos' | 'ocio' | 'ahorro'
+  medioDePago?: MedioDePago
+  tarjetaCreditoId?: string
 }
 
 

@@ -101,7 +101,7 @@ export class GoalsController {
     @Body() dto: UpdateChecklistItemDto,
     @Req() req: Request,
   ) {
-    return this.goalsService.updateChecklistItem(id, itemId, dto, req.user as FirebaseUser);
+    return this.goalsService.updateChecklistItem(id, itemId, dto as any, req.user as FirebaseUser);
   }
 
   @Delete(':id/checklist/:itemId')

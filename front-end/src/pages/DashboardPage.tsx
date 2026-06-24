@@ -10,6 +10,9 @@ import { AnimateNumbers } from '@/components/ui/AnimateNumbers'
 import { MultiRingProgress } from '@/components/ui/MultiRingProgress'
 import { useFetchControles } from '@/hooks/usePresupuestos'
 import { BudgetSavingsEvolution } from '@/components/ui/BudgetSavingsEvolution'
+import { useFetchTarjetas } from '@/hooks/useFetchTarjetas'
+import { useResumenBancos } from '@/hooks/useResumenBancos'
+import { fmt } from '@/lib/formatters'
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -18,6 +21,8 @@ export default function DashboardPage() {
   const { data: carteras, isLoading: loadingBancos } = useFetchBancos()
   const { data: transactions, isLoading: loadingTrans } = useFetchTransactions()
   const { data: controles } = useFetchControles()
+  const { data: tarjetas } = useFetchTarjetas()
+  const { data: resumen } = useResumenBancos()
 
   const currentYearControl = useMemo(() => {
     const currentYear = new Date().getFullYear()
@@ -225,6 +230,60 @@ export default function DashboardPage() {
               ))}
             </motion.div>
           </motion.section>
+
+          {/* Resumen Comprometido vs Disponible */}
+          {resumen && (
+            <motion.section variants={itemVariants} className="space-y-4">
+              <motion.div className="border-b border-border/60 pb-2">
+                <h2 className="text-xs font-bold text-ink-muted uppercase tracking-widest">Dinero Comprometido vs Disponible</h2>
+              </motion.div>
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+                <div className="rounded-xl bg-surface border border-border p-4 text-center">
+                  <span className="text-[10px] text-ink-muted uppercase tracking-wider block">Total Carteras</span>
+                  <span className="text-2xl font-bold text-ink mt-1 block">{fmt(resumen.totalCarteras)}</span>
+                </div>
+                <div className="rounded-xl bg-surface border border-border p-4 text-center">
+                  <span className="text-[10px] text-ink-muted uppercase tracking-wider block">Comprometido en Metas</span>
+                  <span className="text-2xl font-bold text-amber-500 mt-1 block">{fmt(resumen.dineroComprometido)}</span>
+                </div>
+                <div className="rounded-xl bg-surface border border-border p-4 text-center">
+                  <span className="text-[10px] text-ink-muted uppercase tracking-wider block">Dinero Libre</span>
+                  <span className="text-2xl font-bold text-success mt-1 block">{fmt(resumen.dineroLibre)}</span>
+                </div>
+              </div>
+            </motion.section>
+          )}
+
+          {/* Resumen Tarjetas */}
+          {tarjetas && tarjetas.length > 0 && (
+            <motion.section variants={itemVariants} className="space-y-4">
+              <motion.div className="border-b border-border/60 pb-2">
+                <h2 className="text-xs font-bold text-ink-muted uppercase tracking-widest">Tarjetas de Crédito</h2>
+              </motion.div>
+              <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {tarjetas.map((t) => {
+                  const pct = t.limiteCredito > 0 ? Math.round((t.saldoUtilizado / t.limiteCredito) * 100) : 0
+                  const barColor = pct < 30 ? 'bg-success' : pct <= 70 ? 'bg-amber-500' : 'bg-danger'
+                  const textColor = pct < 30 ? 'text-success' : pct <= 70 ? 'text-amber-500' : 'text-danger'
+                  return (
+                    <div key={t.id} className="rounded-xl bg-surface border border-border p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-ink">{t.nombre}</span>
+                        <span className={`text-[10px] font-bold ${textColor}`}>{pct}%</span>
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-border overflow-hidden">
+                        <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
+                      </div>
+                      <div className="flex justify-between text-[10px] text-ink-muted">
+                        <span>Disp: ${(t.limiteCredito - t.saldoUtilizado).toLocaleString()}</span>
+                        <span>Util: ${t.saldoUtilizado.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </motion.section>
+          )}
 
           <motion.section variants={itemVariants} className="space-y-4">
             <motion.div className="border-b border-border/60 pb-2">

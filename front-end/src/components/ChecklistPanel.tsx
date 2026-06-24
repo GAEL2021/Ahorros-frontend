@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import type { ChecklistItem } from '@/types'
 import { useGoalChecklist, useAddChecklistItem, useToggleChecklistItem, useDeleteChecklistItem, useUpdateChecklistItem } from '@/hooks/useGoalChecklist'
 import { useFetchBancos } from '@/hooks/useFetchBancos'
+import { useFetchTarjetas } from '@/hooks/useFetchTarjetas'
 import { sileo } from '@/lib/sileo'
 import SearchableSelect from '@/components/ui/SearchableSelect'
 
@@ -30,6 +31,7 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
   const deleteItem = useDeleteChecklistItem(goalId)
   const updateItem = useUpdateChecklistItem(goalId)
   const { data: bancos } = useFetchBancos()
+  const { data: tarjetas } = useFetchTarjetas()
   const [newText, setNewText] = useState('')
   const [newMonto, setNewMonto] = useState(0)
   const [realCostItemId, setRealCostItemId] = useState<string | null>(null)
@@ -37,6 +39,8 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
   const [realCostDate, setRealCostDate] = useState(new Date().toISOString().split('T')[0])
   const [realCostUrl, setRealCostUrl] = useState('')
   const [realCostCarteraId, setRealCostCarteraId] = useState('')
+  const [realCostMedioDePago, setRealCostMedioDePago] = useState<'efectivo' | 'debito' | 'tarjeta_credito' | ''>('')
+  const [realCostTarjetaCreditoId, setRealCostTarjetaCreditoId] = useState('')
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -106,15 +110,18 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
     const targetCarteraId = realCostCarteraId
     setRealCostItemId(null)
     try {
-      await toggleItem.mutateAsync({
+      const payload: any = {
         itemId: realCostItemId,
         newValue: true,
         montoReal: realCostValue,
         fechaReal: realCostDate,
         comprobante: realCostUrl || undefined,
-        carteraId: targetCarteraId
-      })
-      sileo.success(`✅ Gasto registrado y debitado: $${realCostValue.toLocaleString()}`)
+        carteraId: targetCarteraId,
+      }
+      if (realCostMedioDePago) payload.medioDePago = realCostMedioDePago
+      if (realCostMedioDePago === 'tarjeta_credito' && realCostTarjetaCreditoId) payload.tarjetaCreditoId = realCostTarjetaCreditoId
+      await toggleItem.mutateAsync(payload)
+      sileo.success(`✅ Gasto registrado: $${realCostValue.toLocaleString()}`)
     } catch (err) {
       sileo.error(err instanceof Error ? err.message : 'Error al guardar')
     }
@@ -401,6 +408,26 @@ export default function ChecklistPanel({ goalId, metaMontoObjetivo, metaMontoAcu
             <label className="mb-1.5 block text-sm font-semibold text-ink">Cartera de destino</label>
             <SearchableSelect options={(bancos ?? []).map((b) => ({ value: b.id, label: `${b.nombre}-${b.creadoPorNombre}-${b.tipoCuenta === 'credito' ? 'C' : 'D'}` }))} value={realCostCarteraId} onChange={setRealCostCarteraId} placeholder="Seleccionar cartera" />
             {!realCostCarteraId && <p className="mt-1 text-xs text-ink-muted">El aporte se sumará a esta cartera</p>}
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-semibold text-ink">💳 Medio de pago</label>
+            <div className="flex rounded-xl border border-border overflow-hidden">
+              {(['', 'efectivo', 'debito', 'tarjeta_credito'] as const).map((mp) => (
+                <button key={mp} type="button" onClick={() => { setRealCostMedioDePago(mp); if (mp !== 'tarjeta_credito') setRealCostTarjetaCreditoId('') }} className={`flex-1 py-2 text-xs font-semibold transition-colors ${realCostMedioDePago === mp ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>
+                  {mp === '' ? 'Sin especificar' : mp === 'efectivo' ? '💵 Efe' : mp === 'debito' ? '💳 Déb' : '🏦 TC'}
+                </button>
+              ))}
+            </div>
+            {realCostMedioDePago === 'tarjeta_credito' && (
+              <div className="mt-2">
+                <SearchableSelect
+                  options={(tarjetas ?? []).map((t) => ({ value: t.id, label: `${t.nombre} - Disp: $${(t.limiteCredito - t.saldoUtilizado).toLocaleString()}` }))}
+                  value={realCostTarjetaCreditoId}
+                  onChange={setRealCostTarjetaCreditoId}
+                  placeholder="Seleccionar tarjeta"
+                />
+              </div>
+            )}
           </div>
           <div><label className="mb-1.5 block text-sm font-semibold text-ink">Fecha de pago</label><input type="date" value={realCostDate} onChange={(e) => setRealCostDate(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" /></div>
           <div>

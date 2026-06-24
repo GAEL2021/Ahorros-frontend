@@ -3,6 +3,8 @@ import {
   BadRequestException,
   NotFoundException,
   ForbiddenException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FirebaseService } from '../../config/firebase/firebase.service';
@@ -14,6 +16,7 @@ import { CreateGoalDto } from './dto/create-goal.dto';
 import { UpdateGoalDto } from './dto/update-goal.dto';
 import { ContribuirDto } from './dto/contribuir.dto';
 import { FirebaseUser } from '../../common/guards/firebase-auth.guard';
+import { TarjetasCreditoService } from '../tarjetas-credito/tarjetas-credito.service';
 
 export interface GoalMember {
   uid: string;
@@ -60,6 +63,8 @@ export interface ChecklistItem {
   completado: boolean;
   orden: number;
   creadoEn: string;
+  medioDePago?: 'efectivo' | 'debito' | 'tarjeta_credito';
+  tarjetaCreditoId?: string;
 }
 
 const HITO_PORCENTAJES = [25, 50, 75, 100] as const;
@@ -73,6 +78,8 @@ export class GoalsService {
     private readonly presupuestosService: PresupuestosService,
     private readonly emailService: EmailService,
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => TarjetasCreditoService))
+    private readonly tarjetasCreditoService: TarjetasCreditoService,
   ) {}
 
   async createGoal(
@@ -705,6 +712,8 @@ export class GoalsService {
       comprobante?: string;
       ignorarExceso?: boolean;
       carteraId?: string;
+      medioDePago?: 'efectivo' | 'debito' | 'tarjeta_credito';
+      tarjetaCreditoId?: string;
     },
     user: FirebaseUser,
   ) {
@@ -725,13 +734,31 @@ export class GoalsService {
     if (dto.completado === true && !data.completado && dto.carteraId) {
       const montoDebito = dto.montoReal !== undefined ? dto.montoReal : (dto.monto ?? data.monto ?? 0);
       if (montoDebito > 0) {
-        await this.bancosService.debitarChecklist(
-          dto.carteraId,
-          montoDebito,
-          `Compra checklist: ${dto.texto || data.texto}`,
-          user,
-          goalId,
-        );
+        if (dto.medioDePago === 'tarjeta_credito' && dto.tarjetaCreditoId) {
+          try {
+            await this.tarjetasCreditoService.acumularCompra(
+              dto.tarjetaCreditoId,
+              {
+                descripcion: dto.texto || data.texto,
+                monto: montoDebito,
+                fecha: dto.fechaReal || new Date().toISOString(),
+                checklistItemId: itemId,
+                metaId: goalId,
+              },
+              user,
+            );
+          } catch (e: any) {
+            console.error('Error acumulando compra en tarjeta:', e.message);
+          }
+        } else {
+          await this.bancosService.debitarChecklist(
+            dto.carteraId,
+            montoDebito,
+            `Compra checklist: ${dto.texto || data.texto}`,
+            user,
+            goalId,
+          );
+        }
       }
     }
 
@@ -742,6 +769,8 @@ export class GoalsService {
     if (dto.montoReal !== undefined) updates.montoReal = dto.montoReal;
     if (dto.fechaReal !== undefined) updates.fechaReal = dto.fechaReal;
     if (dto.comprobante !== undefined) updates.comprobante = dto.comprobante;
+    if (dto.medioDePago !== undefined) updates.medioDePago = dto.medioDePago;
+    if (dto.tarjetaCreditoId !== undefined) updates.tarjetaCreditoId = dto.tarjetaCreditoId;
 
     if (Object.keys(updates).length === 0) {
       throw new BadRequestException('No hay campos para actualizar');

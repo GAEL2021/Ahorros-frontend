@@ -1,0 +1,16 @@
+- generic [ref=e5]:
+  - generic [ref=e6]:
+    - img [ref=e8]
+    - heading "Admin Panel" [level=1] [ref=e10]
+    - paragraph [ref=e11]: Acceso exclusivo para administradores
+  - generic [ref=e12]:
+    - generic [ref=e13]:
+      - generic [ref=e14]: Email administrador
+      - textbox "admin@email.com" [active] [ref=e15]
+    - generic [ref=e16]:
+      - generic [ref=e17]: Contraseña
+      - textbox "••••••••" [ref=e18]
+    - button "Ingresar" [disabled] [ref=e19]
+  - paragraph [ref=e20]:
+    - link "Volver al inicio" [ref=e21] [cursor=pointer]:
+      - /url: /

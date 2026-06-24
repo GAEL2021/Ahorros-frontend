@@ -1,0 +1,104 @@
+- generic [ref=e92]:
+  - complementary [ref=e93]:
+    - generic [ref=e94]:
+      - generic [ref=e96]: EQ
+      - generic [ref=e97]: Equilibra
+    - navigation [ref=e98]:
+      - link "Dashboard" [ref=e99] [cursor=pointer]:
+        - /url: /
+        - img [ref=e100]
+        - text: Dashboard
+      - link "Mis Metas" [ref=e102] [cursor=pointer]:
+        - /url: /metas
+        - img [ref=e103]
+        - text: Mis Metas
+      - link "Carteras" [ref=e105] [cursor=pointer]:
+        - /url: /carteras
+        - img [ref=e106]
+        - text: Carteras
+      - link "Programaciones" [ref=e108] [cursor=pointer]:
+        - /url: /programaciones
+        - img [ref=e109]
+        - text: Programaciones
+      - link "Presupuestos" [ref=e111] [cursor=pointer]:
+        - /url: /presupuestos
+        - img [ref=e112]
+        - text: Presupuestos
+      - link "Logros" [active] [ref=e114] [cursor=pointer]:
+        - /url: /logros
+        - img [ref=e115]
+        - text: Logros
+      - link "Calendario" [ref=e117] [cursor=pointer]:
+        - /url: /calendario
+        - img [ref=e118]
+        - text: Calendario
+    - generic [ref=e121]:
+      - generic [ref=e122]: U
+      - generic [ref=e123]:
+        - paragraph [ref=e124]: Usuario Prueba
+        - paragraph [ref=e125]: testuser@prueba.com
+      - button "Cambiar a modo claro" [ref=e126]:
+        - img [ref=e127]
+      - button "Cerrar sesión" [ref=e129]:
+        - img [ref=e130]
+  - main [ref=e577]:
+    - generic [ref=e578]:
+      - generic [ref=e579]:
+        - heading "Logros" [level=1] [ref=e580]
+        - paragraph [ref=e581]: 1/8 medallas desbloqueadas
+      - generic [ref=e585]: 13%
+    - generic [ref=e586]:
+      - generic [ref=e587]:
+        - generic [ref=e588]: 🪙
+        - heading "Primera Meta" [level=3] [ref=e589]
+        - paragraph [ref=e590]: Creaste tu primera meta de ahorro
+        - generic [ref=e593]: Desbloqueado
+      - generic [ref=e594]:
+        - generic [ref=e595]: 🏆
+        - heading "???" [level=3] [ref=e596]
+        - paragraph [ref=e597]: Sigue ahorrando para desbloquear
+        - generic [ref=e598]:
+          - img [ref=e599]
+          - generic [ref=e601]: Bloqueado
+      - generic [ref=e602]:
+        - generic [ref=e603]: 👑
+        - heading "???" [level=3] [ref=e604]
+        - paragraph [ref=e605]: Sigue ahorrando para desbloquear
+        - generic [ref=e606]:
+          - img [ref=e607]
+          - generic [ref=e609]: Bloqueado
+      - generic [ref=e610]:
+        - generic [ref=e611]: 💎
+        - heading "???" [level=3] [ref=e612]
+        - paragraph [ref=e613]: Sigue ahorrando para desbloquear
+        - generic [ref=e614]:
+          - img [ref=e615]
+          - generic [ref=e617]: Bloqueado
+      - generic [ref=e618]:
+        - generic [ref=e619]: 🌟
+        - heading "???" [level=3] [ref=e620]
+        - paragraph [ref=e621]: Sigue ahorrando para desbloquear
+        - generic [ref=e622]:
+          - img [ref=e623]
+          - generic [ref=e625]: Bloqueado
+      - generic [ref=e626]:
+        - generic [ref=e627]: 🤝
+        - heading "???" [level=3] [ref=e628]
+        - paragraph [ref=e629]: Sigue ahorrando para desbloquear
+        - generic [ref=e630]:
+          - img [ref=e631]
+          - generic [ref=e633]: Bloqueado
+      - generic [ref=e634]:
+        - generic [ref=e635]: 🎖️
+        - heading "???" [level=3] [ref=e636]
+        - paragraph [ref=e637]: Sigue ahorrando para desbloquear
+        - generic [ref=e638]:
+          - img [ref=e639]
+          - generic [ref=e641]: Bloqueado
+      - generic [ref=e642]:
+        - generic [ref=e643]: ⚡
+        - heading "???" [level=3] [ref=e644]
+        - paragraph [ref=e645]: Sigue ahorrando para desbloquear
+        - generic [ref=e646]:
+          - img [ref=e647]
+          - generic [ref=e649]: Bloqueado

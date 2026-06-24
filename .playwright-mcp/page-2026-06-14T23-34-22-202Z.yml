@@ -1,0 +1,115 @@
+- generic [ref=e1]:
+  - generic [ref=e92]:
+    - complementary [ref=e93]:
+      - generic [ref=e94]:
+        - generic [ref=e96]: EQ
+        - generic [ref=e97]: Equilibra
+      - navigation [ref=e98]:
+        - link "Dashboard" [ref=e99] [cursor=pointer]:
+          - /url: /
+          - img [ref=e100]
+          - text: Dashboard
+        - link "Mis Metas" [ref=e102] [cursor=pointer]:
+          - /url: /metas
+          - img [ref=e103]
+          - text: Mis Metas
+        - link "Carteras" [ref=e105] [cursor=pointer]:
+          - /url: /carteras
+          - img [ref=e106]
+          - text: Carteras
+        - link "Programaciones" [ref=e108] [cursor=pointer]:
+          - /url: /programaciones
+          - img [ref=e109]
+          - text: Programaciones
+        - link "Presupuestos" [ref=e111] [cursor=pointer]:
+          - /url: /presupuestos
+          - img [ref=e112]
+          - text: Presupuestos
+        - link "Logros" [ref=e114] [cursor=pointer]:
+          - /url: /logros
+          - img [ref=e115]
+          - text: Logros
+        - link "Calendario" [ref=e117] [cursor=pointer]:
+          - /url: /calendario
+          - img [ref=e118]
+          - text: Calendario
+      - generic [ref=e121]:
+        - generic [ref=e122]: U
+        - generic [ref=e123]:
+          - paragraph [ref=e124]: Usuario Prueba
+          - paragraph [ref=e125]: testuser@prueba.com
+        - button "Cambiar a modo claro" [ref=e126]:
+          - img [ref=e127]
+        - button "Cerrar sesión" [ref=e129]:
+          - img [ref=e130]
+    - main [ref=e910]:
+      - generic [ref=e911]:
+        - generic [ref=e912]:
+          - heading "Mis Metas" [level=1] [ref=e913]
+          - paragraph [ref=e914]: Administra y colabora en tus metas de ahorro
+        - button "Nueva meta" [ref=e915]:
+          - img [ref=e916]
+          - text: Nueva meta
+      - button "Unirse con código" [ref=e919]:
+        - img [ref=e920]
+        - text: Unirse con código
+      - generic [ref=e922]:
+        - generic [ref=e923]:
+          - img [ref=e925]
+          - textbox "Filtrar por nombre, descripción o tipo..." [ref=e927]
+        - generic [ref=e928]:
+          - generic [ref=e929]: 1 Resultados
+          - generic [ref=e930]:
+            - button "Tarjetas" [ref=e931]:
+              - img [ref=e932]
+              - text: Tarjetas
+            - button "Tabla" [ref=e934]:
+              - img [ref=e935]
+              - text: Tabla
+      - article [ref=e938]:
+        - generic [ref=e939]:
+          - generic [ref=e940]:
+            - generic [ref=e941]:
+              - heading "Viaje a Cancún" [level=3] [ref=e942]
+              - generic [ref=e944]: Individual
+            - generic [ref=e945]: 🪙 0%
+          - generic [ref=e947]:
+            - generic [ref=e948]: $0
+            - generic [ref=e949]: / $5000
+          - generic [ref=e951]:
+            - generic [ref=e952]:
+              - img [ref=e953]
+              - text: Usuario Prueba
+            - generic [ref=e955]: 30 dic 2026
+            - generic [ref=e956]: 6 meses
+        - generic [ref=e957]:
+          - button "Aportar" [ref=e958]:
+            - img [ref=e959]
+            - text: Aportar
+          - button "Detalle" [ref=e961]:
+            - img [ref=e962]
+            - text: Detalle
+          - button "Compartir" [ref=e964]:
+            - img [ref=e965]
+            - text: Compartir
+          - button "Editar" [active] [ref=e967]:
+            - img [ref=e968]
+  - generic [ref=e1080]:
+    - generic [ref=e1081]:
+      - heading "Editar meta" [level=2] [ref=e1082]
+      - button [ref=e1083]:
+        - img [ref=e1084]
+    - generic [ref=e1086]:
+      - generic [ref=e1087]:
+        - generic [ref=e1088]: Nombre
+        - textbox [ref=e1089]: Viaje a Cancún
+      - generic [ref=e1090]:
+        - generic [ref=e1091]:
+          - generic [ref=e1092]: Monto objetivo ($)
+          - spinbutton [ref=e1093]: "5000"
+        - generic [ref=e1094]:
+          - generic [ref=e1095]: Fecha límite
+          - textbox [ref=e1096]: 2026-12-31
+      - generic [ref=e1097]:
+        - button "Cancelar" [ref=e1098]
+        - button "Guardar cambios" [ref=e1099]

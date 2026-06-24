@@ -1,6 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PresupuestosController } from './presupuestos.controller';
 import { PresupuestosService } from './presupuestos.service';
+import { TarjetasCreditoModule } from '../tarjetas-credito/tarjetas-credito.module';
 
-@Module({ controllers: [PresupuestosController], providers: [PresupuestosService], exports: [PresupuestosService] })
+@Module({
+  imports: [forwardRef(() => TarjetasCreditoModule)],
+  controllers: [PresupuestosController],
+  providers: [PresupuestosService],
+  exports: [PresupuestosService],
+})
 export class PresupuestosModule {}

@@ -121,9 +121,14 @@ export function useCerrarMes() {
 
 export function usePagarGasto() {
   const qc = useQueryClient()
-  return useMutation<unknown, Error, { gastoId: string; presupuestoId: string; montoReal?: number; carteraId?: string }>({
-    mutationFn: async ({ gastoId, presupuestoId, montoReal, carteraId }) => {
-      const { data } = await apiClient.post(`/presupuestos/${presupuestoId}/gastos/${gastoId}/pagar`, { montoReal, carteraId })
+  return useMutation<unknown, Error, { gastoId: string; presupuestoId: string; montoReal?: number; carteraId?: string; medioDePago?: string; tarjetaCreditoId?: string }>({
+    mutationFn: async ({ gastoId, presupuestoId, montoReal, carteraId, medioDePago, tarjetaCreditoId }) => {
+      const body: any = {}
+      if (montoReal !== undefined) body.montoReal = montoReal
+      if (carteraId) body.carteraId = carteraId
+      if (medioDePago) body.medioDePago = medioDePago
+      if (tarjetaCreditoId) body.tarjetaCreditoId = tarjetaCreditoId
+      const { data } = await apiClient.post(`/presupuestos/${presupuestoId}/gastos/${gastoId}/pagar`, body)
       return data
     },
     onSuccess: (_data, variables) => {
@@ -131,6 +136,7 @@ export function usePagarGasto() {
       qc.invalidateQueries({ queryKey: ['presupuestos'] })
       qc.invalidateQueries({ queryKey: ['controles'] })
       qc.invalidateQueries({ queryKey: ['bancos'] })
+      qc.invalidateQueries({ queryKey: ['tarjetas-credito'] })
     },
   })
 }
