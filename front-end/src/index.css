@@ -299,17 +299,17 @@ textarea::placeholder,
 input::-webkit-input-placeholder,
 textarea::-webkit-input-placeholder {
   color: var(--text-muted);
-  opacity: 0.5;
+  opacity: 0.35;
 }
 input:focus::placeholder,
 textarea:focus::placeholder,
 input:focus::-webkit-input-placeholder,
 textarea:focus::-webkit-input-placeholder {
-  opacity: 0.25;
+  opacity: 0.15;
 }
 input:not(:placeholder-shown)::placeholder,
 textarea:not(:placeholder-shown)::placeholder {
-  opacity: 0;
+  opacity: 0 !important;
 }
 select {
   appearance: none;

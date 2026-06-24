@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import type { Gasto } from '@/types'
 import { fmt } from '@/lib/formatters'
+import { useFetchTarjetas } from '@/hooks/useFetchTarjetas'
+import SearchableSelect from '@/components/ui/SearchableSelect'
 
 interface GastoActionModalProps {
   open: boolean
@@ -8,12 +10,22 @@ interface GastoActionModalProps {
   presupuestoId: string
   tipo: 'mensual' | 'quincenal'
   onEdit: () => void
-  onPay: (data: { montoReal: number }) => void
+  onPay: (data: { montoReal: number; medioDePago?: string; tarjetaCreditoId?: string }) => void
   onClose: () => void
 }
 
+const MEDIOS = [
+  { value: '', label: 'Sin especificar', short: '—' },
+  { value: 'efectivo', label: '💵 Efectivo', short: '💵 Efe' },
+  { value: 'debito', label: '💳 Débito', short: '💳 Déb' },
+  { value: 'tarjeta_credito', label: '🏦 Tarjeta', short: '🏦 TC' },
+]
+
 export default function GastoActionModal({ open, gasto, tipo, onEdit, onPay, onClose }: GastoActionModalProps) {
   const [montoReal, setMontoReal] = useState(gasto.montoFinal || gasto.monto)
+  const [medioDePago, setMedioDePago] = useState(gasto.medioDePago || '')
+  const [tarjetaCreditoId, setTarjetaCreditoId] = useState(gasto.tarjetaCreditoId || '')
+  const { data: tarjetas } = useFetchTarjetas()
   const yaPagado = gasto.estaConciliado || !!gasto.montoFinal
 
   const hoy = new Date().getDate()
@@ -24,7 +36,11 @@ export default function GastoActionModal({ open, gasto, tipo, onEdit, onPay, onC
   if (!open) return null
 
   const handleLiquidar = () => {
-    onPay({ montoReal: Number(montoReal) || gasto.monto })
+    onPay({
+      montoReal: Number(montoReal) || gasto.monto,
+      medioDePago: medioDePago || undefined,
+      tarjetaCreditoId: medioDePago === 'tarjeta_credito' ? tarjetaCreditoId : undefined,
+    })
   }
 
   return (
@@ -50,7 +66,7 @@ export default function GastoActionModal({ open, gasto, tipo, onEdit, onPay, onC
               </div>
               {esQuincenal && gasto.quincena && (
                 <span className={`inline-flex items-center gap-1 mt-2 text-[10px] font-semibold ${gasto.quincena === 'Q1' ? 'text-blue-600 dark:text-blue-400' : 'text-purple-600 dark:text-purple-400'}`}>
-                  {gasto.quincena === 'Q1' ? '📆' : '📆'} {gasto.quincena}
+                  📆 {gasto.quincena}
                 </span>
               )}
             </div>
@@ -123,6 +139,33 @@ export default function GastoActionModal({ open, gasto, tipo, onEdit, onPay, onC
                       </p>
                     )}
                   </div>
+
+                  <div>
+                    <label className="text-xs font-medium text-ink-muted tracking-wide uppercase mb-1.5 block">💳 Medio de pago</label>
+                    <div className="flex rounded-xl border border-border overflow-hidden">
+                      {MEDIOS.map((m) => (
+                        <button
+                          key={m.value}
+                          type="button"
+                          onClick={() => { setMedioDePago(m.value); if (m.value !== 'tarjeta_credito') setTarjetaCreditoId('') }}
+                          className={`flex-1 py-2 text-xs font-semibold transition-colors ${medioDePago === m.value ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}
+                        >
+                          {m.short}
+                        </button>
+                      ))}
+                    </div>
+                    {medioDePago === 'tarjeta_credito' && (
+                      <div className="mt-2">
+                        <SearchableSelect
+                          options={(tarjetas ?? []).map((t) => ({ value: t.id, label: `${t.nombre} - Disp: $${(t.limiteCredito - t.saldoUtilizado).toLocaleString()}` }))}
+                          value={tarjetaCreditoId}
+                          onChange={setTarjetaCreditoId}
+                          placeholder="Seleccionar tarjeta"
+                        />
+                      </div>
+                    )}
+                  </div>
+
                   <button
                     type="button"
                     onClick={handleLiquidar}

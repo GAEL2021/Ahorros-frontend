@@ -13,6 +13,7 @@ import EditGastoModal from '@/components/EditGastoModal'
 import GastoActionModal from '@/components/GastoActionModal'
 import SearchableSelect from '@/components/ui/SearchableSelect'
 import { MESES, CATEGORIAS, CAT_LABELS, CAT_ICONS, fmt } from '@/lib/formatters'
+import { useFetchTarjetas } from '@/hooks/useFetchTarjetas'
 import { BudgetSavingsEvolution } from '@/components/ui/BudgetSavingsEvolution'
 
 
@@ -80,7 +81,7 @@ function DonutCard({ p, gastos: gastosProp }: { p: Presupuesto; gastos?: Gasto[]
   )
 }
 
-function GastoCard({ g, presupuestoId, tipo }: { g: Gasto; presupuestoId: string; tipo?: 'mensual' | 'quincenal' }) {
+function GastoCard({ g, presupuestoId, tipo, onGastoAction }: { g: Gasto; presupuestoId: string; tipo?: 'mensual' | 'quincenal'; onGastoAction?: (gasto: Gasto, presupuestoId: string) => void }) {
   const updateGasto = useUpdateGasto(presupuestoId)
   const deleteGasto = useDeleteGasto(presupuestoId)
   const [editDesc, setEditDesc] = useState(false)
@@ -149,6 +150,13 @@ function GastoCard({ g, presupuestoId, tipo }: { g: Gasto; presupuestoId: string
     catch { sileo.error('Error') }
   }
 
+  const handleRevert = async () => {
+    try {
+      await updateGasto.mutateAsync({ gastoId: g.id, data: { montoFinal: 0, estaConciliado: false } })
+      sileo.success('Pago revertido')
+    } catch { sileo.error('Error al revertir') }
+  }
+
   const catInfo = CATEGORIAS.find(c => c.id === g.categoria)
   const catBg = catInfo?.bgClass ?? 'bg-surface text-ink'
 
@@ -163,7 +171,8 @@ function GastoCard({ g, presupuestoId, tipo }: { g: Gasto; presupuestoId: string
             <input type="text" value={descVal} onChange={(e) => setDescVal(e.target.value)} onBlur={commitDesc} onKeyDown={(e) => { if (e.key === 'Enter') commitDesc(); if (e.key === 'Escape') { setEditDesc(false); setDescVal(g.descripcion) } }} className="flex-1 rounded border border-primary/40 bg-surface px-1.5 py-0.5 text-xs text-ink focus:outline-none" autoFocus />
           ) : (
             <><button type="button" onClick={() => setEditDesc(true)} className={`text-xs text-left truncate ${g.estaConciliado ? 'text-ink-muted line-through' : 'text-ink'} hover:text-primary transition-colors flex-1`}>{g.descripcion}</button>
-            {g.esFijo && <span className="flex-shrink-0 rounded bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 text-[9px] font-semibold text-amber-800 dark:text-amber-200">Fijo</span>}</>
+            {g.esFijo && <span className="flex-shrink-0 rounded bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 text-[9px] font-semibold text-amber-800 dark:text-amber-200">Fijo</span>}
+            {g.medioDePago && <span className={`flex-shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold ${g.medioDePago === 'tarjeta_credito' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200' : g.medioDePago === 'debito' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200' : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'}`}>{g.medioDePago === 'tarjeta_credito' ? '🏦 TC' : g.medioDePago === 'debito' ? '💳 Déb' : '💵 Efe'}</span>}</>
           )}
         </div>
         <motion.button type="button" onClick={handleDelete} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="text-ink-muted hover:text-danger transition-colors p-1 flex-shrink-0" title="Eliminar gasto">
@@ -202,12 +211,33 @@ function GastoCard({ g, presupuestoId, tipo }: { g: Gasto; presupuestoId: string
             </span>
           )}
           {!hasFinal && <span />}
-          {actualEdit ? (
-            <input type="number" inputMode="decimal" min={0} step="0.01" value={actualVal || ''} autoFocus onChange={(e) => setActualVal(Number(e.target.value))} onBlur={commitActual} onKeyDown={(e) => { if (e.key === 'Enter') commitActual(); if (e.key === 'Escape') { setActualEdit(false); setActualVal(g.montoFinal || g.monto) } }} className="w-24 rounded-lg border border-primary/40 bg-surface px-2 py-1 text-xs text-ink text-right focus:outline-none" />
+          {hasFinal ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-success">Pagado: {fmt(g.montoFinal)}</span>
+              <button type="button" onClick={handleRevert} className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-semibold text-danger/70 hover:text-danger hover:bg-danger/5 transition-colors">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M1 4v6h6M23 20v-6h-6" /><path strokeLinecap="round" strokeLinejoin="round" d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" /></svg>
+                Revertir
+              </button>
+            </div>
+          ) : bloqueadoQuincena ? (
+            <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-border/30 text-ink-muted cursor-not-allowed">
+              🔒 Quincena cerrada
+            </span>
+          ) : onGastoAction ? (
+            <button type="button" onClick={() => onGastoAction(g, presupuestoId)} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-success/10 text-success hover:bg-success/20 transition-colors">
+              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              Pagar
+            </button>
+          ) : actualEdit ? (
+            <div className="flex items-center gap-1.5">
+              <input type="number" inputMode="decimal" min={0} step="0.01" value={actualVal || ''} autoFocus onChange={(e) => setActualVal(Number(e.target.value))} onKeyDown={(e) => { if (e.key === 'Enter') commitActual(); if (e.key === 'Escape') { setActualEdit(false); setActualVal(g.montoFinal || g.monto) } }} className="w-24 rounded-lg border border-primary/40 bg-surface px-2 py-1 text-xs text-ink text-right focus:outline-none" />
+              <button type="button" onClick={commitActual} className="rounded-lg bg-success px-2.5 py-1.5 text-xs font-semibold text-white hover:brightness-110 transition-all">Pagar</button>
+              <button type="button" onClick={() => { setActualEdit(false); setActualVal(g.montoFinal || g.monto) }} className="rounded-lg border border-border px-2.5 py-1.5 text-xs text-ink-muted hover:text-ink transition-colors">Cancelar</button>
+            </div>
           ) : (
-            <button type="button" onClick={() => !bloqueadoQuincena && setActualEdit(true)} className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors ${bloqueadoQuincena ? 'bg-border/30 text-ink-muted cursor-not-allowed' : 'bg-primary/10 text-primary hover:bg-primary/20'}`}>
-              {bloqueadoQuincena ? <span className="text-ink-muted">🔒</span> : <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>}
-              Real: <strong>{fmt(g.montoFinal || 0)}</strong>
+            <button type="button" onClick={() => setActualEdit(true)} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-success/10 text-success hover:bg-success/20 transition-colors">
+              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              Pagar
             </button>
           )}
         </div>
@@ -375,6 +405,7 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
 
 function AddGastoModal({ open, onClose, presupuestoId, mostrarQ, fechaPreset }: { open: boolean; onClose: () => void; presupuestoId: string; mostrarQ: boolean; fechaPreset?: string }) {
   const addGasto = useAddGasto(presupuestoId)
+  const { data: tarjetas } = useFetchTarjetas()
   const [desc, setDesc] = useState('')
   const [monto, setMonto] = useState(0)
   const [cat, setCat] = useState<'fijos' | 'ocio' | 'ahorro'>('fijos')
@@ -383,6 +414,8 @@ function AddGastoModal({ open, onClose, presupuestoId, mostrarQ, fechaPreset }: 
   const [esRecurrente, setEsRecurrente] = useState(false)
   const [recurrenciaTipo, setRecurrenciaTipo] = useState<'mensual' | 'quincenal'>('mensual')
   const [cuotas, setCuotas] = useState(0)
+  const [medioDePago, setMedioDePago] = useState<'efectivo' | 'debito' | 'tarjeta_credito' | ''>('')
+  const [tarjetaCreditoId, setTarjetaCreditoId] = useState('')
 
   useEffect(() => { if (fechaPreset) setFecha(fechaPreset) }, [fechaPreset])
 
@@ -407,8 +440,10 @@ function AddGastoModal({ open, onClose, presupuestoId, mostrarQ, fechaPreset }: 
         payload.cuotas = cuotas
         payload.fechaOrigen = fecha
       }
+      if (medioDePago) payload.medioDePago = medioDePago
+      if (medioDePago === 'tarjeta_credito' && tarjetaCreditoId) payload.tarjetaCreditoId = tarjetaCreditoId
       await addGasto.mutateAsync(payload)
-      setDesc(''); setMonto(0); setCat('fijos'); setQuincena(''); setFecha(new Date().toISOString().split('T')[0]); setEsRecurrente(false); setRecurrenciaTipo('mensual'); setCuotas(0)
+      setDesc(''); setMonto(0); setCat('fijos'); setQuincena(''); setFecha(new Date().toISOString().split('T')[0]); setEsRecurrente(false); setRecurrenciaTipo('mensual'); setCuotas(0); setMedioDePago(''); setTarjetaCreditoId('')
       sileo.success('Gasto registrado')
       onClose()
     } catch { sileo.error('Error') }
@@ -443,6 +478,26 @@ function AddGastoModal({ open, onClose, presupuestoId, mostrarQ, fechaPreset }: 
                cat === 'ocio' ? 'Gastos discrecionales: salidas, entretenimiento, compras no esenciales.' :
                'Dinero que apartas para tu futuro. Se deposita automáticamente en tu cartera de Ahorros.'}
             </p>
+          </div>
+          <div>
+            <label className="mb-1 block text-[11px] font-semibold text-ink-muted">💳 Medio de pago</label>
+            <div className="flex rounded-xl border border-border overflow-hidden">
+              {(['efectivo', 'debito', 'tarjeta_credito'] as const).map((mp) => (
+                <button key={mp} type="button" onClick={() => { setMedioDePago(mp); if (mp !== 'tarjeta_credito') setTarjetaCreditoId('') }} className={`flex-1 py-2 text-xs font-semibold transition-colors ${medioDePago === mp ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>
+                  {mp === 'efectivo' ? '💵 Efectivo' : mp === 'debito' ? '💳 Débito' : '🏦 Tarjeta'}
+                </button>
+              ))}
+            </div>
+            {medioDePago === 'tarjeta_credito' && (
+              <div className="mt-2">
+                <SearchableSelect
+                  options={(tarjetas ?? []).map((t) => ({ value: t.id, label: `${t.nombre} - Disp: $${(t.limiteCredito - t.saldoUtilizado).toLocaleString()}` }))}
+                  value={tarjetaCreditoId}
+                  onChange={setTarjetaCreditoId}
+                  placeholder="Seleccionar tarjeta"
+                />
+              </div>
+            )}
           </div>
           <div>
             <label className="mb-1 block text-[11px] font-semibold text-ink-muted">📅 Fecha del gasto</label>
@@ -489,6 +544,7 @@ function PresupuestoDetail({ presupuestoId, onClose }: { presupuestoId: string; 
   const [showAddModal, setShowAddModal] = useState(false)
   const [tabQuincena, setTabQuincena] = useState<'Q1' | 'Q2' | 'todas'>(() => new Date().getDate() <= 15 ? 'Q2' : 'Q1')
   const [catFiltro, setCatFiltro] = useState<'todas' | 'fijos' | 'ocio' | 'ahorro'>('todas')
+  const [medioFiltro, setMedioFiltro] = useState<string>('todos')
   const [editField, setEditField] = useState<string | null>(null)
   const [editVal, setEditVal] = useState(0)
   const [editQ1, setEditQ1] = useState(0)
@@ -504,6 +560,7 @@ function PresupuestoDetail({ presupuestoId, onClose }: { presupuestoId: string; 
   const gastosFiltrados = gastos
     .filter((g) => !mostrarQ || tabQuincena === 'todas' || g.quincena === tabQuincena)
     .filter((g) => catFiltro === 'todas' || g.categoria === catFiltro)
+    .filter((g) => medioFiltro === 'todos' || g.medioDePago === medioFiltro)
   const totalesPorCat: Record<string, { estimado: number; actual: number; meta: number }> = { fijos: { estimado: 0, actual: 0, meta: p.metaFijos }, ocio: { estimado: 0, actual: 0, meta: p.metaOcio }, ahorro: { estimado: 0, actual: 0, meta: p.metaAhorro } }
   gastosFiltrados.forEach((g) => { totalesPorCat[g.categoria].estimado += g.montoEstimado || g.monto; totalesPorCat[g.categoria].actual += g.estaConciliado ? (g.montoFinal || g.monto) : 0 })
   const totalEstimado = Object.values(totalesPorCat).reduce((s, t) => s + t.estimado, 0)
@@ -775,6 +832,17 @@ function PresupuestoDetail({ presupuestoId, onClose }: { presupuestoId: string; 
                 onChange={(v) => setCatFiltro(v as any)}
                 className="w-36"
               />
+              <SearchableSelect
+                options={[
+                  { value: 'todos', label: 'Todos medios' },
+                  { value: 'efectivo', label: '💵 Efectivo' },
+                  { value: 'debito', label: '💳 Débito' },
+                  { value: 'tarjeta_credito', label: '🏦 Tarjeta' },
+                ]}
+                value={medioFiltro}
+                onChange={(v) => setMedioFiltro(v)}
+                className="w-32"
+              />
             </div>
 
             {gastosFiltrados.length === 0 ? (
@@ -790,13 +858,14 @@ function PresupuestoDetail({ presupuestoId, onClose }: { presupuestoId: string; 
   )
 }
 
-function ControlDetail({ control, onClose }: { control: any; onClose: () => void }) {
+function ControlDetail({ control, onClose, onGastoAction }: { control: any; onClose: () => void; onGastoAction?: (gasto: Gasto, presupuestoId: string) => void }) {
   const presupuestos = (control.presupuestos ?? []).sort((a: any, b: any) => a.mes - b.mes)
   const [mesActivo, setMesActivo] = useState(presupuestos[0]?.mes ?? 1)
   const p = presupuestos.find((x: any) => x.mes === mesActivo)
   const [showAddModal, setShowAddModal] = useState(false)
   const [tabQuincena, setTabQuincena] = useState<'Q1' | 'Q2' | 'todas'>(() => new Date().getDate() <= 15 ? 'Q2' : 'Q1')
   const [catFiltro, setCatFiltro] = useState<'todas' | 'fijos' | 'ocio' | 'ahorro'>('todas')
+  const [medioFiltro, setMedioFiltro] = useState<string>('todos')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [editField, setEditField] = useState<string | null>(null)
   const [editVal, setEditVal] = useState(0)
@@ -816,6 +885,7 @@ function ControlDetail({ control, onClose }: { control: any; onClose: () => void
   const gastosFiltrados = gastos
     .filter((g) => !mostrarQ || tabQuincena === 'todas' || g.quincena === tabQuincena)
     .filter((g) => catFiltro === 'todas' || g.categoria === catFiltro)
+    .filter((g) => medioFiltro === 'todos' || g.medioDePago === medioFiltro)
   const totalesPorCat: Record<string, { estimado: number; actual: number; meta: number }> = { fijos: { estimado: 0, actual: 0, meta: mesData.metaFijos || 0 }, ocio: { estimado: 0, actual: 0, meta: mesData.metaOcio || 0 }, ahorro: { estimado: 0, actual: 0, meta: mesData.metaAhorro || 0 } }
   gastosFiltrados.forEach((g) => { totalesPorCat[g.categoria].estimado += g.montoEstimado || g.monto; totalesPorCat[g.categoria].actual += g.estaConciliado ? (g.montoFinal || g.monto) : 0 })
   const totalEstimado = Object.values(totalesPorCat).reduce((s, t) => s + t.estimado, 0)
@@ -1090,9 +1160,20 @@ function ControlDetail({ control, onClose }: { control: any; onClose: () => void
                 onChange={(v) => setCatFiltro(v as any)}
                 className="w-36"
               />
+              <SearchableSelect
+                options={[
+                  { value: 'todos', label: 'Todos medios' },
+                  { value: 'efectivo', label: '💵 Efectivo' },
+                  { value: 'debito', label: '💳 Débito' },
+                  { value: 'tarjeta_credito', label: '🏦 Tarjeta' },
+                ]}
+                value={medioFiltro}
+                onChange={(v) => setMedioFiltro(v)}
+                className="w-32"
+              />
             </div>
             {gastosFiltrados.length === 0 ? <p className="text-xs text-ink-muted text-center py-8">Sin gastos registrados aún.</p>
-              : <div className="space-y-2">{gastosFiltrados.map((g) => <GastoCard key={g.id} g={g} presupuestoId={p.id} tipo={p.tipo} />)}</div>}
+              : <div className="space-y-2">{gastosFiltrados.map((g) => <GastoCard key={g.id} g={g} presupuestoId={p.id} tipo={p.tipo} onGastoAction={onGastoAction} />)}</div>}
           </div>
         </div>
         <AddGastoModal open={showAddModal} onClose={() => setShowAddModal(false)} presupuestoId={p.id} mostrarQ={mostrarQ} />
@@ -1219,11 +1300,14 @@ export default function PresupuestosPage() {
     setGastoAction({ gasto, presupuestoId })
   }
 
-  const handlePayGasto = async (data: { montoReal: number }) => {
+  const handlePayGasto = async (data: { montoReal: number; medioDePago?: string; tarjetaCreditoId?: string }) => {
     if (!gastoAction) return
     try {
       const { gasto, presupuestoId } = gastoAction
-      await pagarGasto.mutateAsync({ gastoId: gasto.id, presupuestoId, montoReal: data.montoReal })
+      const payload: any = { gastoId: gasto.id, presupuestoId, montoReal: data.montoReal }
+      if (data.medioDePago) payload.medioDePago = data.medioDePago
+      if (data.tarjetaCreditoId) payload.tarjetaCreditoId = data.tarjetaCreditoId
+      await pagarGasto.mutateAsync(payload)
       sileo.success(`✅ "${gasto.descripcion}" liquidado por $${data.montoReal.toLocaleString()}`)
       setGastoAction(null)
     } catch { sileo.error('Error al liquidar') }
@@ -1565,7 +1649,7 @@ export default function PresupuestosPage() {
       )}
 
       {controlDetail && (
-        <ControlDetail control={controlDetail} onClose={() => setControlDetail(null)} />
+        <ControlDetail control={controlDetail} onClose={() => setControlDetail(null)} onGastoAction={(gasto, presupuestoId) => setGastoAction({ gasto, presupuestoId })} />
       )}
     </main>
   )
