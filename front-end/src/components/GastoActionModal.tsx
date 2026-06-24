@@ -10,7 +10,7 @@ interface GastoActionModalProps {
   presupuestoId: string
   tipo: 'mensual' | 'quincenal'
   onEdit: () => void
-  onPay: (data: { montoReal: number; medioDePago?: string; tarjetaCreditoId?: string }) => void
+  onPay: (data: { montoReal: number; medioDePago?: string; tarjetaCreditoId?: string; fechaPago?: string }) => void
   onClose: () => void
 }
 
@@ -25,6 +25,7 @@ export default function GastoActionModal({ open, gasto, tipo, onEdit, onPay, onC
   const [montoReal, setMontoReal] = useState(gasto.montoFinal || gasto.monto)
   const [medioDePago, setMedioDePago] = useState(gasto.medioDePago || '')
   const [tarjetaCreditoId, setTarjetaCreditoId] = useState(gasto.tarjetaCreditoId || '')
+  const [fechaPago, setFechaPago] = useState(gasto.fechaPago || new Date().toISOString().split('T')[0])
   const { data: tarjetas } = useFetchTarjetas()
   const yaPagado = gasto.estaConciliado || !!gasto.montoFinal
 
@@ -40,6 +41,7 @@ export default function GastoActionModal({ open, gasto, tipo, onEdit, onPay, onC
       montoReal: Number(montoReal) || gasto.monto,
       medioDePago: medioDePago || undefined,
       tarjetaCreditoId: medioDePago === 'tarjeta_credito' ? tarjetaCreditoId : undefined,
+      fechaPago: fechaPago || undefined,
     })
   }
 
@@ -164,6 +166,16 @@ export default function GastoActionModal({ open, gasto, tipo, onEdit, onPay, onC
                         />
                       </div>
                     )}
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-medium text-ink-muted tracking-wide uppercase mb-1.5 block">📅 Fecha de pago</label>
+                    <input
+                      type="date"
+                      value={fechaPago}
+                      onChange={(e) => setFechaPago(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-ink focus:border-primary/50 focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+                    />
                   </div>
 
                   <button

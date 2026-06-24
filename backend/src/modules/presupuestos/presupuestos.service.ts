@@ -515,6 +515,7 @@ export class PresupuestosService {
     _carteraIdOverride?: string,
     medioDePago?: string,
     tarjetaCreditoId?: string,
+    fechaPago?: string,
   ) {
     const ref = this.firebaseService.firestore.collection('presupuestos').doc(presupuestoId).collection('gastos').doc(gastoId);
     const doc = await ref.get();
@@ -526,6 +527,7 @@ export class PresupuestosService {
     if (montoReal !== undefined) updateData.montoFinal = montoReal;
     if (medioDePago !== undefined) updateData.medioDePago = medioDePago;
     if (tarjetaCreditoId !== undefined) updateData.tarjetaCreditoId = tarjetaCreditoId;
+    if (fechaPago !== undefined) updateData.fechaPago = fechaPago;
     await ref.update(updateData);
 
     if (medioDePago === 'tarjeta_credito' && tarjetaCreditoId) {

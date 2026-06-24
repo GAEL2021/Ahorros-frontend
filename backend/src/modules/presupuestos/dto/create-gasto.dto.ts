@@ -49,4 +49,5 @@ export class PagarGastoDto {
   @IsOptional() @IsString() carteraId?: string;
   @IsOptional() @IsString() @IsIn(['efectivo', 'debito', 'tarjeta_credito']) medioDePago?: string;
   @IsOptional() @IsString() tarjetaCreditoId?: string;
+  @IsOptional() @IsString() fechaPago?: string;
 }

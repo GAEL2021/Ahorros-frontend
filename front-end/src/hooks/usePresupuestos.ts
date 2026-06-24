@@ -121,13 +121,14 @@ export function useCerrarMes() {
 
 export function usePagarGasto() {
   const qc = useQueryClient()
-  return useMutation<unknown, Error, { gastoId: string; presupuestoId: string; montoReal?: number; carteraId?: string; medioDePago?: string; tarjetaCreditoId?: string }>({
-    mutationFn: async ({ gastoId, presupuestoId, montoReal, carteraId, medioDePago, tarjetaCreditoId }) => {
+  return useMutation<unknown, Error, { gastoId: string; presupuestoId: string; montoReal?: number; carteraId?: string; medioDePago?: string; tarjetaCreditoId?: string; fechaPago?: string }>({
+    mutationFn: async ({ gastoId, presupuestoId, montoReal, carteraId, medioDePago, tarjetaCreditoId, fechaPago }) => {
       const body: any = {}
       if (montoReal !== undefined) body.montoReal = montoReal
       if (carteraId) body.carteraId = carteraId
       if (medioDePago) body.medioDePago = medioDePago
       if (tarjetaCreditoId) body.tarjetaCreditoId = tarjetaCreditoId
+      if (fechaPago) body.fechaPago = fechaPago
       const { data } = await apiClient.post(`/presupuestos/${presupuestoId}/gastos/${gastoId}/pagar`, body)
       return data
     },

@@ -405,7 +405,6 @@ function CreateModal({ open, onClose }: { open: boolean; onClose: () => void }) 
 
 function AddGastoModal({ open, onClose, presupuestoId, mostrarQ, fechaPreset }: { open: boolean; onClose: () => void; presupuestoId: string; mostrarQ: boolean; fechaPreset?: string }) {
   const addGasto = useAddGasto(presupuestoId)
-  const { data: tarjetas } = useFetchTarjetas()
   const [desc, setDesc] = useState('')
   const [monto, setMonto] = useState(0)
   const [cat, setCat] = useState<'fijos' | 'ocio' | 'ahorro'>('fijos')
@@ -414,8 +413,7 @@ function AddGastoModal({ open, onClose, presupuestoId, mostrarQ, fechaPreset }: 
   const [esRecurrente, setEsRecurrente] = useState(false)
   const [recurrenciaTipo, setRecurrenciaTipo] = useState<'mensual' | 'quincenal'>('mensual')
   const [cuotas, setCuotas] = useState(0)
-  const [medioDePago, setMedioDePago] = useState<'efectivo' | 'debito' | 'tarjeta_credito' | ''>('')
-  const [tarjetaCreditoId, setTarjetaCreditoId] = useState('')
+
 
   useEffect(() => { if (fechaPreset) setFecha(fechaPreset) }, [fechaPreset])
 
@@ -440,10 +438,8 @@ function AddGastoModal({ open, onClose, presupuestoId, mostrarQ, fechaPreset }: 
         payload.cuotas = cuotas
         payload.fechaOrigen = fecha
       }
-      if (medioDePago) payload.medioDePago = medioDePago
-      if (medioDePago === 'tarjeta_credito' && tarjetaCreditoId) payload.tarjetaCreditoId = tarjetaCreditoId
       await addGasto.mutateAsync(payload)
-      setDesc(''); setMonto(0); setCat('fijos'); setQuincena(''); setFecha(new Date().toISOString().split('T')[0]); setEsRecurrente(false); setRecurrenciaTipo('mensual'); setCuotas(0); setMedioDePago(''); setTarjetaCreditoId('')
+      setDesc(''); setMonto(0); setCat('fijos'); setQuincena(''); setFecha(new Date().toISOString().split('T')[0]); setEsRecurrente(false); setRecurrenciaTipo('mensual'); setCuotas(0)
       sileo.success('Gasto registrado')
       onClose()
     } catch { sileo.error('Error') }
@@ -479,26 +475,7 @@ function AddGastoModal({ open, onClose, presupuestoId, mostrarQ, fechaPreset }: 
                'Dinero que apartas para tu futuro. Se deposita automáticamente en tu cartera de Ahorros.'}
             </p>
           </div>
-          <div>
-            <label className="mb-1 block text-[11px] font-semibold text-ink-muted">💳 Medio de pago</label>
-            <div className="flex rounded-xl border border-border overflow-hidden">
-              {(['efectivo', 'debito', 'tarjeta_credito'] as const).map((mp) => (
-                <button key={mp} type="button" onClick={() => { setMedioDePago(mp); if (mp !== 'tarjeta_credito') setTarjetaCreditoId('') }} className={`flex-1 py-2 text-xs font-semibold transition-colors ${medioDePago === mp ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:bg-surface'}`}>
-                  {mp === 'efectivo' ? '💵 Efectivo' : mp === 'debito' ? '💳 Débito' : '🏦 Tarjeta'}
-                </button>
-              ))}
-            </div>
-            {medioDePago === 'tarjeta_credito' && (
-              <div className="mt-2">
-                <SearchableSelect
-                  options={(tarjetas ?? []).map((t) => ({ value: t.id, label: `${t.nombre} - Disp: $${(t.limiteCredito - t.saldoUtilizado).toLocaleString()}` }))}
-                  value={tarjetaCreditoId}
-                  onChange={setTarjetaCreditoId}
-                  placeholder="Seleccionar tarjeta"
-                />
-              </div>
-            )}
-          </div>
+
           <div>
             <label className="mb-1 block text-[11px] font-semibold text-ink-muted">📅 Fecha del gasto</label>
             <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-ink focus:border-primary/50 focus:outline-none" />
@@ -1300,13 +1277,14 @@ export default function PresupuestosPage() {
     setGastoAction({ gasto, presupuestoId })
   }
 
-  const handlePayGasto = async (data: { montoReal: number; medioDePago?: string; tarjetaCreditoId?: string }) => {
+  const handlePayGasto = async (data: { montoReal: number; medioDePago?: string; tarjetaCreditoId?: string; fechaPago?: string }) => {
     if (!gastoAction) return
     try {
       const { gasto, presupuestoId } = gastoAction
       const payload: any = { gastoId: gasto.id, presupuestoId, montoReal: data.montoReal }
       if (data.medioDePago) payload.medioDePago = data.medioDePago
       if (data.tarjetaCreditoId) payload.tarjetaCreditoId = data.tarjetaCreditoId
+      if (data.fechaPago) payload.fechaPago = data.fechaPago
       await pagarGasto.mutateAsync(payload)
       sileo.success(`✅ "${gasto.descripcion}" liquidado por $${data.montoReal.toLocaleString()}`)
       setGastoAction(null)
